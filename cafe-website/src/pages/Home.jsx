@@ -1,26 +1,23 @@
-// pages/Home.jsx
-import React from 'react';
-import { Link } from 'react-router-dom';
-
-const Home = () => {
-  return (
-    <div className="home-page">
-      <div className="hero-section">
-        <div className="hero-content">
-          <h1>欢迎来到 Urban Coffee</h1>
-          <p>发现精品咖啡的独特风味</p>
-          <Link to="/menu" className="cta-button">查看菜单</Link>
+// 在 Home.jsx 中添加
+<div className="featured-products">
+  <h2 className="section-title">特色咖啡</h2>
+  
+  {/* 添加多个产品项 */}
+  <div className="products-grid">
+    {Array.from({ length: 20 }).map((_, index) => (
+      <div key={index} className="product-card">
+        <div className="product-image">
+          <div className="image-placeholder"></div>
+        </div>
+        <div className="product-details">
+          <h3 className="product-name">特色咖啡 {index + 1}</h3>
+          <p>描述内容...</p>
+          <div className="product-footer">
+            <span className="roast-type">中焙</span>
+            <span className="product-price">$12.99</span>
+          </div>
         </div>
       </div>
-      
-      <div className="container">
-        <div className="featured-products">
-          <h2 className="section-title">特色咖啡</h2>
-          {/* 这里可以添加特色产品展示 */}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default Home;
+    ))}
+  </div>
+</div>
