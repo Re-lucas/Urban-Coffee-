@@ -1,31 +1,50 @@
 // pages/Checkout.jsx
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import '../styles/checkout.css';
 
 const Checkout = () => {
+  const navigate = useNavigate();
   const { cartItems, totalPrice, clearCart } = useCart();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     address: '',
-    city: '',
-    zip: '',
+    city: '温哥华',
+    postalCode: '',
     phone: ''
   });
+  
+  const [paymentMethod, setPaymentMethod] = useState('creditCard');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
   
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // 这里处理订单提交逻辑
-    console.log('提交订单:', { ...formData, items: cartItems, total: totalPrice });
-    // 清空购物车
-    clearCart();
-    // 跳转到成功页面
-    alert('订单已提交！');
+    setIsSubmitting(true);
+    
+    try {
+      // 模拟API请求
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // 生成随机订单ID
+      const orderId = `ORD-${Date.now().toString().slice(-6)}`;
+      
+      // 清空购物车
+      clearCart();
+      
+      // 导航到确认页面
+      navigate(`/order-confirmation/${orderId}`);
+    } catch (error) {
+      console.error('订单提交失败:', error);
+      alert('订单提交失败，请重试');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -35,7 +54,174 @@ const Checkout = () => {
         <form className="checkout-form" onSubmit={handleSubmit}>
           <div className="form-section">
             <h2>收货信息</h2>
-            {/* 表单字段 */}
+            <div className="form-group">
+              <label htmlFor="name">姓名</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="email">邮箱</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="address">地址</label>
+              <input
+                type="text"
+                id="address"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="city">城市</label>
+                <select
+                  id="city"
+                  name="city"
+                  value={formData.city}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="温哥华">温哥华</option>
+                  <option value="本拿比">本拿比</option>
+                  <option value="列治文">列治文</option>
+                  <option value="素里">素里</option>
+                </select>
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="postalCode">邮编</label>
+                <input
+                  type="text"
+                  id="postalCode"
+                  name="postalCode"
+                  value={formData.postalCode}
+                  onChange={handleChange}
+                  pattern="[A-Za-z][0-9][A-Za-z] [0-9][A-Za-z][0-9]"
+                  placeholder="例如: V6B 1A1"
+                  required
+                />
+              </div>
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="phone">电话</label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+                placeholder="例如: 604-123-4567"
+                required
+              />
+            </div>
+          </div>
+          
+          <div className="payment-section">
+            <h2>支付方式</h2>
+            <div className="payment-methods">
+              <label className={`payment-option ${paymentMethod === 'creditCard' ? 'active' : ''}`}>
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="creditCard"
+                  checked={paymentMethod === 'creditCard'}
+                  onChange={() => setPaymentMethod('creditCard')}
+                />
+                <div className="payment-content">
+                  <span>信用卡/借记卡</span>
+                  <div className="card-icons">
+                    <span>VISA</span>
+                    <span>MasterCard</span>
+                  </div>
+                </div>
+              </label>
+              
+              <label className={`payment-option ${paymentMethod === 'paypal' ? 'active' : ''}`}>
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="paypal"
+                  checked={paymentMethod === 'paypal'}
+                  onChange={() => setPaymentMethod('paypal')}
+                />
+                <div className="payment-content">
+                  <span>PayPal</span>
+                </div>
+              </label>
+              
+              <label className={`payment-option ${paymentMethod === 'cash' ? 'active' : ''}`}>
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="cash"
+                  checked={paymentMethod === 'cash'}
+                  onChange={() => setPaymentMethod('cash')}
+                />
+                <div className="payment-content">
+                  <span>到店付款</span>
+                </div>
+              </label>
+            </div>
+            
+            {paymentMethod === 'creditCard' && (
+              <div className="card-details">
+                <div className="form-group">
+                  <label htmlFor="cardNumber">卡号</label>
+                  <input
+                    type="text"
+                    id="cardNumber"
+                    placeholder="1234 5678 9012 3456"
+                    pattern="[0-9]{4} [0-9]{4} [0-9]{4} [0-9]{4}"
+                    required
+                  />
+                </div>
+                
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="expiryDate">有效期</label>
+                    <input
+                      type="text"
+                      id="expiryDate"
+                      placeholder="MM/YY"
+                      pattern="(0[1-9]|1[0-2])\/[0-9]{2}"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="form-group">
+                    <label htmlFor="cvv">CVV</label>
+                    <input
+                      type="text"
+                      id="cvv"
+                      placeholder="123"
+                      pattern="[0-9]{3}"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
           
           <div className="order-summary">
@@ -43,18 +229,38 @@ const Checkout = () => {
             <div className="order-items">
               {cartItems.map(item => (
                 <div key={item.id} className="order-item">
-                  <span>{item.name} x {item.quantity}</span>
-                  <span>${(item.price * item.quantity).toFixed(2)}</span>
+                  <div className="item-info">
+                    <span>{item.name}</span>
+                    <span>x {item.quantity}</span>
+                  </div>
+                  <span className="item-price">${(item.price * item.quantity).toFixed(2)}</span>
                 </div>
               ))}
             </div>
+            
             <div className="order-total">
-              <span>总计:</span>
+              <span>小计:</span>
               <span>${totalPrice.toFixed(2)}</span>
             </div>
+            
+            <div className="order-total">
+              <span>税费 (12%):</span>
+              <span>${(totalPrice * 0.12).toFixed(2)}</span>
+            </div>
+            
+            <div className="order-total grand-total">
+              <span>总计:</span>
+              <span>${(totalPrice * 1.12).toFixed(2)}</span>
+            </div>
+            
+            <button 
+              type="submit" 
+              className="submit-order"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? '处理中...' : '提交订单'}
+            </button>
           </div>
-          
-          <button type="submit" className="submit-order">提交订单</button>
         </form>
       </div>
     </div>

@@ -1,0 +1,82 @@
+.order-confirmation-page {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  padding: 40px 0;
+}
+
+.confirmation-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.checkmark {
+  font-size: 4rem;
+  color: #4CAF50;
+  margin-bottom: 20px;
+}
+
+.confirmation-card h1 {
+  color: var(--coffee-primary);
+  margin-bottom: 15px;
+}
+
+.order-id {
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 25px;
+  font-weight: 500;
+}
+
+.message {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
+
+.next-steps {
+  margin-top: 30px;
+}
+
+.next-steps p {
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.btn {
+  padding: 12px 25px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.home-btn {
+  background: var(--coffee-primary);
+  color: white;
+}
+
+.home-btn:hover {
+  background: #5a3d2a;
+}
+
+.menu-btn {
+  background: var(--coffee-light);
+  color: var(--coffee-primary);
+  border: 1px solid var(--coffee-primary);
+}
+
+.menu-btn:hover {
+  background: #e8e0d3;
+}
