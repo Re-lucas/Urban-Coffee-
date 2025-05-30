@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FiMenu, FiX } from 'react-icons/fi';
+import CartIcon from './CartIcon'; // 导入购物车图标
 import '../styles/navbar.css';
 
 const Navbar = () => {
@@ -10,7 +11,7 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="container">
-        <Link to="/" className="logo">Urban Coffee</Link>
+        <Link to="/" className="logo" onClick={() => setIsMenuOpen(false)}>Urban Coffee</Link>
         
         <div className={`nav-links ${isMenuOpen ? 'active' : ''}`}>
           <Link to="/" onClick={() => setIsMenuOpen(false)}>首页</Link>
@@ -20,8 +21,11 @@ const Navbar = () => {
           <Link to="/blog" onClick={() => setIsMenuOpen(false)}>博客</Link>
         </div>
         
-        <div className="mobile-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-          {isMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+        <div className="nav-right">
+          <CartIcon /> {/* 添加购物车图标 */}
+          <div className="mobile-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            {isMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+          </div>
         </div>
       </div>
     </nav>
