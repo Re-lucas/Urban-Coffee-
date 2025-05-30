@@ -1,9 +1,11 @@
 // pages/OrderConfirmation.jsx
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import '../styles/order-confirmation.css';
 
-const OrderConfirmation = ({ orderId }) => {
+const OrderConfirmation = () => {
+  const { orderId } = useParams();
+
   return (
     <div className="order-confirmation-page">
       <div className="container">
