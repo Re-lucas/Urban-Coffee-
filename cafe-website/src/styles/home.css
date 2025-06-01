@@ -1,16 +1,12 @@
 /* styles/home.css */
-
-/* 确保主页内容区域可滚动 */
 .home-page {
-  display: flex;
-  flex-direction: column;
+  display: block;
 }
 
 /* 英雄区域样式 */
 .hero-section {
-  height: 100vh; /* 使用视口高度 */
-  min-height: 700px; /* 保留最小高度 */
-  /* 其他样式保持不变 */
+  height: 100vh;
+  min-height: 700px;
   background: linear-gradient(rgba(111, 78, 55, 0.7), rgba(111, 78, 55, 0.7)), 
               url('https://images.unsplash.com/photo-1498804103079-a6351b050096?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80');
   background-size: cover;
@@ -21,12 +17,6 @@
   color: white;
   text-align: center;
   position: relative;
-}
-
-/* 添加滚动内容容器 */
-.scrollable-content {
-  flex: 1;
-  overflow-y: auto; /* 启用滚动 */
 }
 
 .hero-content {
@@ -91,8 +81,19 @@
 }
 
 /* 特色区域样式 */
-.featured-section {
+.featured-section, 
+.story-section, 
+.process-section, 
+.featured-drinks, 
+.testimonials-section, 
+.blog-preview-section, 
+.subscription-section, 
+.gallery-section, 
+.contact-section {
   padding: 80px 0;
+}
+
+.featured-section {
   background-color: var(--coffee-light);
 }
 
@@ -162,7 +163,7 @@
   text-align: center;
   padding: 0 20px;
   color: #666;
-  min-height: 60px;
+  min-height: 80px;
 }
 
 .featured-link {
@@ -180,13 +181,12 @@
   background-color: #5a3d2a;
 }
 
-/* 关于预览区域 */
-.about-preview-section {
-  padding: 80px 0;
+/* 咖啡故事区域 */
+.story-section {
   background: white;
 }
 
-.about-preview-content {
+.story-content {
   display: grid;
   grid-template-columns: 1fr;
   gap: 40px;
@@ -194,17 +194,17 @@
   margin: 0 auto;
 }
 
-.about-text {
+.story-text {
   padding: 20px;
 }
 
-.about-text p {
+.story-text p {
   margin-bottom: 20px;
   font-size: 1.1rem;
   line-height: 1.8;
 }
 
-.about-image {
+.story-image {
   height: 400px;
   background: url('https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80');
   background-size: cover;
@@ -214,7 +214,6 @@
 
 /* 制作过程区域 */
 .process-section {
-  padding: 80px 0;
   background-color: var(--coffee-light);
 }
 
@@ -258,10 +257,68 @@
   margin-bottom: 15px;
 }
 
+/* 特色饮品区域 */
+.featured-drinks {
+  background: white;
+}
+
+.drinks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.drink-item {
+  display: flex;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.drink-image {
+  width: 150px;
+  background-size: cover;
+  background-position: center;
+}
+
+.drink-image.latte {
+  background-image: url('https://images.unsplash.com/photo-1572442388796-11668a67e53d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1035&q=80');
+}
+
+.drink-image.coldbrew {
+  background-image: url('https://images.unsplash.com/photo-1593229874334-90b9651b68d5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80');
+}
+
+.drink-image.matcha {
+  background-image: url('https://images.unsplash.com/photo-1603569283847-aa295f0d016a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80');
+}
+
+.drink-info {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.drink-info h3 {
+  color: var(--coffee-primary);
+  margin-bottom: 10px;
+}
+
+.price {
+  font-weight: bold;
+  color: var(--coffee-primary);
+  font-size: 1.2rem;
+  margin-top: 10px;
+}
+
 /* 客户评价区域 */
 .testimonials-section {
-  padding: 80px 0;
-  background: white;
+  background: var(--coffee-light);
 }
 
 .testimonials-grid {
@@ -273,7 +330,7 @@
 }
 
 .testimonial-card {
-  background: var(--coffee-light);
+  background: white;
   border-radius: 10px;
   padding: 30px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
@@ -341,8 +398,7 @@
 
 /* 博客预览区域 */
 .blog-preview-section {
-  padding: 80px 0;
-  background-color: var(--coffee-light);
+  background: white;
 }
 
 .blog-preview-header {
@@ -368,7 +424,7 @@
 
 .blog-posts {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 40px;
   max-width: 1200px;
   margin: 0 auto;
@@ -376,7 +432,7 @@
 
 .blog-post {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   background: white;
   border-radius: 10px;
   overflow: hidden;
@@ -397,11 +453,16 @@
   background-image: url('https://images.unsplash.com/photo-1512309666120-95fb5b5d0d73?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80');
 }
 
+.post-image.origin {
+  background-image: url('https://images.unsplash.com/photo-1463797221720-6b07e6426c24?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2071&q=80');
+}
+
 .post-content {
   padding: 25px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
+  min-height: 200px;
 }
 
 .post-content h3 {
@@ -428,10 +489,108 @@
   color: #5a3d2a;
 }
 
+/* 订阅区域 */
+.subscription-section {
+  background: var(--coffee-light);
+}
+
+.subscription-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  align-items: center;
+}
+
+.subscription-image {
+  height: 400px;
+  background: url('https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80');
+  background-size: cover;
+  background-position: center;
+  border-radius: 10px;
+}
+
+.subscription-info {
+  padding: 30px;
+}
+
+.subscription-info h2 {
+  color: var(--coffee-primary);
+  margin-bottom: 20px;
+}
+
+.benefits {
+  margin: 25px 0;
+  padding-left: 20px;
+}
+
+.benefits li {
+  margin-bottom: 10px;
+  position: relative;
+  padding-left: 25px;
+}
+
+.benefits li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--coffee-secondary);
+  font-weight: bold;
+}
+
+.pricing {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+.price {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: var(--coffee-primary);
+}
+
+/* 店铺环境区域 */
+.gallery-section {
+  background: white;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.gallery-item {
+  height: 300px;
+  border-radius: 10px;
+  background-size: cover;
+  background-position: center;
+}
+
+.gallery-item.shop1 {
+  background-image: url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+}
+
+.gallery-item.shop2 {
+  background-image: url('https://images.unsplash.com/photo-1516733968668-dbdce39c4651?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2069&q=80');
+}
+
+.gallery-item.shop3 {
+  background-image: url('https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80');
+}
+
+.gallery-item.shop4 {
+  background-image: url('https://images.unsplash.com/photo-1554119928-1d3faa797d9a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+}
+
 /* 联系区域 */
 .contact-section {
-  padding: 80px 0;
-  background: white;
+  background: var(--coffee-light);
 }
 
 .contact-content {
@@ -444,8 +603,9 @@
 
 .contact-info {
   padding: 30px;
-  background: var(--coffee-light);
+  background: white;
   border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
 }
 
 .contact-info h2 {
@@ -498,11 +658,15 @@
 
 /* 响应式设计 */
 @media (min-width: 768px) {
-  .about-preview-content {
+  .story-content {
     grid-template-columns: 1fr 1fr;
   }
   
   .contact-content {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .subscription-content {
     grid-template-columns: 1fr 1fr;
   }
 }
@@ -516,15 +680,12 @@
     font-size: 1.4rem;
   }
   
-  .blog-posts {
-    grid-template-columns: 1fr;
+  .drink-item {
+    flex-direction: column;
   }
   
-  .blog-post {
-    grid-template-columns: 1fr;
-  }
-  
-  .post-image {
+  .drink-image {
+    width: 100%;
     height: 200px;
   }
 }
