@@ -1,4 +1,4 @@
-/* styles/theme.css */
+/* 定义主题变量 */
 :root {
   /* 日间模式 */
   --bg-primary: #F5F0E6;
@@ -9,6 +9,9 @@
   --accent-secondary: #B99976;
   --navbar-bg: #6F4E37;
   --navbar-text: #FFFFFF;
+  --hero-text: #FFFFFF;
+  --button-bg: #B99976;
+  --button-hover: #a07e5e;
 }
 
 [data-theme="dark"] {
@@ -21,4 +24,7 @@
   --accent-secondary: #D7CCC8;
   --navbar-bg: #4E342E;
   --navbar-text: #EFEBE9;
+  --hero-text: #EFEBE9;
+  --button-bg: #7E5C4C;
+  --button-hover: #6D4C41;
 }
