@@ -1,0 +1,24 @@
+/* styles/theme.css */
+:root {
+  /* 日间模式 */
+  --bg-primary: #F5F0E6;
+  --bg-secondary: #FFFFFF;
+  --text-primary: #333333;
+  --text-secondary: #6F4E37;
+  --accent-primary: #6F4E37;
+  --accent-secondary: #B99976;
+  --navbar-bg: #6F4E37;
+  --navbar-text: #FFFFFF;
+}
+
+[data-theme="dark"] {
+  /* 夜间模式 */
+  --bg-primary: #3E2723;
+  --bg-secondary: #5D4037;
+  --text-primary: #EFEBE9;
+  --text-secondary: #D7CCC8;
+  --accent-primary: #B99976;
+  --accent-secondary: #D7CCC8;
+  --navbar-bg: #4E342E;
+  --navbar-text: #EFEBE9;
+}

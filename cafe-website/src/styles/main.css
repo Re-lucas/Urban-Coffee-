@@ -164,3 +164,19 @@ html, body {
   flex: 1;
   overflow-y: auto; /* 关键：允许内容区域滚动 */
 }
+
+@import './theme.css';
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.navbar {
+  background-color: var(--navbar-bg);
+  color: var(--navbar-text);
+}
+
+.product-card, .cart-panel, .checkout-form {
+  background-color: var(--bg-secondary);
+}

@@ -1,12 +1,14 @@
 // components/Navbar.jsx
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { FiMenu, FiX } from 'react-icons/fi';
-import CartIcon from './CartIcon'; // 导入购物车图标
+import CartIcon from './CartIcon';
+import { ThemeContext } from '../context/ThemeContext'; // 导入主题上下文
 import '../styles/navbar.css';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { theme, toggleTheme } = useContext(ThemeContext); // 获取主题状态和切换函数
 
   return (
     <nav className="navbar">
@@ -19,10 +21,27 @@ const Navbar = () => {
           <Link to="/about" onClick={() => setIsMenuOpen(false)}>关于我们</Link>
           <Link to="/contact" onClick={() => setIsMenuOpen(false)}>联系方式</Link>
           <Link to="/blog" onClick={() => setIsMenuOpen(false)}>博客</Link>
+          {/* 移动端显示的主题切换按钮 */}
+          <button 
+            onClick={() => {
+              toggleTheme();
+              setIsMenuOpen(false);
+            }} 
+            className="theme-toggle mobile-only"
+          >
+            {theme === 'light' ? '🌙' : '☀️'}
+          </button>
         </div>
         
         <div className="nav-right">
-          <CartIcon /> {/* 添加购物车图标 */}
+          <CartIcon />
+          {/* 桌面端显示的主题切换按钮 */}
+          <button 
+            onClick={toggleTheme} 
+            className="theme-toggle desktop-only"
+          >
+            {theme === 'light' ? '🌙' : '☀️'}
+          </button>
           <div className="mobile-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {isMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
           </div>
