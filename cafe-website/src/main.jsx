@@ -11,6 +11,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { WishlistProvider } from './context/WishlistContext';
 
 import { OrderProvider } from './context/OrderContext';
+import { ReviewProvider } from './context/ReviewContext';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -20,7 +21,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <CartProvider>
             <WishlistProvider>
               <OrderProvider>
-                <App />
+                <ReviewProvider>
+                  <App />
+                </ReviewProvider>
               </OrderProvider>
             </WishlistProvider>
           </CartProvider>
