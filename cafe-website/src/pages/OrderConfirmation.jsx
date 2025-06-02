@@ -11,12 +11,20 @@ const OrderConfirmation = () => {
 
   useEffect(() => {
     const o = getOrderById(orderId);
-    setOrder(o);
-  }, [orderId]);
+    setOrder(o || null);
+  }, [orderId, getOrderById]);
 
   if (!order) {
     return <p>正在加载订单详情…</p>;
   }
+
+  // 安全处理：确保所有金额值都是数字类型
+  const safeTotalPrice = typeof order.totalPrice === 'number' ? order.totalPrice : 0;
+  const safeShippingFee = typeof order.shippingFee === 'number' ? order.shippingFee : 0;
+  const safeFinalPrice = 
+    typeof order.finalPrice === 'number' 
+      ? order.finalPrice 
+      : safeTotalPrice + safeShippingFee;
 
   return (
     <div className="order-confirmation-page">
@@ -35,15 +43,20 @@ const OrderConfirmation = () => {
         ))}
         <div className="price-detail">
           <span>商品合计：</span>
-          <span>¥{order.totalPrice.toFixed(2)}</span>
+          <span>¥{safeTotalPrice.toFixed(2)}</span>
         </div>
         <div className="price-detail">
           <span>运费：</span>
-          <span>{order.shippingFee === 0 ? '包邮' : `¥${order.shippingFee.toFixed(2)}`}</span>
+          <span>
+            {safeShippingFee === 0 
+              ? '包邮' 
+              : `¥${safeShippingFee.toFixed(2)}`
+            }
+          </span>
         </div>
         <div className="price-detail total">
           <span>支付金额：</span>
-          <span>¥{order.finalPrice.toFixed(2)}</span>
+          <span>¥{safeFinalPrice.toFixed(2)}</span>
         </div>
       </div>
 

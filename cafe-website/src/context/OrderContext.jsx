@@ -1,58 +1,47 @@
-/* src/context/OrderContext.jsx */
+// src/context/OrderContext.jsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { v4 as uuidv4 } from 'uuid'; // 生成订单 ID
+import { v4 as uuidv4 } from 'uuid';
 
-// 1. 创建 Context
 const OrderContext = createContext();
 export const useOrder = () => useContext(OrderContext);
 
 export function OrderProvider({ children }) {
-  // 2. 从 localStorage 读取已有订单记录
+  // 从 localStorage 读取已有订单（如果没有，则为空数组）
   const [orders, setOrders] = useState(() => {
     const saved = localStorage.getItem('orders');
     return saved ? JSON.parse(saved) : [];
   });
 
-  // 3. 当 orders 改变时，写回 localStorage
+  // 当 orders 变化时写回 localStorage
   useEffect(() => {
     localStorage.setItem('orders', JSON.stringify(orders));
   }, [orders]);
 
-  // 4. addOrder: 在结算后调用，创建一条新的订单记录
-  //    订单内容包括： id、items 数组、totalPrice、shippingFee、status、createTime、trackingNumber 等
+  // addOrder：必须解构接收 totalPrice 和 shippingFee，并把它们写入 newOrder
   const addOrder = ({ items, totalPrice, shippingFee }) => {
     const newOrder = {
       id: uuidv4(),
-      items,             // 格式：[{ id, name, price, quantity, … }, …]
-      totalPrice,        // 商品总价（不含运费）
-      shippingFee,       // 运费
-      finalPrice: totalPrice + shippingFee,
-      status: '待发货',  // 初始状态：可模拟流程“待发货→已发货→已完成”
+      items,                                 // 购物车商品列表
+      totalPrice,                            // 一定要赋值
+      shippingFee,                           // 一定要赋值
+      finalPrice: totalPrice + shippingFee,  // 最终支付金额
+      status: '待发货',
       createTime: new Date().toISOString(),
-      trackingNumber: `UC${Date.now().toString().slice(-8)}`, // 模拟快递单号
+      trackingNumber: `UC${Date.now().toString().slice(-8)}`,
     };
-    setOrders((prev) => [newOrder, ...prev]); // 新单插到最前面
+    setOrders((prev) => [newOrder, ...prev]);
     return newOrder.id;
   };
 
-  // 5. updateOrderStatus: 模拟“发货”和“完成”，更新某笔订单的 status
-  const updateOrderStatus = (orderId, newStatus) => {
+  const getOrderById = (orderId) => orders.find((o) => o.id === orderId);
+  const updateOrderStatus = (orderId, status) => {
     setOrders((prev) =>
-      prev.map((order) =>
-        order.id === orderId ? { ...order, status: newStatus } : order
-      )
+      prev.map((o) => (o.id === orderId ? { ...o, status } : o))
     );
   };
 
-  // 6. getOrderById: 查询单笔订单详情
-  const getOrderById = (orderId) => {
-    return orders.find((order) => order.id === orderId);
-  };
-
   return (
-    <OrderContext.Provider
-      value={{ orders, addOrder, updateOrderStatus, getOrderById }}
-    >
+    <OrderContext.Provider value={{ orders, addOrder, getOrderById, updateOrderStatus }}>
       {children}
     </OrderContext.Provider>
   );
