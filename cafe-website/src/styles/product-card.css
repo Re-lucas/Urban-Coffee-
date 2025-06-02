@@ -98,3 +98,9 @@
 .out-of-stock {
   opacity: 0.7;
 }
+
+/* 关键词高亮的样式 */
+.highlight {
+  background-color: #fffa8c; /* 浅黄色背景 */
+  color: #333;
+}

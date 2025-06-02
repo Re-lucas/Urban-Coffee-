@@ -25,6 +25,7 @@ const Navbar = () => {
           <Link to="/contact" onClick={() => setIsMenuOpen(false)}>联系方式</Link>
           <Link to="/blog" onClick={() => setIsMenuOpen(false)}>博客</Link>
           <Link to="/account" onClick={() => setIsMenuOpen(false)}>我的账户</Link> {/* 新增 */}
+          <Link to="/login"    onClick={() => setIsMenuOpen(false)}>登录</Link>
 
           {/* 移动端显示的主题切换按钮 */}
           <button
