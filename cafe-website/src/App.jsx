@@ -21,6 +21,7 @@ import './styles/main.css';
 
 import { CartProvider }  from './context/CartContext';
 import { ThemeProvider } from './context/ThemeContext';
+import ProductDetail from './pages/ProductDetail';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
             <Routes>
               <Route path="/"   element={<Home />} />
               <Route path="/menu" element={<Menu />} />
+              <Route path="/product/:productId"   element={<ProductDetail />} />
               <Route path="/reservation" element={<Reservation />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />

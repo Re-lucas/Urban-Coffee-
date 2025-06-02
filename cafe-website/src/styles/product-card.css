@@ -1,4 +1,4 @@
-/* styles/product-card.css */
+/* 商品卡片整体样式 */
 .product-card {
   background: white;
   border-radius: 8px;
@@ -6,16 +6,22 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .product-card:hover {
   transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
+/* 商品图片区域 */
 .product-image {
   height: 200px;
-  background-color: #eee;
+  background-color: #f8f5f0;
   position: relative;
+  overflow: hidden;
 }
 
 .image-placeholder {
@@ -23,8 +29,15 @@
   height: 100%;
   background: linear-gradient(135deg, #6F4E37 0%, #B99976 100%);
   opacity: 0.7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.2rem;
+  font-weight: 600;
 }
 
+/* 库存标签 */
 .stock-badge {
   position: absolute;
   top: 10px;
@@ -37,48 +50,134 @@
   font-weight: bold;
 }
 
+/* 商品信息区域 */
 .product-info {
   padding: 15px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-.product-info h3 {
-  color: var(--coffee-primary);
+.product-info-link {
+  text-decoration: none;
+  color: inherit;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-name {
+  color: #6f4e37;
   margin-bottom: 10px;
   font-size: 1.2rem;
+  font-weight: 600;
+  min-height: 3.2rem;
 }
 
-.product-info p {
+/* 评分区域 */
+.product-rating {
+  margin-bottom: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stars-container {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.star {
+  color: #ffc107;
+  font-size: 0.9rem;
+}
+
+.rating-value {
+  margin-left: 5px;
+  font-weight: 600;
+  color: #6f4e37;
+  font-size: 0.9rem;
+}
+
+.review-count {
+  color: #888;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+/* 商品描述 */
+.description {
   color: #666;
   font-size: 0.9rem;
-  margin-bottom: 15px;
+  margin-bottom: 12px;
+  line-height: 1.5;
+  flex-grow: 1;
 }
 
-.price-row {
+.roast-level {
+  color: #8c7b6b;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-top: auto;
+}
+
+/* 底部操作区域 */
+.product-footer {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
+  justify-content: space-between;
+  padding: 0 15px 15px;
+  margin-top: auto;
 }
 
 .price {
   font-weight: bold;
-  color: var(--coffee-primary);
+  color: #6f4e37;
   font-size: 1.1rem;
 }
 
-.add-to-cart-btn {
-  width: 100%;
-  background-color: var(--coffee-primary);
-  color: white;
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* 心愿按钮 */
+.wishlist-btn {
+  background: none;
   border: none;
-  padding: 10px;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.wishlist-btn:hover {
+  background-color: #f8f5f0;
+  transform: scale(1.1);
+}
+
+/* 加入购物车按钮 */
+.add-to-cart-btn {
+  padding: 8px 16px;
+  background-color: #6f4e37;
+  color: #fff;
+  border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-weight: 500;
   transition: background-color 0.3s;
+  min-width: 110px;
+  text-align: center;
 }
 
 .add-to-cart-btn:hover:not(:disabled) {
-  background-color: #5a3d2a;
+  background-color: #5a3e2b;
 }
 
 .add-to-cart-btn:disabled {
@@ -88,6 +187,8 @@
 
 .add-to-cart-btn.adding {
   animation: pulse 0.5s infinite alternate;
+  background-color: #aaa;
+  cursor: not-allowed;
 }
 
 @keyframes pulse {
@@ -95,56 +196,15 @@
   to { transform: scale(1.05); }
 }
 
+/* 缺货状态 */
 .out-of-stock {
   opacity: 0.7;
 }
 
-/* 关键词高亮的样式 */
+/* 关键词高亮 */
 .highlight {
-  background-color: #fffa8c; /* 浅黄色背景 */
+  background-color: #fffa8c;
   color: #333;
-}
-
-/* 6. 把“心形按钮”和“加入购物车”按钮放在一行 */
-.product-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.action-buttons {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-/* 7. 心形按钮的基础样式 */
-.wishlist-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  display: flex;
-  align-items: center;
-}
-.wishlist-btn:hover {
-  transform: scale(1.1);
-  transition: transform 0.2s;
-}
-
-/* 8. “加入购物车”按钮保留原样 */
-.add-to-cart-btn {
-  padding: 0.4rem 0.8rem;
-  background-color: #6f4e37;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-.add-to-cart-btn.adding {
-  background-color: #aaa;
-  cursor: not-allowed;
-}
-.add-to-cart-btn:hover:not(.adding) {
-  background-color: #5a3e2b;
+  padding: 0 2px;
+  border-radius: 2px;
 }

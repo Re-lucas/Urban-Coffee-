@@ -1,0 +1,85 @@
+/* src/styles/product-detail.css */
+
+.product-detail-page {
+  padding: 1rem;
+}
+.product-name {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: #6f4e37;
+}
+.detail-top {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+.product-img {
+  width: 300px;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+.product-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.price {
+  font-size: 1.5rem;
+  color: #6f4e37;
+  font-weight: bold;
+}
+.roast, .desc {
+  font-size: 1rem;
+  color: #444;
+}
+.rating-display {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+.rating-display svg {
+  margin-right: 2px;
+}
+.no-reviews {
+  color: #999;
+  font-size: 0.9rem;
+}
+
+.reviews-section {
+  margin-top: 2rem;
+}
+.reviews-section h2 {
+  font-size: 1.3rem;
+  margin-bottom: 0.8rem;
+  color: #6f4e37;
+}
+.review-item {
+  padding: 1rem;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 1rem;
+}
+.review-item:last-child {
+  border-bottom: none;
+}
+.review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.3rem;
+}
+.stars {
+  display: flex;
+  gap: 2px;
+}
+.review-content {
+  font-size: 1rem;
+  color: #333;
+}
+.review-date {
+  font-size: 0.85rem;
+  color: #666;
+}
