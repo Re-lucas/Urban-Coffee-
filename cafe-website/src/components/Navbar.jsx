@@ -20,11 +20,13 @@ const Navbar = () => {
         <div className={`nav-links ${isMenuOpen ? 'active' : ''}`}>
           <Link to="/" onClick={() => setIsMenuOpen(false)}>首页</Link>
           <Link to="/menu" onClick={() => setIsMenuOpen(false)}>菜单</Link>
-          <Link to="/reservation" onClick={() => setIsMenuOpen(false)}>预约</Link> {/* 新增 */}
+          <Link to="/reservation" onClick={() => setIsMenuOpen(false)}>预约</Link>
           <Link to="/about" onClick={() => setIsMenuOpen(false)}>关于我们</Link>
           <Link to="/contact" onClick={() => setIsMenuOpen(false)}>联系方式</Link>
           <Link to="/blog" onClick={() => setIsMenuOpen(false)}>博客</Link>
-          <Link to="/account" onClick={() => setIsMenuOpen(false)}>我的账户</Link> {/* 新增 */}
+          <Link to="/account" onClick={() => setIsMenuOpen(false)}>我的账户</Link>
+          {/* 新增心愿单链接 */}
+          <Link to="/wishlist" onClick={() => setIsMenuOpen(false)}>心愿单</Link>
           <Link to="/login"    onClick={() => setIsMenuOpen(false)}>登录</Link>
 
           {/* 移动端显示的主题切换按钮 */}

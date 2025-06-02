@@ -12,8 +12,9 @@ import Checkout         from './pages/Checkout';
 import OrderConfirmation from './pages/OrderConfirmation';
 import Reservation      from './pages/Reservation';
 import Account          from './pages/Account';
-// **新增**：导入 Login 页面
 import Login           from './pages/Login';
+// 新增：导入 Wishlist 页面
+import Wishlist         from './pages/Wishlist';
 
 import './styles/main.css';
 
@@ -37,7 +38,9 @@ function App() {
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
               <Route path="/account" element={<Account />} />
-              <Route path="/login"   element={<Login />} />  {/* 新增登录路由 */}
+              <Route path="/login"   element={<Login />} />
+              {/* 新增 wishlist 路由 */}
+              <Route path="/wishlist" element={<Wishlist />} />
             </Routes>
           </main>
           <footer className="footer">
