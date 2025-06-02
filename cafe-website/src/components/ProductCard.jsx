@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { useCart } from '../context/CartContext';
-import { useWishlist } from '../context/WishlistContext'; // 新增
-import { FaHeart, FaRegHeart } from 'react-icons/fa';       // 心形图标
+import { useWishlist } from '../context/WishlistContext';
+import { useReview } from '../context/ReviewContext'; // 新增导入
+import { FaHeart, FaRegHeart, FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
 import '../styles/product-card.css';
 
 const highlightText = (text, query) => {
@@ -28,17 +29,36 @@ const highlightText = (text, query) => {
 
 const ProductCard = ({ product, searchQuery }) => {
   const { addToCart } = useCart();
-  // 1. 从心愿单 Context 中拿到相关方法与数据
   const { wishlist, addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const { getReviewsByProduct } = useReview(); // 新增
   const [inWishlist, setInWishlist] = useState(isInWishlist(product.id));
-
+  
   const [stock, setStock] = useState(product.stock || 10);
   const [isAdding, setIsAdding] = useState(false);
+  
+  // 新增：评价相关状态
+  const [avgRating, setAvgRating] = useState(0);
+  const [reviewCount, setReviewCount] = useState(0);
 
-  // 2. 当全局 wishlist 发生变化时，本地同步 inWishlist 状态
+  // 当全局 wishlist 发生变化时，同步 inWishlist 状态
   useEffect(() => {
     setInWishlist(isInWishlist(product.id));
   }, [wishlist]);
+
+  // 新增：计算商品的平均评分和评价数量
+  useEffect(() => {
+    const reviews = getReviewsByProduct(product.id);
+    const count = reviews.length;
+    
+    if (count > 0) {
+      const sum = reviews.reduce((total, review) => total + review.rating, 0);
+      setAvgRating(sum / count);
+    } else {
+      setAvgRating(0);
+    }
+    
+    setReviewCount(count);
+  }, [getReviewsByProduct, product.id]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -58,7 +78,7 @@ const ProductCard = ({ product, searchQuery }) => {
     }, 800);
   };
 
-  // 3. 点击心形图标时触发加入/移除心愿单
+  // 点击心形图标时触发加入/移除心愿单
   const handleWishlistToggle = () => {
     if (inWishlist) {
       removeFromWishlist(product.id);
@@ -69,12 +89,49 @@ const ProductCard = ({ product, searchQuery }) => {
     }
   };
 
+  // 新增：渲染星级组件
+  const renderStars = () => {
+    const stars = [];
+    const fullStars = Math.floor(avgRating);
+    const hasHalfStar = avgRating % 1 >= 0.5;
+    
+    // 添加实心星
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(<FaStar key={`full-${i}`} className="star full-star" />);
+    }
+    
+    // 添加半星
+    if (hasHalfStar) {
+      stars.push(<FaStarHalfAlt key="half" className="star half-star" />);
+    }
+    
+    // 添加空心星
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+    for (let i = 0; i < emptyStars; i++) {
+      stars.push(<FaRegStar key={`empty-${i}`} className="star empty-star" />);
+    }
+    
+    return stars;
+  };
+
   return (
     <div className="product-card">
       <div className="product-info">
         <h3 className="product-name">
           {highlightText(product.name, searchQuery)}
         </h3>
+        
+        {/* 新增：商品评价信息 */}
+        <div className="product-rating">
+          <div className="stars-container">
+            {renderStars()}
+            <span className="rating-value">{avgRating.toFixed(1)}</span>
+          </div>
+          <span className="review-count">
+            {reviewCount > 0 ? `(${reviewCount}条评价)` : '暂无评价'}
+          </span>
+        </div>
+        
         <p className="description">
           {highlightText(product.description, searchQuery)}
         </p>
