@@ -5,13 +5,12 @@ import App from './App.jsx';
 import './styles/main.css';
 import { BrowserRouter } from 'react-router-dom';
 
-// 已有 Context Provider
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { ThemeProvider } from './context/ThemeContext';
-
-// 新增：WishlistProvider
 import { WishlistProvider } from './context/WishlistContext';
+
+import { OrderProvider } from './context/OrderContext';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -20,7 +19,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <ThemeProvider>
           <CartProvider>
             <WishlistProvider>
-              <App />
+              <OrderProvider>
+                <App />
+              </OrderProvider>
             </WishlistProvider>
           </CartProvider>
         </ThemeProvider>

@@ -15,6 +15,7 @@ import Account          from './pages/Account';
 import Login           from './pages/Login';
 // 新增：导入 Wishlist 页面
 import Wishlist         from './pages/Wishlist';
+import OrderHistory from './pages/OrderHistory';
 
 import './styles/main.css';
 
@@ -41,6 +42,7 @@ function App() {
               <Route path="/login"   element={<Login />} />
               {/* 新增 wishlist 路由 */}
               <Route path="/wishlist" element={<Wishlist />} />
+              <Route path="/order-history" element={<OrderHistory />} />
             </Routes>
           </main>
           <footer className="footer">

@@ -2,11 +2,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useOrder } from '../context/OrderContext'; // 新增OrderContext导入
 import '../styles/checkout.css';
 
 const Checkout = () => {
   const navigate = useNavigate();
   const { cartItems, totalPrice, clearCart } = useCart();
+  const { addOrder } = useOrder(); // 获取addOrder函数
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -18,6 +20,17 @@ const Checkout = () => {
   
   const [paymentMethod, setPaymentMethod] = useState('creditCard');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // 新增：运费计算函数
+  const calculateShipping = (subtotal) => {
+    if (subtotal >= 200) return 0;
+    if (subtotal >= 50) return 2;
+    return 5;
+  };
+  
+  const shippingFee = calculateShipping(totalPrice);
+  const tax = totalPrice * 0.12;
+  const grandTotal = totalPrice + tax + shippingFee;
   
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -31,13 +44,21 @@ const Checkout = () => {
       // 模拟API请求
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // 生成随机订单ID
-      const orderId = `ORD-${Date.now().toString().slice(-6)}`;
+      // 生成订单并保存到OrderContext
+      const orderId = addOrder({
+        customerInfo: formData,
+        items: cartItems,
+        subtotal: totalPrice,
+        shippingFee,
+        tax,
+        total: grandTotal,
+        paymentMethod
+      });
       
       // 清空购物车
       clearCart();
       
-      // 导航到确认页面
+      // 导航到确认页面，使用实际生成的orderId
       navigate(`/order-confirmation/${orderId}`);
     } catch (error) {
       console.error('订单提交失败:', error);
@@ -243,20 +264,31 @@ const Checkout = () => {
               <span>${totalPrice.toFixed(2)}</span>
             </div>
             
+            {/* 新增运费显示 */}
+            <div className="order-total">
+              <span>运费:</span>
+              <span>
+                {shippingFee === 0 
+                  ? '免费' 
+                  : `$${shippingFee.toFixed(2)}`
+                }
+              </span>
+            </div>
+            
             <div className="order-total">
               <span>税费 (12%):</span>
-              <span>${(totalPrice * 0.12).toFixed(2)}</span>
+              <span>${tax.toFixed(2)}</span>
             </div>
             
             <div className="order-total grand-total">
               <span>总计:</span>
-              <span>${(totalPrice * 1.12).toFixed(2)}</span>
+              <span>${grandTotal.toFixed(2)}</span>
             </div>
             
             <button 
               type="submit" 
               className="submit-order"
-              disabled={isSubmitting}
+              disabled={isSubmitting || cartItems.length === 0}
             >
               {isSubmitting ? '处理中...' : '提交订单'}
             </button>
