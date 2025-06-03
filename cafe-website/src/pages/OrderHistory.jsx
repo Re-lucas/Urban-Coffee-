@@ -19,26 +19,31 @@ const OrderHistory = () => {
         <p>您还没有下过任何订单，快去逛逛吧！</p>
       ) : (
         <div className="history-list">
-          {myOrders.map((order) => (
-            <div key={order.id} className="history-item">
-              <div>
-                <strong>订单号：</strong> {order.id}
+          {myOrders.map((order) => {
+            // —— 安全保护：如果 order.finalPrice 不是数字，就用 0 代替 —— 
+            const safeFinal = typeof order.finalPrice === 'number' ? order.finalPrice : 0;
+
+            return (
+              <div key={order.id} className="history-item">
+                <div>
+                  <strong>订单号：</strong> {order.id}
+                </div>
+                <div>
+                  <strong>下单时间：</strong>{' '}
+                  {new Date(order.createTime).toLocaleString()}
+                </div>
+                <div>
+                  <strong>状态：</strong> {order.status}
+                </div>
+                <div>
+                  <strong>总金额：</strong> ¥{safeFinal.toFixed(2)}
+                </div>
+                <Link to={`/order-confirmation/${order.id}`} className="btn detail-btn">
+                  查看详情
+                </Link>
               </div>
-              <div>
-                <strong>下单时间：</strong>{' '}
-                {new Date(order.createTime).toLocaleString()}
-              </div>
-              <div>
-                <strong>状态：</strong> {order.status}
-              </div>
-              <div>
-                <strong>总金额：</strong> ¥{order.finalPrice.toFixed(2)}
-              </div>
-              <Link to={`/order-confirmation/${order.id}`} className="btn detail-btn">
-                查看详情
-              </Link>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
