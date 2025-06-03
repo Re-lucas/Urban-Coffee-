@@ -1,0 +1,70 @@
+/* src/styles/admin-layout.css */
+.admin-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* 侧边栏 */
+.admin-sidebar {
+  width: 200px;
+  background-color: #2c2f33;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 0;
+}
+
+.sidebar-title {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
+  color: #f1c40f;
+}
+
+.admin-sidebar nav {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-sidebar nav a {
+  padding: 0.8rem 1rem;
+  color: #ddd;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: background-color 0.2s ease;
+}
+
+.admin-sidebar nav a.active,
+.admin-sidebar nav a:hover {
+  background-color: #23272a;
+  color: #fff;
+}
+
+.sidebar-footer {
+  padding: 1rem;
+  border-top: 1px solid #444;
+}
+
+.logout-btn {
+  margin-top: 0.5rem;
+  width: 100%;
+  padding: 0.4rem;
+  background-color: #c0392b;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background-color: #a93226;
+}
+
+/* 右侧内容区 */
+.admin-content {
+  flex-grow: 1;
+  background-color: #f5f5f5;
+  padding: 1.5rem;
+  overflow-y: auto;
+}

@@ -1,0 +1,68 @@
+/* src/styles/admin-userdetail.css */
+.admin-userdetail {
+  background: #fff;
+  padding: 1rem 1.5rem;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.admin-userdetail h2 {
+  margin-bottom: 1rem;
+  color: #333;
+}
+.admin-userdetail section {
+  margin-bottom: 1.5rem;
+}
+.admin-userdetail section h3 {
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  color: #555;
+}
+.admin-userdetail p {
+  margin: 0.3rem 0;
+  color: #444;
+}
+.admin-userdetail ul {
+  list-style: none;
+  padding-left: 0;
+}
+.admin-userdetail ul li {
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  background: #f9f9f9;
+  border-radius: 4px;
+}
+.admin-userdetail table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.admin-userdetail thead th {
+  padding: 0.6rem;
+  background: #f0f0f0;
+  text-align: left;
+  color: #333;
+}
+.admin-userdetail tbody td {
+  padding: 0.5rem;
+  border-bottom: 1px solid #e0e0e0;
+  color: #555;
+}
+.admin-userdetail a {
+  color: #3498db;
+  text-decoration: none;
+}
+.admin-userdetail a:hover {
+  text-decoration: underline;
+}
+.back-btn {
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  background-color: #6f4e37;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.back-btn:hover {
+  background-color: #5a3e2b;
+}

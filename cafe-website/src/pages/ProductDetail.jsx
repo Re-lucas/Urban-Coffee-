@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import productsData from '../data/products';         // 原始商品列表
 import { useReview } from '../context/ReviewContext';
+import { useCart } from '../context/CartContext';  // 新增购物车上下文
 import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
 import '../styles/product-detail.css';
 
@@ -10,6 +11,7 @@ const ProductDetail = () => {
   const { productId } = useParams();
   const product = productsData.find((p) => p.id.toString() === productId);
   const { getReviewsByProduct } = useReview();
+  const { addToCart } = useCart();  // 获取购物车方法
 
   const [allReviews, setAllReviews] = useState([]);
 
@@ -56,6 +58,28 @@ const ProductDetail = () => {
           <p className="price">¥{product.price.toFixed(2)}</p>
           <p className="roast">烘焙：{product.roast}</p>
           <p className="desc">{product.description}</p>
+          
+          {/* 商品状态显示 */}
+          <div className="product-status">
+            <p>库存: <span className={product.stock <= 0 ? 'out-of-stock' : ''}>
+              {product.stock <= 0 ? '无库存' : `${product.stock}件`}
+            </span></p>
+            <p>状态: <span className={product.isAvailable ? 'available' : 'unavailable'}>
+              {product.isAvailable ? '在售中' : '已下架'}
+            </span></p>
+          </div>
+
+          {/* 加入购物车按钮 */}
+          <button
+            className="btn add-cart-btn"
+            disabled={!product.isAvailable || product.stock === 0}
+            onClick={() => addToCart(product, 1)}
+          >
+            {product.isAvailable && product.stock > 0
+              ? '加入购物车'
+              : '已下架或无库存'}
+          </button>
+
           {allReviews.length > 0 ? (
             <div className="rating-display">
               {renderStars(avgRating)} <span>({allReviews.length} 条评价)</span>

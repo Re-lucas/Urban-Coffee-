@@ -1,27 +1,29 @@
-// data/products.js
+// src/data/products.js
+
+// 假设最初只有 name/price/roast/description/image/stock，下面把 stock 初始值设为 10，
+// 另外加一个 isAvailable 字段控制上下架
 const products = [
   {
-    id: 1,
-    name: "埃塞俄比亚耶加雪菲",
-    price: 6.5,
-    description: "柑橘与茉莉花香调，浅烘焙",
-    roast: "浅焙"
+    id: 'p1',
+    name: '哥伦比亚特级豆',
+    description: '口感醇厚，微甜果香。',
+    roast: '中度烘焙',
+    price: 65.0,
+    image: '/images/colombia.jpg',
+    stock: 10,
+    isAvailable: true
   },
   {
-    id: 2,
-    name: "哥伦比亚苏帕摩",
-    price: 5.5,
-    description: "坚果与巧克力风味，中烘焙",
-    roast: "中焙"
+    id: 'p2',
+    name: '衣索比亚耶加雪啡',
+    description: '花香与柑橘果香，余味悠长。',
+    roast: '浅度烘焙',
+    price: 75.0,
+    image: '/images/ethiopia.jpg',
+    stock: 5,
+    isAvailable: true
   },
-  {
-    id: 3,
-    name: "巴西山度士",
-    price: 5.0,
-    description: "焦糖与巧克力风味，深烘焙",
-    roast: "深焙"
-  },
-  // 添加更多产品...
+  // … 其余商品同理 …
 ];
 
 export default products;
