@@ -23,6 +23,9 @@ import { CartProvider }  from './context/CartContext';
 import { ThemeProvider } from './context/ThemeContext';
 import ProductDetail from './pages/ProductDetail';
 
+import Register        from './pages/Register';
+import ForgotPassword  from './pages/ForgotPassword';
+
 function App() {
   return (
     <ThemeProvider>
@@ -45,6 +48,8 @@ function App() {
               {/* 新增 wishlist 路由 */}
               <Route path="/wishlist" element={<Wishlist />} />
               <Route path="/order-history" element={<OrderHistory />} />
+              <Route path="/register"             element={<Register />} />
+              <Route path="/forgot-password"      element={<ForgotPassword />} />
             </Routes>
           </main>
           <footer className="footer">

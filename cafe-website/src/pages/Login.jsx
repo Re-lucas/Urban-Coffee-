@@ -1,28 +1,36 @@
 // src/pages/Login.jsx
-import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
-import '../styles/login.css'; // 如果你想单独写样式，可以 later 新建这个文件
+import React, { useState } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import '../styles/login.css';
 
 const Login = () => {
-  const { login } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
 
-  // 本例只是演示，用 state 保存输入框里的值
+  // 如果用户被重定向过来，可拿到原本想去的页面
+  const from = location.state?.from || '/account';
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-  // 登录按钮点击时调用 AuthContext.login，然后跳转
   const handleSubmit = (e) => {
     e.preventDefault();
-    // login 会把 user 存到 Context 里并写入 localStorage
-    const success = login(email, password);
-    if (success) {
-      // 登录成功后，跳转到 /account
-      navigate('/account');
+    setError('');
+
+    if (!email.trim() || !password) {
+      setError('请输入邮箱和密码。');
+      return;
+    }
+
+    const { success, message } = login(email.trim(), password);
+    if (!success) {
+      setError(message);
     } else {
-      // 若你想演示失败逻辑，这里可以做提示
-      alert('登录失败');
+      // 登录成功，跳回原页面或 /account
+      navigate(from, { replace: true });
     }
   };
 
@@ -30,6 +38,7 @@ const Login = () => {
     <div className="login-page">
       <h1>登录</h1>
       <form className="login-form" onSubmit={handleSubmit}>
+        {error && <p className="error">{error}</p>}
         <div className="form-group">
           <label htmlFor="email">邮箱：</label>
           <input
@@ -56,6 +65,15 @@ const Login = () => {
           登录
         </button>
       </form>
+
+      <div className="login-links">
+        <p>
+          没有账号？<Link to="/register">注册新账号</Link>
+        </p>
+        <p>
+          <Link to="/forgot-password">忘记密码？</Link>
+        </p>
+      </div>
     </div>
   );
 };
