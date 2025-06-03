@@ -1,16 +1,16 @@
 // src/pages/admin/AdminLayout.jsx
 import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAdminAuth } from '../../context/AdminAuthContext';
 import '../../styles/admin-layout.css';
 
 const AdminLayout = () => {
-  const { logout, user } = useAuth();
+  const { logoutAdmin, adminUser } = useAdminAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    logout();
-    navigate('/login');
+    logoutAdmin();
+    navigate('/admin/login');
   };
 
   return (
@@ -31,10 +31,9 @@ const AdminLayout = () => {
           <NavLink to="/admin/orders" className={({ isActive }) => (isActive ? 'active' : '')}>
             订单管理
           </NavLink>
-          {/* 你还可以加“系统设置”、“营销活动”、“数据报表”等更多菜单 */}
         </nav>
         <div className="sidebar-footer">
-          <p>管理员：{user?.name || user?.email}</p>
+          <p>管理员：{adminUser?.email}</p>
           <button className="btn logout-btn" onClick={handleLogout}>
             注销
           </button>

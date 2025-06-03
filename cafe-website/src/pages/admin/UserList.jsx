@@ -1,11 +1,11 @@
 // src/pages/admin/UserList.jsx
 import React, { useState, useMemo } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { useAdminAuth } from '../../context/AdminAuthContext';
 import { Link } from 'react-router-dom';
 import '../../styles/admin-userlist.css';
 
 const UserList = () => {
-  const { users } = useAuth();
+  const { users } = useAdminAuth();
   const [searchText, setSearchText] = useState('');
 
   // 根据 searchText 过滤用户

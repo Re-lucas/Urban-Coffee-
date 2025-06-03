@@ -1,14 +1,14 @@
 // src/pages/admin/UserDetail.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAdminAuth } from '../../context/AdminAuthContext';
 import { useOrder } from '../../context/OrderContext';
 import '../../styles/admin-userdetail.css';
 
 const UserDetail = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
-  const { users, updateProfile, addPoints, updatePreferences, updateNotifications } = useAuth();
+  const { users, updateProfile, addPoints, updatePreferences, updateNotifications } = useAdminAuth();
   const { orders } = useOrder();
 
   const [user, setUser] = useState(null);

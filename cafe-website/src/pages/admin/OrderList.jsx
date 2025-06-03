@@ -1,12 +1,12 @@
 // src/pages/admin/OrderList.jsx
 import React, { useState, useMemo } from 'react';
 import { useOrder } from '../../context/OrderContext';
-import { useAuth } from '../../context/AuthContext';
+import { useAdminAuth } from '../../context/AdminAuthContext';
 import '../../styles/admin-orderlist.css';
 
 const OrderList = () => {
   const { orders, updateOrderStatus } = useOrder();
-  const { users } = useAuth();
+  const { users } = useAdminAuth();
   const [searchText, setSearchText] = useState('');
 
   // 过滤订单：可以按订单号、用户邮箱或用户名搜索
