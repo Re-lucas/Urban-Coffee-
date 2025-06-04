@@ -23,20 +23,22 @@ app.get('/', (req, res) => {
   res.send('Urban Coffee 后端 API 正在运行…');
 });
 
-// 5. 以后会在这里挂载各个业务路由（示例）
-// app.use('/api/auth', require('./routes/authRoutes'));
-// app.use('/api/products', require('./routes/productRoutes'));
-// app.use('/api/orders', require('./routes/orderRoutes'));
-// app.use('/api/users', require('./routes/userRoutes'));
-// app.use('/api/reviews', require('./routes/reviewRoutes'));
+// 5. 挂载各个业务路由
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/users', require('./routes/userRoutes'));
+app.use('/api/products', require('./routes/productRoutes'));
+app.use('/api/orders', require('./routes/orderRoutes'));
+app.use('/api/reviews', require('./routes/reviewRoutes'));
 
 // 6. 全局错误处理中间件（必须在路由之后引入）
 app.use(errorHandler);
 
 // 7. 启动服务
 const PORT = process.env.PORT || 5000;
+const ENV = process.env.NODE_ENV || 'development'; // 添加环境变量获取
+
 app.listen(PORT, () => {
   console.log(
-    `服务器已启动在 ${process.env.NODE_ENV} 模式，监听端口 ${PORT}`.yellow.bold
+    `服务器已启动在 ${ENV} 模式，监听端口 ${PORT}`.yellow.bold
   );
 });
