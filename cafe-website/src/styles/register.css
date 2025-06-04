@@ -30,6 +30,14 @@
   border-radius: 4px;
   font-size: 1rem;
 }
+.error-input {
+  border-color: crimson !important;
+}
+.field-error {
+  color: crimson;
+  font-size: 0.8rem;
+  margin-top: 0.2rem;
+}
 .btn.register-btn {
   margin-top: 0.5rem;
   padding: 0.6rem;
@@ -40,8 +48,12 @@
   cursor: pointer;
   font-size: 1rem;
 }
-.btn.register-btn:hover {
+.btn.register-btn:hover:not(:disabled) {
   background-color: #5a3e2b;
+}
+.btn.register-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 .error {
   color: crimson;
