@@ -53,7 +53,12 @@ const ProductDetail = () => {
     <div className="product-detail-page">
       <h1 className="product-name">{product.name}</h1>
       <div className="detail-top">
-        <img src={product.image} alt={product.name} className="product-img" />
+        <img 
+          src={product.image} 
+          alt={product.name} 
+          className="product-img" 
+          loading="lazy"  // 添加懒加载属性
+        />
         <div className="product-info">
           <p className="price">¥{product.price.toFixed(2)}</p>
           <p className="roast">烘焙：{product.roast}</p>

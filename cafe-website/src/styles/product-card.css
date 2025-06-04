@@ -1,3 +1,5 @@
+/* src/styles/product-card.css */
+
 /* 商品卡片整体样式 */
 .product-card {
   background: white;
@@ -16,25 +18,26 @@
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* 商品图片区域 */
-.product-image {
-  height: 200px;
-  background-color: #f8f5f0;
-  position: relative;
+/* 商品图片区域 - 修改为容器样式 */
+.product-image-container {
+  height: 180px;
   overflow: hidden;
-}
-
-.image-placeholder {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #6F4E37 0%, #B99976 100%);
-  opacity: 0.7;
+  border-radius: 8px 8px 0 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  font-size: 1.2rem;
-  font-weight: 600;
+  background-color: #f8f8f8;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-image {
+  transform: scale(1.05);
 }
 
 /* 库存标签 */

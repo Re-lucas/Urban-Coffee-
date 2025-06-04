@@ -114,6 +114,16 @@ const ProductCard = ({ product, searchQuery }) => {
         to={`/product/${product.id}`} 
         className="product-info-link"
       >
+        {/* 添加商品图片 - 包含懒加载属性 */}
+        <div className="product-image-container">
+          <img 
+            src={product.image} 
+            alt={product.name} 
+            className="product-image"
+            loading="lazy"  // 添加懒加载属性
+          />
+        </div>
+        
         <div className="product-info">
           <h3 className="product-name">
             {highlightText(product.name, searchQuery)}
