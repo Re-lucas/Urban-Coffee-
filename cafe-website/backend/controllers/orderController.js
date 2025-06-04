@@ -1,5 +1,6 @@
 // backend/controllers/orderController.js
 const asyncHandler = require('express-async-handler');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 
@@ -123,6 +124,37 @@ const updateOrderToDelivered = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    为指定订单创建 Stripe PaymentIntent
+// @route   POST /api/orders/:id/payintent
+// @access  Private
+const createPaymentIntent = asyncHandler(async (req, res) => {
+  const order = await Order.findById(req.params.id);
+  if (!order) {
+    res.status(404);
+    throw new Error('未找到订单');
+  }
+  // 只能由订单所有者或管理员来创建 PaymentIntent
+  if (
+    order.user.toString() !== req.user._id.toString() &&
+    !req.user.isAdmin
+  ) {
+    res.status(403);
+    throw new Error('无权为此订单创建支付意向');
+  }
+
+  // 将订单总价转为分（Stripe 要求整数）
+  const amount = Math.round(order.totalPrice * 100);
+
+  // 创建 PaymentIntent
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount,
+    currency: 'usd', // 根据需要可换成其他币种
+    metadata: { order_id: order._id.toString() },
+  });
+
+  res.json({ clientSecret: paymentIntent.client_secret });
+});
+
 module.exports = {
   addOrderItems,
   getMyOrders,
@@ -130,4 +162,5 @@ module.exports = {
   updateOrderToPaid,
   getAllOrders,
   updateOrderToDelivered,
+  createPaymentIntent,
 };

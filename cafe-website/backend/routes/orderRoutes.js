@@ -3,43 +3,34 @@ const express = require('express');
 const router = express.Router();
 const {
   addOrderItems,
+  getMyOrders,
   getOrderById,
   updateOrderToPaid,
-  updateOrderToDelivered,
-  getMyOrders,
   getAllOrders,
+  updateOrderToDelivered,
+  createPaymentIntent,   // 新增这一行
 } = require('../controllers/orderController');
 const { protect, admin } = require('../middlewares/authMiddleware');
 
-// @route   POST /api/orders
-// @desc    创建新的订单
-// @access  Private
+// POST /api/orders/:id/payintent  （创建 PaymentIntent）
+router.post('/:id/payintent', protect, createPaymentIntent);
+
+// POST /api/orders  创建订单
 router.post('/', protect, addOrderItems);
 
-// @route   GET /api/orders/myorders
-// @desc    获取当前用户的所有订单
-// @access  Private
+// GET /api/orders/myorders  获取本人所有订单
 router.get('/myorders', protect, getMyOrders);
 
-// @route   GET /api/orders/:id
-// @desc    根据 ID 获取订单详情
-// @access  Private
+// GET /api/orders/:id  获取单个订单
 router.get('/:id', protect, getOrderById);
 
-// @route   PUT /api/orders/:id/pay
-// @desc    标记订单为已支付（Stripe 支付完成后回调）
-// @access  Private
+// PUT /api/orders/:id/pay  标记支付完成
 router.put('/:id/pay', protect, updateOrderToPaid);
 
-// 以下仅管理员可操作：
-// @route   GET /api/orders
-// @desc    获取所有订单
-// @access  Private/Admin
+// GET /api/orders  管理员获取所有订单
 router.get('/', protect, admin, getAllOrders);
 
-// @route   PUT /api/orders/:id/deliver
-// @desc    标记订单为已发货
-// @access  Private/Admin
+// PUT /api/orders/:id/deliver  管理员标记发货
 router.put('/:id/deliver', protect, admin, updateOrderToDelivered);
 
 module.exports = router;
