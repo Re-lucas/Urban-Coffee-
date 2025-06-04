@@ -1,4 +1,4 @@
-/* styles/navbar.css */
+/* cafe-website\src\components\Navbar.module.css */
 .navbar {
   background-color: var(--coffee-primary);
   color: var(--text-light);
@@ -21,28 +21,28 @@
   text-decoration: none;
 }
 
-.nav-links {
+.navLinks {
   display: flex;
   gap: 20px;
 }
 
-.nav-links a {
+.navLinks a {
   color: var(--text-light);
   text-decoration: none;
   transition: opacity 0.3s;
 }
 
-.nav-links a:hover {
+.navLinks a:hover {
   opacity: 0.8;
 }
 
-.mobile-toggle {
+.mobileToggle {
   display: none;
   cursor: pointer;
 }
 
 @media (max-width: 768px) {
-  .nav-links {
+  .navLinks {
     position: absolute;
     top: 100%;
     left: 0;
@@ -57,18 +57,18 @@
     pointer-events: none;
   }
 
-  .nav-links.active {
+  .navLinks.active {
     transform: translateY(0);
     pointer-events: auto;
   }
 
-  .nav-links a {
+  .navLinks a {
     width: 100%;
     text-align: center;
     padding: 10px 0;
   }
 
-  .mobile-toggle {
+  .mobileToggle {
     display: block;
   }
 }
