@@ -2,7 +2,8 @@
 const express = require('express');
 const router = express.Router();
 const { registerUser, authUser, getUserProfile } = require('../controllers/authController');
-const { protect } = require('../middlewares/authMiddleware');
+const { protect, admin } = require('../middlewares/authMiddleware');
+
 
 // 注册新用户
 router.post('/register', registerUser);
