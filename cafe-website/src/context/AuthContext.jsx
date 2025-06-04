@@ -32,7 +32,7 @@ const defaultUser = {
 };
 
 /**
- * 4. AuthProvider：包裹全局，管理 “所有用户列表” （users）和 “当前已登录用户” （user）
+ * 4. AuthProvider：包裹全局，管理 "所有用户列表" （users）和 "当前已登录用户" （user）
  */
 export function AuthProvider({ children }) {
   //
@@ -200,7 +200,7 @@ export function AuthProvider({ children }) {
   };
 
   /**
-   * —— resetPassword({ email, newPassword })：前端模拟“忘记密码” —— 
+   * —— resetPassword({ email, newPassword })：前端模拟"忘记密码" —— 
    * 返回 { success: boolean, message: string }
    */
   const resetPassword = ({ email, newPassword }) => {
@@ -229,7 +229,7 @@ export function AuthProvider({ children }) {
   };
 
   /**
-   * —— 以下是“积分”、“更新资料”、“地址”、“偏好”、“通知” 等原逻辑 —— 
+   * —— 以下是"积分"、"更新资料"、"地址"、"偏好"、"通知" 等原逻辑 —— 
    *     都是针对当前登录 user 做更新，并同步回 users 列表
    */
 

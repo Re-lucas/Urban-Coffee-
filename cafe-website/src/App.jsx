@@ -3,11 +3,14 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 
 import Navbar from './components/Navbar';
 import { useAuth } from './context/AuthContext';
-import { useAdminAuth } from './context/AdminAuthContext';
 import { ProductProvider } from './context/ProductContext';
 import { CartProvider } from './context/CartContext';
 import { OrderProvider } from './context/OrderContext';
 import { ReviewProvider } from './context/ReviewContext';
+
+// 导入守卫组件
+import RequireAuth from './components/RequireAuth';
+import RequireAdmin from './components/RequireAdmin';
 
 // 使用React.lazy()实现路由懒加载
 const Home = lazy(() => import('./pages/Home'));
@@ -37,25 +40,6 @@ const OrderList = lazy(() => import('./pages/admin/OrderList'));
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
 
 function App() {
-  const { user } = useAuth();            // 普通用户状态
-  const { adminUser } = useAdminAuth();  // 管理员状态
-
-  // 普通用户登录守卫
-  const RequireUserLogin = ({ children }) => {
-    if (!user) {
-      return <Navigate to="/login" replace />;
-    }
-    return children;
-  };
-
-  // 管理员登录守卫
-  const RequireAdminLogin = ({ children }) => {
-    if (!adminUser) {
-      return <Navigate to="/admin/login" replace />;
-    }
-    return children;
-  };
-
   return (
     <>
       <Navbar />
@@ -89,40 +73,47 @@ function App() {
                   <Route
                     path="/checkout"
                     element={
-                      <RequireUserLogin>
+                      <RequireAuth>
                         <Checkout />
-                      </RequireUserLogin>
+                      </RequireAuth>
                     }
                   />
                   <Route
                     path="/order-confirmation/:orderId"
                     element={
-                      <RequireUserLogin>
+                      <RequireAuth>
                         <OrderConfirmation />
-                      </RequireUserLogin>
+                      </RequireAuth>
                     }
                   />
                   <Route
                     path="/order-history"
                     element={
-                      <RequireUserLogin>
+                      <RequireAuth>
                         <OrderHistory />
-                      </RequireUserLogin>
+                      </RequireAuth>
                     }
                   />
                   <Route
                     path="/account"
                     element={
-                      <RequireUserLogin>
+                      <RequireAuth>
                         <Account />
-                      </RequireUserLogin>
+                      </RequireAuth>
                     }
                   />
 
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
                   <Route path="/forgot-password" element={<ForgotPassword />} />
-                  <Route path="/wishlist" element={<Wishlist />} />
+                  <Route
+                    path="/wishlist"
+                    element={
+                      <RequireAuth>
+                        <Wishlist />
+                      </RequireAuth>
+                    }
+                  />
 
                   {/* —— 管理后台分支 —— */}
                   <Route path="/admin/login" element={<AdminLogin />} />
@@ -130,9 +121,9 @@ function App() {
                   <Route
                     path="/admin"
                     element={
-                      <RequireAdminLogin>
+                      <RequireAdmin>
                         <AdminLayout />
-                      </RequireAdminLogin>
+                      </RequireAdmin>
                     }
                   >
                     <Route index element={<AdminHome />} />
