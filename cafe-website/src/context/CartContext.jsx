@@ -1,13 +1,31 @@
 // context/CartContext.jsx
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const CartContext = createContext();
 
 export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState([]);
+  // 从 localStorage 初始化购物车
+  const [cartItems, setCartItems] = useState(() => {
+    try {
+      const stored = localStorage.getItem('cartItems');
+      return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+      console.error('解析 localStorage 中的 cartItems 失败：', e);
+      return [];
+    }
+  });
   
+  // 当 cartItems 变化时，同步更新到 localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('cartItems', JSON.stringify(cartItems));
+    } catch (e) {
+      console.error('写入 localStorage 出错：', e);
+    }
+  }, [cartItems]);
+
   const addToCart = (product) => {
     setCartItems(prevItems => {
       // 检查是否已存在该商品
