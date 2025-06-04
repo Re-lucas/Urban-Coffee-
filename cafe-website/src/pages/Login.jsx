@@ -14,23 +14,68 @@ const Login = () => {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState({
+    email: '',
+    password: '',
+    general: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setError('');
+  const handleInputChange = (field, value) => {
+    // 清除该字段的错误
+    setErrors(prev => ({ ...prev, [field]: '', general: '' }));
+    
+    if (field === 'email') setEmail(value);
+    if (field === 'password') setPassword(value);
+  };
 
-    if (!email.trim() || !password) {
-      setError('请输入邮箱和密码。');
-      return;
+  const validateForm = () => {
+    const newErrors = {
+      email: '',
+      password: ''
+    };
+    let isValid = true;
+
+    // 邮箱校验
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.trim()) {
+      newErrors.email = '请输入邮箱';
+      isValid = false;
+    } else if (!emailPattern.test(email.trim())) {
+      newErrors.email = '邮箱格式不正确';
+      isValid = false;
     }
 
-    const { success, message } = login(email.trim(), password);
-    if (!success) {
-      setError(message);
-    } else {
-      // 登录成功，跳回原页面或 /account
-      navigate(from, { replace: true });
+    // 密码校验
+    if (!password) {
+      newErrors.password = '请输入密码';
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) return;
+    
+    setIsSubmitting(true);
+    setErrors(prev => ({ ...prev, general: '' }));
+
+    try {
+      const { success, message } = login(email.trim(), password);
+      if (!success) {
+        setErrors(prev => ({ ...prev, general: message }));
+      } else {
+        // 登录成功，跳回原页面或 /account
+        navigate(from, { replace: true });
+      }
+    } catch (error) {
+      setErrors(prev => ({ ...prev, general: '登录失败，请重试' }));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -38,31 +83,42 @@ const Login = () => {
     <div className="login-page">
       <h1>登录</h1>
       <form className="login-form" onSubmit={handleSubmit}>
-        {error && <p className="error">{error}</p>}
+        {errors.general && <p className="error">{errors.general}</p>}
+        
         <div className="form-group">
           <label htmlFor="email">邮箱：</label>
           <input
             type="email"
             id="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => handleInputChange('email', e.target.value)}
             placeholder="请输入邮箱"
             required
+            className={errors.email ? 'error-input' : ''}
           />
+          {errors.email && <span className="field-error">{errors.email}</span>}
         </div>
+        
         <div className="form-group">
           <label htmlFor="password">密码：</label>
           <input
             type="password"
             id="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => handleInputChange('password', e.target.value)}
             placeholder="请输入密码"
             required
+            className={errors.password ? 'error-input' : ''}
           />
+          {errors.password && <span className="field-error">{errors.password}</span>}
         </div>
-        <button type="submit" className="btn login-btn">
-          登录
+        
+        <button 
+          type="submit" 
+          className="btn login-btn"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? '登录中...' : '登录'}
         </button>
       </form>
 

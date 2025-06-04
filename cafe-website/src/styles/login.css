@@ -2,7 +2,7 @@
 .login-page {
   max-width: 400px;
   margin: 2rem auto;
-  padding: 1rem;
+  padding: 1.5rem;
   border: 1px solid #ddd;
   border-radius: 6px;
   background: #fff;
@@ -33,6 +33,17 @@
   font-size: 1rem;
 }
 
+.error-input {
+  border-color: crimson !important;
+}
+
+.field-error {
+  color: crimson;
+  font-size: 0.8rem;
+  margin-top: 0.2rem;
+  display: block;
+}
+
 .btn.login-btn {
   width: 100%;
   padding: 0.6rem;
@@ -42,10 +53,16 @@
   border-radius: 4px;
   cursor: pointer;
   font-size: 1rem;
+  margin-top: 0.5rem;
 }
 
-.btn.login-btn:hover {
+.btn.login-btn:hover:not(:disabled) {
   background-color: #5a3e2b;
+}
+
+.btn.login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* 错误提示文本 */
