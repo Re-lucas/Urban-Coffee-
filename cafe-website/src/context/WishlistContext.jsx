@@ -23,16 +23,21 @@ export function WishlistProvider({ children }) {
   // 1. 从 localStorage 尝试读取已有的心愿单（如果没有则设为空数组）
   const [wishlist, setWishlist] = useState(() => {
     try {
-      const saved = localStorage.getItem('wishlist');
+      const saved = localStorage.getItem('wishlistItems');
       return saved ? JSON.parse(saved) : [];
-    } catch {
+    } catch (error) {
+      console.error('解析 localStorage 中的 wishlistItems 失败:', error);
       return [];
     }
   });
 
   // 2. 当 wishlist 变化时，同步写回 localStorage
   useEffect(() => {
-    localStorage.setItem('wishlist', JSON.stringify(wishlist));
+    try {
+      localStorage.setItem('wishlistItems', JSON.stringify(wishlist));
+    } catch (error) {
+      console.error('写入 localStorage wishlistItems 失败:', error);
+    }
   }, [wishlist]);
 
   /**
