@@ -3,9 +3,10 @@ import React from 'react';
 import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
-import '../styles/wishlist.css'; // 我们可以在这里单独写一些样式
+import '../styles/wishlist.css';
 
 const Wishlist = () => {
+  // 这时 useWishlist() 一定会拿到 { wishlist, addToWishlist, removeFromWishlist } 这样的对象
   const { wishlist, removeFromWishlist } = useWishlist();
   const { addToCart } = useCart();
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ const Wishlist = () => {
           {wishlist.map((product) => (
             <div key={product.id} className="wishlist-item">
               <img
-                src={product.image}         /* 假设 product 对象里有 image 字段 */
+                src={product.image}
                 alt={product.name}
                 className="product-img"
               />

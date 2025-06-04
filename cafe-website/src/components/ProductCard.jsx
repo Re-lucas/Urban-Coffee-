@@ -1,6 +1,6 @@
 // src/components/ProductCard.jsx
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom'; // 新增导入
+import { Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
@@ -77,7 +77,7 @@ const ProductCard = ({ product, searchQuery }) => {
   };
 
   const handleWishlistToggle = (e) => {
-    e.stopPropagation(); // 防止点击事件冒泡到父链接
+    e.stopPropagation();
     if (inWishlist) {
       removeFromWishlist(product.id);
       toast('已从心愿单移除');
@@ -110,7 +110,6 @@ const ProductCard = ({ product, searchQuery }) => {
 
   return (
     <div className="product-card">
-      {/* 将商品信息区域包裹在Link组件中 */}
       <Link 
         to={`/product/${product.id}`} 
         className="product-info-link"

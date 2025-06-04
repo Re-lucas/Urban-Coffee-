@@ -1,53 +1,79 @@
-/* src/context/WishlistContext.jsx */
+// src/context/WishlistContext.jsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-// 创建 Context
-const WishlistContext = createContext();
+/**
+ * WishlistContext 用来管理"心愿单"的所有操作：
+ * - wishlist：当前所有的心愿单商品数组（每个商品对象至少要包含 id、name、price、image 等字段）
+ * - addToWishlist(product)：将某个 product 放入心愿单
+ * - removeFromWishlist(productId)：从心愿单中移除指定商品
+ * - isInWishlist(productId)：检查商品是否已在心愿单中
+ */
 
-// 自定义 Hook，方便在组件中直接 useWishlist()
-export const useWishlist = () => useContext(WishlistContext);
+const WishlistContext = createContext(null);
 
-// Provider 组件
+export const useWishlist = () => {
+  const ctx = useContext(WishlistContext);
+  if (!ctx) {
+    throw new Error('useWishlist 必须在 <WishlistProvider> 组件中使用。');
+  }
+  return ctx;
+};
+
 export function WishlistProvider({ children }) {
-  // 1. 从 localStorage 读取已有的心愿单（以 product.id 数组形式存储）
+  // 1. 从 localStorage 尝试读取已有的心愿单（如果没有则设为空数组）
   const [wishlist, setWishlist] = useState(() => {
-    const saved = localStorage.getItem('wishlist');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('wishlist');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
   });
 
-  // 2. 当 wishlist 改变时，同步到 localStorage
+  // 2. 当 wishlist 变化时，同步写回 localStorage
   useEffect(() => {
     localStorage.setItem('wishlist', JSON.stringify(wishlist));
   }, [wishlist]);
 
-  // 3. 添加到心愿单（如果已存在，就不要重复添加）
+  /**
+   * addToWishlist：把 product 加入心愿单
+   * 如果已经存在同 ID 的商品，就不重复添加；否则 push 到数组开头
+   */
   const addToWishlist = (product) => {
     setWishlist((prev) => {
-      // 看看 product.id 是否已在列表里
-      if (prev.find((p) => p.id === product.id)) {
-        return prev; // 不做重复添加
+      const exists = prev.find((item) => item.id === product.id);
+      if (exists) {
+        // 如果已经在心愿单里，就直接返回原数组
+        return prev;
       }
-      return [...prev, product];
+      // 新商品插在最前面
+      return [product, ...prev];
     });
   };
 
-  // 4. 从心愿单移除
+  /**
+   * removeFromWishlist：根据 productId 把商品移除
+   */
   const removeFromWishlist = (productId) => {
-    setWishlist((prev) => prev.filter((p) => p.id !== productId));
+    setWishlist((prev) => prev.filter((item) => item.id !== productId));
   };
 
-  // 5. 判断某个商品是否已在心愿单里
+  /**
+   * isInWishlist：检查某个商品是否已在心愿单中
+   * @param {string} productId 商品ID
+   * @returns {boolean} 是否在心愿单中
+   */
   const isInWishlist = (productId) => {
-    return wishlist.some((p) => p.id === productId);
+    return wishlist.some((item) => item.id === productId);
   };
 
   return (
     <WishlistContext.Provider
       value={{
-        wishlist,
-        addToWishlist,
-        removeFromWishlist,
-        isInWishlist,
+        wishlist,            // 当前心愿单里的所有商品
+        addToWishlist,       // 加入心愿单
+        removeFromWishlist,  // 从心愿单移除
+        isInWishlist,        // 检查商品是否已在心愿单中
       }}
     >
       {children}
