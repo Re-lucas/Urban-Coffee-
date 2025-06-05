@@ -1,68 +1,138 @@
 /* src/styles/admin-userdetail.css */
 .admin-userdetail {
   background: #fff;
-  padding: 1rem 1.5rem;
+  padding: 1.5rem;
   border-radius: 6px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  max-width: 800px;
+  margin: 0 auto;
 }
+
 .admin-userdetail h2 {
-  margin-bottom: 1rem;
+  margin: 1rem 0 1.5rem;
   color: #333;
+  font-size: 1.5rem;
 }
-.admin-userdetail section {
-  margin-bottom: 1.5rem;
+
+.back-btn {
+  display: inline-block;
+  margin-bottom: 1rem;
+  padding: 0.5rem 1rem;
+  background: #6f4e37;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  transition: background 0.2s;
 }
-.admin-userdetail section h3 {
+
+.back-btn:hover {
+  background: #5a3e2b;
+}
+
+.user-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.form-group label {
   margin-bottom: 0.5rem;
-  font-size: 1.1rem;
-  color: #555;
-}
-.admin-userdetail p {
-  margin: 0.3rem 0;
+  font-weight: 500;
   color: #444;
+  font-size: 0.9rem;
 }
-.admin-userdetail ul {
-  list-style: none;
-  padding-left: 0;
+
+.form-group input[type="text"],
+.form-group input[type="email"] {
+  padding: 0.7rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
 }
-.admin-userdetail ul li {
-  margin-bottom: 0.5rem;
-  padding: 0.5rem;
+
+.form-group input:focus {
+  border-color: #3498db;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.checkbox-group {
+  flex-direction: row;
+  align-items: center;
+}
+
+.checkbox-group input {
+  margin-right: 0.5rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.submit-btn {
+  padding: 0.8rem 1.5rem;
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background-color: #219653;
+}
+
+.submit-btn:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+
+.user-meta {
+  padding: 1rem;
   background: #f9f9f9;
   border-radius: 4px;
 }
-.admin-userdetail table {
-  width: 100%;
-  border-collapse: collapse;
-}
-.admin-userdetail thead th {
-  padding: 0.6rem;
-  background: #f0f0f0;
-  text-align: left;
+
+.user-meta h3 {
+  margin-bottom: 0.8rem;
   color: #333;
+  font-size: 1.1rem;
 }
-.admin-userdetail tbody td {
-  padding: 0.5rem;
-  border-bottom: 1px solid #e0e0e0;
+
+.user-meta p {
+  margin: 0.5rem 0;
   color: #555;
 }
-.admin-userdetail a {
-  color: #3498db;
-  text-decoration: none;
+
+.user-meta strong {
+  color: #333;
 }
-.admin-userdetail a:hover {
-  text-decoration: underline;
-}
-.back-btn {
-  margin-top: 0.5rem;
-  padding: 0.4rem 0.8rem;
-  background-color: #6f4e37;
-  color: #fff;
-  border: none;
+
+.error {
+  padding: 1rem;
+  background: #f8d7da;
+  color: #721c24;
   border-radius: 4px;
+  margin-bottom: 1.5rem;
   font-size: 0.9rem;
-  cursor: pointer;
 }
-.back-btn:hover {
-  background-color: #5a3e2b;
+
+.loading {
+  padding: 2rem;
+  text-align: center;
+  color: #7f8c8d;
+  font-size: 1.1rem;
 }

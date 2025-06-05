@@ -1,105 +1,211 @@
 // src/pages/admin/ProductEdit.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useProduct } from '../../context/ProductContext';
+import { useAuth } from '../../context/AuthContext';
+import api from '../../utils/axiosConfig';
 import '../../styles/admin-productedit.css';
 
 const ProductEdit = () => {
-  const { productId } = useParams();
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const { products, updateProduct } = useProduct();
+  const { id } = useParams();
+  const isEditMode = Boolean(id); // 判断是编辑模式还是创建模式
 
-  const [product, setProduct] = useState(null);
-  const [stock, setStock] = useState(0);
+  // 商品状态
+  const [name, setName] = useState('');
+  const [price, setPrice] = useState(0);
+  const [brand, setBrand] = useState('');
+  const [category, setCategory] = useState('');
+  const [description, setDescription] = useState('');
+  const [image, setImage] = useState('');
+  const [countInStock, setCountInStock] = useState(0);
   const [isAvailable, setIsAvailable] = useState(true);
+
+  // UI 状态
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 根据 productId 找到对应商品，初始化本地状态
+  // 管理员权限验证
   useEffect(() => {
-    const found = products.find((p) => p.id === productId);
-    if (!found) {
-      navigate('/admin/products');
-      return;
+    if (!user || !user.isAdmin) {
+      navigate('/login');
     }
-    setProduct(found);
-    setStock(found.stock);
-    setIsAvailable(found.isAvailable);
-  }, [productId, products]);
+  }, [user, navigate]);
 
-  if (!product) {
-    return <p>正在加载商品信息…</p>;
-  }
+  // 如果是编辑模式，获取商品数据
+  useEffect(() => {
+    if (isEditMode) {
+      const fetchProduct = async () => {
+        try {
+          setLoading(true);
+          const { data } = await api.get(`/api/products/${id}`);
+          setName(data.name);
+          setPrice(data.price);
+          setBrand(data.brand);
+          setCategory(data.category);
+          setDescription(data.description);
+          setImage(data.image);
+          setCountInStock(data.countInStock);
+          setIsAvailable(data.isAvailable);
+          setLoading(false);
+        } catch (err) {
+          setError(err.response?.data?.message || '获取商品信息失败');
+          setLoading(false);
+        }
+      };
+      fetchProduct();
+    }
+  }, [id, isEditMode]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     setError('');
 
-    // 验证库存必须是非负整数
-    const numStock = Number(stock);
-    if (isNaN(numStock) || !Number.isInteger(numStock) || numStock < 0) {
-      setError('请输入非负整数作为库存');
-      return;
-    }
+    try {
+      const productData = {
+        name,
+        price: Number(price),
+        brand,
+        category,
+        description,
+        image,
+        countInStock: Number(countInStock),
+        isAvailable
+      };
 
-    // 更新商品
-    updateProduct(product.id, { stock: numStock, isAvailable });
-    alert('商品信息保存成功');
-    navigate('/admin/products');
+      if (isEditMode) {
+        // 更新商品
+        await api.put(`/api/products/${id}`, productData);
+      } else {
+        // 创建商品
+        await api.post('/api/products', productData);
+      }
+      
+      navigate('/admin/productlist');
+    } catch (err) {
+      setError(err.response?.data?.message || '保存失败，请重试');
+      setIsSubmitting(false);
+    }
   };
+
+  if (loading) {
+    return <div className="admin-productedit loading">加载商品信息中...</div>;
+  }
 
   return (
     <div className="admin-productedit">
-      <h2>编辑商品 - {product.name}</h2>
-      <form className="edit-form" onSubmit={handleSubmit}>
-        {error && <p className="error">{error}</p>}
-
-        <label>
-          商品名称：
+      <Link to="/admin/productlist" className="back-link">
+        &larr; 返回商品列表
+      </Link>
+      
+      <h2>{isEditMode ? '编辑商品' : '添加新商品'}</h2>
+      
+      {error && <div className="error">{error}</div>}
+      
+      <form onSubmit={handleSubmit} className="product-form">
+        <div className="form-group">
+          <label htmlFor="name">商品名称 *</label>
           <input
+            id="name"
             type="text"
-            value={product.name}
-            disabled
-          />
-        </label>
-
-        <label>
-          价格 (¥)：
-          <input
-            type="text"
-            value={product.price.toFixed(2)}
-            disabled
-          />
-        </label>
-
-        <label>
-          库存 (stock)：
-          <input
-            type="number"
-            min="0"
-            step="1"
-            value={stock}
-            onChange={(e) => setStock(e.target.value)}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             required
           />
-        </label>
-
-        <label>
-          是否在售：
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="price">价格 (¥) *</label>
+          <input
+            id="price"
+            type="number"
+            min="0"
+            step="0.01"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            required
+          />
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="brand">品牌 *</label>
+          <input
+            id="brand"
+            type="text"
+            value={brand}
+            onChange={(e) => setBrand(e.target.value)}
+            required
+          />
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="category">分类 *</label>
+          <input
+            id="category"
+            type="text"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            required
+          />
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="image">图片 URL *</label>
+          <input
+            id="image"
+            type="text"
+            value={image}
+            onChange={(e) => setImage(e.target.value)}
+            required
+          />
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="stock">库存数量 *</label>
+          <input
+            id="stock"
+            type="number"
+            min="0"
+            value={countInStock}
+            onChange={(e) => setCountInStock(e.target.value)}
+            required
+          />
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="available">在售状态 *</label>
           <select
-            value={isAvailable ? 'true' : 'false'}
+            id="available"
+            value={isAvailable}
             onChange={(e) => setIsAvailable(e.target.value === 'true')}
           >
-            <option value="true">在售</option>
-            <option value="false">下架</option>
+            <option value={true}>在售</option>
+            <option value={false}>下架</option>
           </select>
-        </label>
-
-        <button type="submit" className="btn save-btn">
-          保存
-        </button>
-        <Link to="/admin/products" className="btn back-btn">
-          ← 返回商品列表
-        </Link>
+        </div>
+        
+        <div className="form-group full-width">
+          <label htmlFor="description">商品描述 *</label>
+          <textarea
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows="5"
+            required
+          ></textarea>
+        </div>
+        
+        <div className="form-actions">
+          <button 
+            type="submit" 
+            className="submit-btn"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? '处理中...' : (isEditMode ? '更新商品' : '创建商品')}
+          </button>
+        </div>
       </form>
     </div>
   );
