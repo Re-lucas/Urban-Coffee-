@@ -22,6 +22,7 @@ app.post(
   '/api/webhook',
   bodyParser.raw({ type: 'application/json' }),
   async (req, res) => {
+    console.log('✔️ 收到 Stripe Webhook 请求'); // 新增：通用日志
     const sig = req.headers['stripe-signature'];
     let event;
     try {
@@ -39,6 +40,7 @@ app.post(
     if (event.type === 'payment_intent.succeeded') {
       const paymentIntent = event.data.object;
       const orderId = paymentIntent.metadata.order_id;
+      console.log('收到 payment_intent.succeeded，metadata.order_id =', orderId); // 新增：事件详情日志
       try {
         const Order = require('./models/Order');
         const order = await Order.findById(orderId);
