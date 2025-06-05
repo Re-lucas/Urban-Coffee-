@@ -16,12 +16,9 @@ import RequireAdmin from './components/RequireAdmin';
 const Home = lazy(() => import('./pages/Home'));
 const Menu = lazy(() => import('./pages/Menu'));
 const ProductDetail = lazy(() => import('./pages/ProductDetail'));
-const Reservation = lazy(() => import('./pages/Reservation'));
-const About = lazy(() => import('./pages/About'));
-const Contact = lazy(() => import('./pages/Contact'));
-const Blog = lazy(() => import('./pages/Blog'));
+const Cart = lazy(() => import('./pages/Cart'));
 const Checkout = lazy(() => import('./pages/Checkout'));
-const OrderConfirmation = lazy(() => import('./pages/OrderConfirmation'));
+const OrderDetail = lazy(() => import('./pages/OrderDetail'));
 const OrderHistory = lazy(() => import('./pages/OrderHistory'));
 const Account = lazy(() => import('./pages/Account'));
 const Login = lazy(() => import('./pages/Login'));
@@ -44,7 +41,6 @@ function App() {
     <>
       <Navbar />
       
-      {/* 确保 CartProvider 包裹所有需要购物车功能的组件 */}
       <CartProvider>
         <ProductProvider>
           <OrderProvider>
@@ -65,77 +61,36 @@ function App() {
                   {/* —— 普通前台页面 —— */}
                   <Route path="/" element={<Home />} />
                   <Route path="/menu" element={<Menu />} />
-                  <Route path="/product/:productId" element={<ProductDetail />} />
-                  <Route path="/reservation" element={<Reservation />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/contact" element={<Contact />} />
-                  <Route path="/blog" element={<Blog />} />
+                  <Route path="/product/:id" element={<ProductDetail />} />
+                  <Route path="/cart" element={<Cart />} />
+                  
+                  {/* 需要登录的页面 */}
+                  <Route path="/checkout" element={<RequireAuth><Checkout /></RequireAuth>} />
+                  <Route path="/order/:id" element={<RequireAuth><OrderDetail /></RequireAuth>} />
+                  <Route path="/order-history" element={<RequireAuth><OrderHistory /></RequireAuth>} />
+                  <Route path="/account" element={<RequireAuth><Account /></RequireAuth>} />
+                  <Route path="/wishlist" element={<RequireAuth><Wishlist /></RequireAuth>} />
 
-                  <Route
-                    path="/checkout"
-                    element={
-                      <RequireAuth>
-                        <Checkout />
-                      </RequireAuth>
-                    }
-                  />
-                  <Route
-                    path="/order-confirmation/:orderId"
-                    element={
-                      <RequireAuth>
-                        <OrderConfirmation />
-                      </RequireAuth>
-                    }
-                  />
-                  <Route
-                    path="/order-history"
-                    element={
-                      <RequireAuth>
-                        <OrderHistory />
-                      </RequireAuth>
-                    }
-                  />
-                  <Route
-                    path="/account"
-                    element={
-                      <RequireAuth>
-                        <Account />
-                      </RequireAuth>
-                    }
-                  />
-
+                  {/* 认证相关 */}
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
                   <Route path="/forgot-password" element={<ForgotPassword />} />
-                  <Route
-                    path="/wishlist"
-                    element={
-                      <RequireAuth>
-                        <Wishlist />
-                      </RequireAuth>
-                    }
-                  />
 
                   {/* —— 管理后台分支 —— */}
                   <Route path="/admin/login" element={<AdminLogin />} />
 
-                  <Route
-                    path="/admin"
-                    element={
-                      <RequireAdmin>
-                        <AdminLayout />
-                      </RequireAdmin>
-                    }
-                  >
+                  {/* 后台主路由（需要管理员权限） */}
+                  <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
                     <Route index element={<AdminHome />} />
                     <Route path="users" element={<UserList />} />
-                    <Route path="users/:userId" element={<UserDetail />} />
+                    <Route path="users/:id" element={<UserDetail />} />
                     <Route path="products" element={<ProductList />} />
-                    <Route path="products/:productId" element={<ProductEdit />} />
+                    <Route path="products/create" element={<ProductEdit />} />
+                    <Route path="products/:id/edit" element={<ProductEdit />} />
                     <Route path="orders" element={<OrderList />} />
                   </Route>
 
-                  {/* 兜底 404 */}
+                  {/* 兜底路由 */}
                   <Route path="*" element={<Navigate to="/" />} />
                 </Routes>
               </Suspense>
