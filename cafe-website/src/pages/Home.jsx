@@ -11,13 +11,20 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // 获取特色商品数据
+  // 获取特色商品数据（自动适配后端返回格式）
   useEffect(() => {
     const fetchFeaturedProducts = async () => {
       try {
         setLoading(true);
         const { data } = await api.get('/api/products/featured');
-        setFeaturedProducts(data);
+        
+        // 关键逻辑：兼容两种后端返回格式
+        const products = 
+          Array.isArray(data) ? data :          // 如果后端直接返回数组
+          Array.isArray(data?.products) ? data.products :  // 如果返回 { products: [...] }
+          [];                                   // 兜底空数组
+        
+        setFeaturedProducts(products);
         setLoading(false);
       } catch (err) {
         setError(err.response?.data?.message || '获取特色商品失败');
@@ -28,7 +35,7 @@ const Home = () => {
     fetchFeaturedProducts();
   }, []);
 
-  // 滚动动画效果（保持不变）
+  // 滚动动画逻辑（保持不变）
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -54,7 +61,7 @@ const Home = () => {
 
   return (
     <div className="home-page">
-      {/* 英雄区域（保持不变） */}
+      {/* 英雄区域 */}
       <div className="hero-section">
         <div className="hero-content">
           <h1>欢迎来到 Urban Coffee</h1>
@@ -63,11 +70,8 @@ const Home = () => {
         </div>
       </div>
       
-      {/* 特色咖啡区域 - 使用动态数据 */}
-      <div 
-        ref={el => sectionsRef.current[0] = el} 
-        className="featured-section fade-in"
-      >
+      {/* 特色咖啡区域 */}
+      <div ref={el => sectionsRef.current[0] = el} className="featured-section fade-in">
         <div className="container">
           <h2 className="section-title">特色咖啡</h2>
           
@@ -77,7 +81,7 @@ const Home = () => {
             <div className="error">{error}</div>
           ) : (
             <div className="featured-grid">
-              {featuredProducts.map((product) => (
+              {featuredProducts.map(product => (
                 <div key={product._id} className="featured-item">
                   <div 
                     className="featured-image" 

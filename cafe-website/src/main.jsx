@@ -10,7 +10,6 @@ import { BrowserRouter } from 'react-router-dom';
 import { AdminAuthProvider } from './context/AdminAuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
-import { ProductProvider } from './context/ProductContext';
 import { CartProvider } from './context/CartContext';
 import { OrderProvider } from './context/OrderContext';
 import { ReviewProvider } from './context/ReviewContext';
@@ -26,8 +25,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <ThemeProvider>
           {/* 普通用户登录/注册/个人信息上下文 */}
           <AuthProvider>
-            {/* 商品详情上下文 */}
-            <ProductProvider>
               {/* 购物车上下文 */}
               <CartProvider>
                 {/* 订单上下文 */}
@@ -42,7 +39,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   </ReviewProvider>
                 </OrderProvider>
               </CartProvider>
-            </ProductProvider>
           </AuthProvider>
         </ThemeProvider>
       </AdminAuthProvider>

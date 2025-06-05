@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { FiMenu, FiX } from 'react-icons/fi';
 import CartIcon from './CartIcon';
 import styles from './Navbar.module.css'; // 引入 CSS Module
+import { ThemeContext } from '../context/ThemeContext';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

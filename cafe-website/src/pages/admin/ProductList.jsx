@@ -1,6 +1,5 @@
 // src/pages/admin/ProductList.jsx
 import React, { useState, useEffect, useContext } from 'react';
-import { useProduct } from '../../context/ProductContext';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/axiosConfig';

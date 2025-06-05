@@ -3,7 +3,6 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 
 import Navbar from './components/Navbar';
 import { useAuth } from './context/AuthContext';
-import { ProductProvider } from './context/ProductContext';
 import { CartProvider } from './context/CartContext';
 import { OrderProvider } from './context/OrderContext';
 import { ReviewProvider } from './context/ReviewContext';
@@ -16,7 +15,6 @@ import RequireAdmin from './components/RequireAdmin';
 const Home = lazy(() => import('./pages/Home'));
 const Menu = lazy(() => import('./pages/Menu'));
 const ProductDetail = lazy(() => import('./pages/ProductDetail'));
-const Cart = lazy(() => import('./pages/Cart'));
 const Checkout = lazy(() => import('./pages/Checkout'));
 const OrderDetail = lazy(() => import('./pages/OrderDetail'));
 const OrderHistory = lazy(() => import('./pages/OrderHistory'));
@@ -42,7 +40,6 @@ function App() {
       <Navbar />
       
       <CartProvider>
-        <ProductProvider>
           <OrderProvider>
             <ReviewProvider>
               <Suspense fallback={
@@ -62,7 +59,6 @@ function App() {
                   <Route path="/" element={<Home />} />
                   <Route path="/menu" element={<Menu />} />
                   <Route path="/product/:id" element={<ProductDetail />} />
-                  <Route path="/cart" element={<Cart />} />
                   
                   {/* 需要登录的页面 */}
                   <Route path="/checkout" element={<RequireAuth><Checkout /></RequireAuth>} />
@@ -96,7 +92,6 @@ function App() {
               </Suspense>
             </ReviewProvider>
           </OrderProvider>
-        </ProductProvider>
       </CartProvider>
     </>
   );
