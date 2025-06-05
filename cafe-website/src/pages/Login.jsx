@@ -1,5 +1,5 @@
 // src/pages/Login.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import '../styles/login.css';
@@ -7,7 +7,7 @@ import '../styles/login.css';
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
+  const { user, login, loading, error: authError } = useAuth();
 
   // 如果用户被重定向过来，可拿到原本想去的页面
   const from = location.state?.from || '/account';
@@ -17,13 +17,18 @@ const Login = () => {
   const [errors, setErrors] = useState({
     email: '',
     password: '',
-    general: ''
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 如果用户已登录，直接跳转到目标页面
+  useEffect(() => {
+    if (user) {
+      navigate(from, { replace: true });
+    }
+  }, [user, navigate, from]);
 
   const handleInputChange = (field, value) => {
     // 清除该字段的错误
-    setErrors(prev => ({ ...prev, [field]: '', general: '' }));
+    setErrors(prev => ({ ...prev, [field]: '' }));
     
     if (field === 'email') setEmail(value);
     if (field === 'password') setPassword(value);
@@ -60,22 +65,13 @@ const Login = () => {
     e.preventDefault();
     
     if (!validateForm()) return;
-    
-    setIsSubmitting(true);
-    setErrors(prev => ({ ...prev, general: '' }));
 
     try {
-      const { success, message } = login(email.trim(), password);
-      if (!success) {
-        setErrors(prev => ({ ...prev, general: message }));
-      } else {
-        // 登录成功，跳回原页面或 /account
-        navigate(from, { replace: true });
-      }
+      await login(email.trim(), password);
+      // 登录成功后，useEffect会自动处理跳转
     } catch (error) {
-      setErrors(prev => ({ ...prev, general: '登录失败，请重试' }));
-    } finally {
-      setIsSubmitting(false);
+      // 错误信息已在 AuthContext 中处理
+      console.error('登录失败:', error);
     }
   };
 
@@ -83,7 +79,7 @@ const Login = () => {
     <div className="login-page">
       <h1>登录</h1>
       <form className="login-form" onSubmit={handleSubmit}>
-        {errors.general && <p className="error">{errors.general}</p>}
+        {authError && <p className="error">{authError}</p>}
         
         <div className="form-group">
           <label htmlFor="email">邮箱：</label>
@@ -116,9 +112,9 @@ const Login = () => {
         <button 
           type="submit" 
           className="btn login-btn"
-          disabled={isSubmitting}
+          disabled={loading}
         >
-          {isSubmitting ? '登录中...' : '登录'}
+          {loading ? '登录中...' : '登录'}
         </button>
       </form>
 

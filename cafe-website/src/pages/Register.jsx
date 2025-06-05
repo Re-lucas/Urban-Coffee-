@@ -1,12 +1,12 @@
 // src/pages/Register.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';   // ← 改为 useAuth()
+import { useAuth } from '../context/AuthContext';
 import '../styles/register.css';
 
 const Register = () => {
   const navigate = useNavigate();
-  const { registerUser } = useAuth(); // ← 通过 hook 拿到 registerUser 方法
+  const { user, registerUser, loading, error: authError } = useAuth();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -17,13 +17,18 @@ const Register = () => {
     email: '',
     password: '',
     confirmPwd: '',
-    general: ''
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 如果用户已登录，直接跳转到个人中心
+  useEffect(() => {
+    if (user) {
+      navigate('/account');
+    }
+  }, [user, navigate]);
 
   const handleInputChange = (field, value) => {
     // 清除该字段的错误
-    setErrors(prev => ({ ...prev, [field]: '', general: '' }));
+    setErrors(prev => ({ ...prev, [field]: '' }));
     
     switch(field) {
       case 'name': setName(value); break;
@@ -84,26 +89,17 @@ const Register = () => {
     e.preventDefault();
     
     if (!validateForm()) return;
-    
-    setIsSubmitting(true);
-    setErrors(prev => ({ ...prev, general: '' }));
 
     try {
-      const { success, message } = registerUser({
+      await registerUser({
         name: name.trim(),
         email: email.trim(),
         password: password
       });
-
-      if (!success) {
-        setErrors(prev => ({ ...prev, general: message }));
-      } else {
-        navigate('/account');
-      }
+      // 注册成功后，useEffect会自动处理跳转
     } catch (error) {
-      setErrors(prev => ({ ...prev, general: '注册失败，请重试' }));
-    } finally {
-      setIsSubmitting(false);
+      // 错误信息已在 AuthContext 中处理
+      console.error('注册失败:', error);
     }
   };
 
@@ -111,7 +107,7 @@ const Register = () => {
     <div className="register-page">
       <h2>注册账号</h2>
       <form className="register-form" onSubmit={handleSubmit}>
-        {errors.general && <p className="error">{errors.general}</p>}
+        {authError && <p className="error">{authError}</p>}
         
         <label>
           姓名：
@@ -168,9 +164,9 @@ const Register = () => {
         <button 
           type="submit" 
           className="btn register-btn"
-          disabled={isSubmitting}
+          disabled={loading}
         >
-          {isSubmitting ? '注册中...' : '注册并登录'}
+          {loading ? '注册中...' : '注册并登录'}
         </button>
       </form>
 
