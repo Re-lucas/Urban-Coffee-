@@ -24,7 +24,12 @@ const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const Wishlist = lazy(() => import('./pages/Wishlist'));
-const Reservation = lazy(() => import('./pages/Reservation')); // 新增预约页面
+const Reservation = lazy(() => import('./pages/Reservation'));
+const About = lazy(() => import('./pages/About'));
+// 新增Contact页面的懒加载
+const Contact = lazy(() => import('./pages/Contact'));
+const Blog = lazy(() => import('./pages/Blog'));
+
 
 // 管理后台页面的懒加载
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
@@ -62,8 +67,12 @@ function App() {
                   <Route path="/menu" element={<Menu />} />
                   <Route path="/product/:id" element={<ProductDetail />} />
                   
-                  {/* 新增预约路由（公开访问） */}
+                  {/* 新增预约、关于我们等公开访问页面 */}
                   <Route path="/reservation" element={<Reservation />} />
+                  <Route path="/about" element={<About />} />
+  +               <Route path="/contact" element={<Contact />} />
+  +               <Route path="/blog" element={<Blog />} />
+
                   
                   {/* 需要登录的页面 */}
                   <Route path="/checkout" element={<RequireAuth><Checkout /></RequireAuth>} />
