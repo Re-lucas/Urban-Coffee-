@@ -10,12 +10,21 @@ const api = axios.create({
   },
 });
 
-// 请求拦截器：如果 localStorage 里有 userInfo.token，就自动带上 Authorization 头
+// 请求拦截器：如果 localStorage 里有 user.token，就自动带上 Authorization 头
 api.interceptors.request.use(
   (config) => {
-    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-    if (userInfo && userInfo.token) {
-      config.headers.Authorization = `Bearer ${userInfo.token}`;
+    // 修改这里：从 'user' 而不是 'userInfo' 读取
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        if (user && user.token) {
+          config.headers.Authorization = `Bearer ${user.token}`;
+          console.log('[AXIOS] 添加了 Authorization 头'); // 调试信息
+        }
+      } catch (e) {
+        console.error('解析 localStorage 中的 user 失败', e);
+      }
     }
     return config;
   },

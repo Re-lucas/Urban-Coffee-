@@ -67,7 +67,12 @@ app.post(
 );
 
 // 4. 注册常规中间件
-app.use(cors());                        // 跨域：允许前端 localhost:3000 访问
+// 修改这里：增强 CORS 配置
+app.use(cors({
+  origin: 'http://localhost:5173', // 你的前端地址
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization'] // 明确允许的请求头
+}));
 app.use(express.json());                // 解析 JSON 请求体
 
 // 5. 测试路由：确认后端跑起来没问题

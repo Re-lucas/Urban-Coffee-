@@ -34,9 +34,9 @@ router.delete('/:id', protect, admin, deleteUser);
 // @route   PUT /api/users/:userId/preferences
 // @desc    更新当前用户的口味偏好
 // @access  Private
-router.put('/:userId/preferences', protect, async (req, res) => {
+router.put('/:id/preferences', protect, async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const userId = req.params.id; // 改为 id
     const { preferences } = req.body;
     
     // 验证用户权限：用户只能更新自己的偏好
