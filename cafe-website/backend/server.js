@@ -6,9 +6,10 @@ const cors = require('cors');
 const bodyParser = require('body-parser');  // 新增
 const connectDB = require('./config/db');
 const errorHandler = require('./middlewares/errorHandler');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); // 新增
 
-dotenv.config();
+dotenv.config(); // ← 先加载 .env
+
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); // ← 然后才能正确初始化
 
 // 1. 先连接数据库
 connectDB();
