@@ -1,3 +1,4 @@
+// src/App.jsx
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
@@ -23,6 +24,7 @@ const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const Wishlist = lazy(() => import('./pages/Wishlist'));
+const Reservation = lazy(() => import('./pages/Reservation')); // 新增预约页面
 
 // 管理后台页面的懒加载
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
@@ -59,6 +61,9 @@ function App() {
                   <Route path="/" element={<Home />} />
                   <Route path="/menu" element={<Menu />} />
                   <Route path="/product/:id" element={<ProductDetail />} />
+                  
+                  {/* 新增预约路由（公开访问） */}
+                  <Route path="/reservation" element={<Reservation />} />
                   
                   {/* 需要登录的页面 */}
                   <Route path="/checkout" element={<RequireAuth><Checkout /></RequireAuth>} />
