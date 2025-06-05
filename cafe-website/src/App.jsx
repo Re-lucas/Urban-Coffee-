@@ -44,8 +44,9 @@ function App() {
     <>
       <Navbar />
       
-      <ProductProvider>
-        <CartProvider>
+      {/* 确保 CartProvider 包裹所有需要购物车功能的组件 */}
+      <CartProvider>
+        <ProductProvider>
           <OrderProvider>
             <ReviewProvider>
               <Suspense fallback={
@@ -140,8 +141,8 @@ function App() {
               </Suspense>
             </ReviewProvider>
           </OrderProvider>
-        </CartProvider>
-      </ProductProvider>
+        </ProductProvider>
+      </CartProvider>
     </>
   );
 }
