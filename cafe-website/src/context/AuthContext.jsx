@@ -40,23 +40,16 @@ const defaultUser = {
 export function AuthProvider({ children }) {
   const navigate = useNavigate();
   
-  // 当前登录用户
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('user');
     return saved ? JSON.parse(saved) : null;
   });
 
-  // 用户积分和等级
   const [points, setPoints] = useState(() => user?.points || 0);
   const [level, setLevel] = useState(user?.level || 'regular');
-  
-  // 加载和错误状态
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  /**
-   * —— 把当前登录 user 同步回 localStorage —— 
-   */
   useEffect(() => {
     if (user) {
       localStorage.setItem('user', JSON.stringify(user));
@@ -71,26 +64,57 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (!user) return;
 
-    // 1. 根据积分阈值决定新等级
     let newLevel = 'regular';
     if (points >= 5000) newLevel = 'vip';
     else if (points >= 1000) newLevel = 'premium';
 
-    // 2. 如果等级有变，则更新 state
     if (newLevel !== level) {
       setLevel(newLevel);
     }
 
-    // 3. 构造 updatedUser，将最新积分（points）和等级（newLevel）写入
     const updatedUser = {
       ...user,
       points: points,
       level: newLevel,
     };
 
-    // 4. 更新当前 user
     setUser(updatedUser);
   }, [points]);
+
+  // 新增：updatePreferences 函数
+  const updatePreferences = async (newPreferences) => {
+    if (!user) {
+      setError('请先登录');
+      return { success: false, message: '请先登录' };
+    }
+
+    try {
+      setLoading(true);
+      
+      // 1. 调用后端 API 更新偏好
+      const { data } = await api.put(
+        `/users/${user.id}/preferences`, 
+        { preferences: newPreferences }
+      );
+
+      // 2. 更新本地用户状态
+      const updatedUser = {
+        ...user,
+        preferences: newPreferences,
+      };
+      
+      setUser(updatedUser);
+      setError(null);
+      
+      return { success: true, message: '偏好已更新' };
+    } catch (err) {
+      const errorMsg = err.response?.data?.message || '更新偏好失败';
+      setError(errorMsg);
+      return { success: false, message: errorMsg };
+    } finally {
+      setLoading(false);
+    }
+  };
 
   /**
    * —— login(email, password)：校验并登录 —— 
@@ -237,6 +261,8 @@ export function AuthProvider({ children }) {
         resetPassword,
         points,
         level,
+        // 新增 updatePreferences
+        updatePreferences,
         // 保留其他方法...
       }}
     >

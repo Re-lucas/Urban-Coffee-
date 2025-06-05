@@ -11,15 +11,20 @@ const registerUser = asyncHandler(async (req, res) => {
 
   // 检查请求必填字段
   if (!name || !email || !password) {
-    res.status(400);
-    throw new Error('请提供用户名、邮箱和密码');
+    const err = new Error('请提供用户名、邮箱和密码');
+    err.statusCode = 400;
+    throw err;
   }
 
   // 查询邮箱是否已被注册
   const userExists = await User.findOne({ email });
   if (userExists) {
-    res.status(400);
-    throw new Error('该邮箱已被注册');
+    // 先创建一个 Error 实例
+    const err = new Error('该邮箱已被注册');
+    // 将状态码附加到 err 对象上
+    err.statusCode = 400;
+    // 直接抛出这个带 statusCode 的错误
+    throw err;
   }
 
   // 创建新用户
