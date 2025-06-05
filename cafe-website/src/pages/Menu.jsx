@@ -46,8 +46,9 @@ const Menu = () => {
           pageSize: 12
         };
 
-        const { data } = await api.get('/api/products', { params });
-        console.log('Menu 接口返回 data =', data);
+      // 修复这里：移除了多余的 "/api" 前缀
+      const { data } = await api.get('/products', { params });
+      console.log('Menu 接口返回 data =', data);
 
         // —— 兼容三种后端返回格式 —— 
         // 1. data 本身就是一个数组：setProducts(data)
