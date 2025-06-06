@@ -24,7 +24,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <AuthProvider>
             {/* 购物车上下文 */}
             <CartProvider>
-              {/* 订单上下文 - 包含用户订单和管理员订单 */}
+              {/* 订单上下文 - 包含用户本地订单 & 管理员拉取所有订单 */}
               <OrderProvider>
                 {/* 评论上下文 */}
                 <ReviewProvider>

@@ -3,7 +3,6 @@ import React, { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
 import Navbar from './components/Navbar';
-import { useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { OrderProvider } from './context/OrderContext';
 import { ReviewProvider } from './context/ReviewContext';
@@ -12,7 +11,7 @@ import { ReviewProvider } from './context/ReviewContext';
 import RequireAuth from './components/RequireAuth';
 import RequireAdmin from './components/RequireAdmin';
 
-// 使用React.lazy()实现路由懒加载
+// 使用 React.lazy 实现路由懒加载
 const Home = lazy(() => import('./pages/Home'));
 const Menu = lazy(() => import('./pages/Menu'));
 const ProductDetail = lazy(() => import('./pages/ProductDetail'));
@@ -26,10 +25,8 @@ const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const Wishlist = lazy(() => import('./pages/Wishlist'));
 const Reservation = lazy(() => import('./pages/Reservation'));
 const About = lazy(() => import('./pages/About'));
-// 新增Contact页面的懒加载
 const Contact = lazy(() => import('./pages/Contact'));
 const Blog = lazy(() => import('./pages/Blog'));
-
 
 // 管理后台页面的懒加载
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
@@ -45,67 +42,113 @@ function App() {
   return (
     <>
       <Navbar />
-      
+
       <CartProvider>
-          <OrderProvider>
-            <ReviewProvider>
-              <Suspense fallback={
-                <div style={{ 
-                  display: 'flex', 
-                  justifyContent: 'center', 
-                  alignItems: 'center', 
-                  height: '50vh',
-                  fontSize: '1.5rem',
-                  fontWeight: 'bold'
-                }}>
+        <OrderProvider>
+          <ReviewProvider>
+            <Suspense
+              fallback={
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '50vh',
+                    fontSize: '1.5rem',
+                    fontWeight: 'bold',
+                  }}
+                >
                   页面加载中...
                 </div>
-              }>
-                <Routes>
-                  {/* —— 普通前台页面 —— */}
-                  <Route path="/" element={<Home />} />
-                  <Route path="/menu" element={<Menu />} />
-                  <Route path="/product/:id" element={<ProductDetail />} />
-                  
-                  {/* 新增预约、关于我们等公开访问页面 */}
-                  <Route path="/reservation" element={<Reservation />} />
-                  <Route path="/about" element={<About />} />
-  +               <Route path="/contact" element={<Contact />} />
-  +               <Route path="/blog" element={<Blog />} />
+              }
+            >
+              <Routes>
+                {/* —— 普通前台页面 —— */}
+                <Route path="/" element={<Home />} />
+                <Route path="/menu" element={<Menu />} />
+                <Route path="/product/:id" element={<ProductDetail />} />
 
-                  
-                  {/* 需要登录的页面 */}
-                  <Route path="/checkout" element={<RequireAuth><Checkout /></RequireAuth>} />
-                  <Route path="/order/:id" element={<RequireAuth><OrderDetail /></RequireAuth>} />
-                  <Route path="/order-history" element={<RequireAuth><OrderHistory /></RequireAuth>} />
-                  <Route path="/account" element={<RequireAuth><Account /></RequireAuth>} />
-                  <Route path="/wishlist" element={<RequireAuth><Wishlist /></RequireAuth>} />
+                {/* 新增预约、关于我们、联系方式、博客等公开访问页面 */}
+                <Route path="/reservation" element={<Reservation />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/blog" element={<Blog />} />
 
-                  {/* 认证相关 */}
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
-                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                {/* 需要登录才能访问的页面 —— 用 RequireAuth 包裹 */}
+                <Route
+                  path="/checkout"
+                  element={
+                    <RequireAuth>
+                      <Checkout />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/order/:id"
+                  element={
+                    <RequireAuth>
+                      <OrderDetail />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/order-history"
+                  element={
+                    <RequireAuth>
+                      <OrderHistory />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/account"
+                  element={
+                    <RequireAuth>
+                      <Account />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/wishlist"
+                  element={
+                    <RequireAuth>
+                      <Wishlist />
+                    </RequireAuth>
+                  }
+                />
 
-                  {/* —— 管理后台分支 —— */}
-                  <Route path="/admin/login" element={<AdminLogin />} />
+                {/* 认证相关 —— 登录 / 注册 / 找回密码 */}
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
 
-                  {/* 后台主路由（需要管理员权限） */}
-                  <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
-                    <Route index element={<AdminHome />} />
-                    <Route path="users" element={<UserList />} />
-                    <Route path="users/:id" element={<UserDetail />} />
-                    <Route path="products" element={<ProductList />} />
-                    <Route path="products/create" element={<ProductEdit />} />
-                    <Route path="products/:id/edit" element={<ProductEdit />} />
-                    <Route path="orders" element={<OrderList />} />
-                  </Route>
+                {/* —— 管理后台路由 —— */}
+                <Route path="/admin/login" element={<AdminLogin />} />
 
-                  {/* 兜底路由 */}
-                  <Route path="*" element={<Navigate to="/" />} />
-                </Routes>
-              </Suspense>
-            </ReviewProvider>
-          </OrderProvider>
+                {/* 后台主路由（需要管理员权限） */}
+                <Route
+                  path="/admin/*"
+                  element={
+                    <RequireAdmin>
+                      <AdminLayout />
+                    </RequireAdmin>
+                  }
+                >
+                  {/* 嵌套路由：会渲染到 <AdminLayout> 的 <Outlet /> */}
+                  <Route index element={<AdminHome />} /> {/* /admin */}
+                  <Route path="users" element={<UserList />} /> {/* /admin/users */}
+                  <Route path="users/:id" element={<UserDetail />} /> {/* /admin/users/:id */}
+                  <Route path="products" element={<ProductList />} /> {/* /admin/products */}
+                  <Route path="products/create" element={<ProductEdit />} /> {/* /admin/products/create */}
+                  <Route path="products/:id/edit" element={<ProductEdit />} /> {/* /admin/products/:id/edit */}
+                  <Route path="orders" element={<OrderList />} /> {/* /admin/orders */}
+                </Route>
+
+                {/* 兜底路由：所有未匹配的，都重定向到首页 */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Suspense>
+          </ReviewProvider>
+        </OrderProvider>
       </CartProvider>
     </>
   );

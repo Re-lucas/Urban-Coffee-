@@ -7,11 +7,11 @@ export const useAdminAuth = () => useContext(AdminAuthContext);
 
 const defaultAdmins = [
   {
-    id: uuidv4(), 
+    id: uuidv4(),
     email: 'admin@yourshop.com',
-    password: 'admin123'
+    password: 'admin123',
   },
-  // 你可以再加更多管理员
+  // 如果需要，可以继续写更多管理员账户
 ];
 
 export function AdminAuthProvider({ children }) {
@@ -27,19 +27,21 @@ export function AdminAuthProvider({ children }) {
     return defaultAdmins;
   });
 
+  // 当前登录的管理员
   const [adminUser, setAdminUser] = useState(() => {
     const saved = localStorage.getItem('adminUser');
     return saved ? JSON.parse(saved) : null;
   });
 
+  // 用一个 loading 状态模拟异步校验
   const [loading, setLoading] = useState(true);
 
-  // 同步 admins 到 localStorage
+  // 每次 admins 改变，都同步到 localStorage
   useEffect(() => {
     localStorage.setItem('adminUsers', JSON.stringify(admins));
   }, [admins]);
 
-  // 同步当前 adminUser 到 localStorage
+  // 每次 adminUser 改变，都同步到 localStorage 或移除
   useEffect(() => {
     if (adminUser) {
       localStorage.setItem('adminUser', JSON.stringify(adminUser));
@@ -48,16 +50,15 @@ export function AdminAuthProvider({ children }) {
     }
   }, [adminUser]);
 
-  // 初始化加载时设置 loading 状态
+  // 模拟初始化时异步检查管理员登录态
   useEffect(() => {
-    // 模拟异步检查过程
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 500);
-    
+    }, 500); // 假设 500ms 后初始化完毕
     return () => clearTimeout(timer);
   }, []);
 
+  // 登录管理员：校验邮箱 / 密码
   const loginAdmin = (email, password) => {
     if (!email || !password) {
       return { success: false, message: '请输入管理员邮箱和密码。' };
@@ -75,10 +76,12 @@ export function AdminAuthProvider({ children }) {
     return { success: true, message: '管理员登录成功。' };
   };
 
+  // 注销管理员
   const logoutAdmin = () => {
     setAdminUser(null);
   };
 
+  // 注册新管理员
   const registerAdmin = ({ email, password }) => {
     if (!email.trim() || !password) {
       return { success: false, message: '请输入邮箱和密码。' };
@@ -92,7 +95,7 @@ export function AdminAuthProvider({ children }) {
     const newAdmin = {
       id: uuidv4(),
       email: email.trim().toLowerCase(),
-      password
+      password,
     };
     setAdmins((prev) => [newAdmin, ...prev]);
     return { success: true, message: '管理员账号创建成功。' };
