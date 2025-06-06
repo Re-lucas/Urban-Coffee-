@@ -1,4 +1,4 @@
-// components/Cart.jsx
+// cafe-website/src/components/Cart.jsxcomponents/Cart.jsx
 import React, { useState } from 'react';
 import { FiShoppingCart, FiX } from 'react-icons/fi';
 import '../styles/cart.css';
