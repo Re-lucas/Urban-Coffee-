@@ -50,6 +50,9 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // 新增状态：所有用户
+  const [allUsers, setAllUsers] = useState([]);
+
   useEffect(() => {
     if (user) {
       localStorage.setItem('user', JSON.stringify(user));
@@ -111,6 +114,22 @@ export function AuthProvider({ children }) {
       const errorMsg = err.response?.data?.message || '更新偏好失败';
       setError(errorMsg);
       return { success: false, message: errorMsg };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+    // 新增：获取所有用户（仅管理员可用）
+  const fetchAllUsers = async () => {
+    try {
+      setLoading(true);
+      const { data } = await api.get('/users');
+      setAllUsers(data);
+      return data;
+    } catch (err) {
+      const errorMsg = err.response?.data?.message || '获取用户列表失败';
+      setError(errorMsg);
+      return [];
     } finally {
       setLoading(false);
     }
@@ -261,9 +280,10 @@ export function AuthProvider({ children }) {
         resetPassword,
         points,
         level,
-        // 新增 updatePreferences
         updatePreferences,
-        // 保留其他方法...
+        // 新增
+        allUsers,
+        fetchAllUsers,
       }}
     >
       {children}
