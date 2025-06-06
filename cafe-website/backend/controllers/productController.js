@@ -41,6 +41,15 @@ const getProductById = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    获取特色商品列表（isFeatured 字段为 true）
+// @route   GET /api/products/featured
+// @access  Public
+const getFeaturedProducts = asyncHandler(async (req, res) => {
+  // 假设在 Product Schema 中有一个 isFeatured: Boolean 字段
+  const featured = await Product.find({ isFeatured: true }).limit(8);
+  res.json(featured);
+});
+
 // @desc    创建新商品（管理员）
 // @route   POST /api/products
 // @access  Private/Admin
@@ -102,10 +111,10 @@ const deleteProduct = asyncHandler(async (req, res) => {
     throw new Error('未找到商品');
   }
 });
-
 module.exports = {
   getProducts,
   getProductById,
+  getFeaturedProducts,   // 新增：导出 getFeaturedProducts
   createProduct,
   updateProduct,
   deleteProduct,

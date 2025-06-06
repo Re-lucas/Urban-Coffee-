@@ -17,13 +17,10 @@ const Home = () => {
       try {
         setLoading(true);
         const { data } = await api.get('/products/featured');
-        
-        // 关键逻辑：兼容两种后端返回格式
-        const products = 
-          Array.isArray(data) ? data :          // 如果后端直接返回数组
-          Array.isArray(data?.products) ? data.products :  // 如果返回 { products: [...] }
-          [];                                   // 兜底空数组
-        
+        const products =
+          Array.isArray(data) ? data :
+          Array.isArray(data?.products) ? data.products :
+          [];
         setFeaturedProducts(products);
         setLoading(false);
       } catch (err) {
@@ -31,7 +28,7 @@ const Home = () => {
         setLoading(false);
       }
     };
-    
+
     fetchFeaturedProducts();
   }, []);
 

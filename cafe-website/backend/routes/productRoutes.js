@@ -4,11 +4,17 @@ const router = express.Router();
 const {
   getProducts,
   getProductById,
+  getFeaturedProducts, // 新增：引入 getFeaturedProducts
   createProduct,
   updateProduct,
   deleteProduct,
 } = require('../controllers/productController');
 const { protect, admin } = require('../middlewares/authMiddleware');
+
+// @route   GET /api/products/featured
+// @desc    获取特色商品列表
+// @access  Public
+router.get('/featured', getFeaturedProducts);
 
 // @route   GET /api/products
 // @desc    获取全部商品列表
@@ -20,7 +26,7 @@ router.get('/', getProducts);
 // @access  Public
 router.get('/:id', getProductById);
 
-// 以下操作仅限管理员
+// —— 以下操作仅限管理员 ——
 // @route   POST /api/products
 // @desc    创建新商品（管理员）
 // @access  Private/Admin
