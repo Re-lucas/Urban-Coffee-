@@ -19,7 +19,7 @@ const app = express();
 
 // 3. 注册 Stripe Webhook 路由（必须在 express.json() 之前）
 app.post(
-  '/api/webhook',
+  '/webhook',
   bodyParser.raw({ type: 'application/json' }),
   async (req, res) => {
     console.log('✔️ 收到 Stripe Webhook 请求'); // 新增：通用日志
@@ -81,11 +81,11 @@ app.get('/', (req, res) => {
 });
 
 // 6. 挂载各个业务路由
-app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/users', require('./routes/userRoutes'));
-app.use('/api/products', require('./routes/productRoutes'));
-app.use('/api/orders', require('./routes/orderRoutes'));
-app.use('/api/reviews', require('./routes/reviewRoutes'));
+app.use('/auth', require('./routes/authRoutes'));
+app.use('/users', require('./routes/userRoutes'));
+app.use('/products', require('./routes/productRoutes'));
+app.use('/orders', require('./routes/orderRoutes'));
+app.use('/reviews', require('./routes/reviewRoutes'));
 
 // 7. 全局错误处理中间件（必须在路由之后引入）
 app.use(errorHandler);

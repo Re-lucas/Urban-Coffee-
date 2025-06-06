@@ -45,7 +45,7 @@ const UserList = () => {
     if (window.confirm('确定要删除此用户吗？此操作不可撤销！')) {
       try {
         setLoading(true);
-        await api.delete(`/api/users/${userId}`);
+        await api.delete(`/users/${userId}`);
         // 删除成功后更新列表
         setUsers(users.filter(u => u._id !== userId));
         setLoading(false);

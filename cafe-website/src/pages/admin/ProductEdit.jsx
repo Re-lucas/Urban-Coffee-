@@ -77,10 +77,10 @@ const ProductEdit = () => {
 
       if (isEditMode) {
         // 更新商品
-        await api.put(`/api/products/${id}`, productData);
+        await api.put(`/products/${id}`, productData);
       } else {
         // 创建商品
-        await api.post('/api/products', productData);
+        await api.post('/products', productData);
       }
       
       navigate('/admin/productlist');

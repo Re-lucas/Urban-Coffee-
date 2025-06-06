@@ -45,7 +45,7 @@ const OrderList = () => {
     if (window.confirm('确认将此订单标记为已发货？')) {
       try {
         setLoading(true);
-        await api.put(`/api/orders/${orderId}/deliver`);
+        await api.put(`/orders/${orderId}/deliver`);
         // 更新订单状态
         setOrders(orders.map(order => 
           order._id === orderId ? { ...order, isDelivered: true } : order

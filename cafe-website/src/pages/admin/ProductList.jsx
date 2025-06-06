@@ -63,7 +63,7 @@ const ProductList = () => {
     if (window.confirm('确定要删除此商品吗？')) {
       try {
         setLoading(true);
-        await api.delete(`/api/products/${productId}`);
+        await api.delete(`/products/${productId}`);
         // 删除成功后刷新列表
         const { data } = await api.get(
           `/products?keyword=${keyword}&pageNumber=${pageNumber}`

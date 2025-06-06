@@ -175,7 +175,7 @@ export const CartProvider = ({ children }) => {
         totalPrice
       };
       
-      const { data } = await api.post('/api/orders', orderData);
+      const { data } = await api.post('/orders', orderData);
       return data; // 返回创建的订单数据
     } catch (error) {
       console.error('下单失败:', error);

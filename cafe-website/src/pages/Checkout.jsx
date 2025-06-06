@@ -29,7 +29,7 @@ const StripePaymentForm = ({ orderId, grandTotal, onPaymentSuccess }) => {
 
     try {
       // 1. 获取支付凭证
-      const response = await fetch(`/api/orders/${orderId}/payintent`, {
+      const response = await fetch(`/orders/${orderId}/payintent`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

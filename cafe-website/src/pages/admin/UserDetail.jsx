@@ -64,7 +64,7 @@ const UserDetail = () => {
     setError('');
 
     try {
-      await api.put(`/api/users/${id}`, formData);
+      await api.put(`/users/${id}`, formData);
       navigate('/admin/users');
     } catch (err) {
       setError(err.response?.data?.message || '更新用户信息失败');
