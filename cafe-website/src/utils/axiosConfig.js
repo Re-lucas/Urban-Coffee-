@@ -20,7 +20,7 @@ api.interceptors.request.use(
         const user = JSON.parse(userData);
         if (user && user.token) {
           config.headers.Authorization = `Bearer ${user.token}`;
-          console.log('[AXIOS] 添加了 Authorization 头'); // 调试信息
+          console.log('[AXIOS] 添加了 Authorization 调试信息'); // 调试信息
         }
       } catch (e) {
         console.error('解析 localStorage 中的 user 失败', e);
