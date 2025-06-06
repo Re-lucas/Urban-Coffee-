@@ -1,12 +1,12 @@
 // src/context/OrderContext.jsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import api from '../utils/axiosConfig'; // 用来调用后端接口
+import api from '../utils/axiosConfig'; // 用于调用后端接口
 
 export const OrderContext = createContext();
 export const useOrder = () => useContext(OrderContext);
 
 export function OrderProvider({ children }) {
-  // ── 1. “用户本地订单”状态（存到 localStorage） ─────────────────────
+  // ── 1. “用户本地订单”状态（保存在 localStorage） ─────────────────────
   const [orders, setOrders] = useState(() => {
     const saved = localStorage.getItem('orders');
     return saved ? JSON.parse(saved) : [];
@@ -43,13 +43,13 @@ export function OrderProvider({ children }) {
   };
   // ───────────────────────────────────────────────────────────────────
 
-  // ── 2. “管理员获取所有订单”状态 ──────────────────────────────────
+  // ── 2. “管理员拉取所有订单” —— 
   const [allOrders, setAllOrders] = useState([]);
 
-  // 从后端拉取所有订单（仅限管理员访问，需带 token）
   const fetchAllOrders = async () => {
     try {
-      const { data } = await api.get('/orders'); // GET /api/orders
+      // GET /api/orders 需要带上管理员的 JWT
+      const { data } = await api.get('/orders');
       setAllOrders(data);
       return data;
     } catch (err) {
@@ -63,14 +63,14 @@ export function OrderProvider({ children }) {
     <OrderContext.Provider
       value={{
         // —— 用户本地下单相关 —— 
-        orders,            // 本地保存在 localStorage 的订单列表
-        addOrder,          // 用户下单时调用
-        getOrderById,      // 根据 ID 查询本地订单
-        updateOrderStatus, // 更新某个本地订单的状态
+        orders,
+        addOrder,
+        getOrderById,
+        updateOrderStatus,
 
-        // —— 管理员查询所有订单相关 —— 
-        allOrders,         // 后端拉回来的所有订单
-        fetchAllOrders,    // 管理员后台调用此方法去后端拉取订单
+        // —— 管理员后台查询所有订单 —— 
+        allOrders,
+        fetchAllOrders,
       }}
     >
       {children}

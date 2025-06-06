@@ -11,10 +11,11 @@ const defaultAdmins = [
     email: 'admin@yourshop.com',
     password: 'admin123',
   },
-  // 如果需要，可以继续写更多管理员账户
+  // 如果需要，可以继续添加更多管理员
 ];
 
 export function AdminAuthProvider({ children }) {
+  // 管理员列表，优先从 localStorage 里读取
   const [admins, setAdmins] = useState(() => {
     const saved = localStorage.getItem('adminUsers');
     if (saved) {
@@ -33,15 +34,15 @@ export function AdminAuthProvider({ children }) {
     return saved ? JSON.parse(saved) : null;
   });
 
-  // 用一个 loading 状态模拟异步校验
+  // 判断是否正在初始化
   const [loading, setLoading] = useState(true);
 
-  // 每次 admins 改变，都同步到 localStorage
+  // 当 admins 改变时，保持到 localStorage
   useEffect(() => {
     localStorage.setItem('adminUsers', JSON.stringify(admins));
   }, [admins]);
 
-  // 每次 adminUser 改变，都同步到 localStorage 或移除
+  // 当 adminUser 改变时，保持到 localStorage 或移除
   useEffect(() => {
     if (adminUser) {
       localStorage.setItem('adminUser', JSON.stringify(adminUser));
@@ -50,15 +51,15 @@ export function AdminAuthProvider({ children }) {
     }
   }, [adminUser]);
 
-  // 模拟初始化时异步检查管理员登录态
+  // 模拟异步加载管理员状态的过程
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 500); // 假设 500ms 后初始化完毕
+    }, 500); // 0.5s 后初始化完成
     return () => clearTimeout(timer);
   }, []);
 
-  // 登录管理员：校验邮箱 / 密码
+  // 管理员登录方法
   const loginAdmin = (email, password) => {
     if (!email || !password) {
       return { success: false, message: '请输入管理员邮箱和密码。' };
@@ -76,12 +77,12 @@ export function AdminAuthProvider({ children }) {
     return { success: true, message: '管理员登录成功。' };
   };
 
-  // 注销管理员
+  // 管理员注销
   const logoutAdmin = () => {
     setAdminUser(null);
   };
 
-  // 注册新管理员
+  // 新增管理员
   const registerAdmin = ({ email, password }) => {
     if (!email.trim() || !password) {
       return { success: false, message: '请输入邮箱和密码。' };

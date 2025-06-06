@@ -7,11 +7,10 @@ import { CartProvider } from './context/CartContext';
 import { OrderProvider } from './context/OrderContext';
 import { ReviewProvider } from './context/ReviewContext';
 
-// 导入守卫组件
 import RequireAuth from './components/RequireAuth';
 import RequireAdmin from './components/RequireAdmin';
 
-// 使用 React.lazy 实现路由懒加载
+// 前台页面懒加载
 const Home = lazy(() => import('./pages/Home'));
 const Menu = lazy(() => import('./pages/Menu'));
 const ProductDetail = lazy(() => import('./pages/ProductDetail'));
@@ -28,17 +27,17 @@ const About = lazy(() => import('./pages/About'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Blog = lazy(() => import('./pages/Blog'));
 
-// 管理后台页面的懒加载
+// 后台页面懒加载
+const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
-const AdminHome = lazy(() => import('./pages/admin/AdminHome'));
-const UserList = lazy(() => import('./pages/admin/UserList'));
-const UserDetail = lazy(() => import('./pages/admin/UserDetail'));
+const AdminHome   = lazy(() => import('./pages/admin/AdminHome'));
+const UserList    = lazy(() => import('./pages/admin/UserList'));
+const UserDetail  = lazy(() => import('./pages/admin/UserDetail'));
 const ProductList = lazy(() => import('./pages/admin/ProductList'));
 const ProductEdit = lazy(() => import('./pages/admin/ProductEdit'));
-const OrderList = lazy(() => import('./pages/admin/OrderList'));
-const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
+const OrderList   = lazy(() => import('./pages/admin/OrderList'));
 
-function App() {
+export default function App() {
   return (
     <>
       <Navbar />
@@ -68,13 +67,13 @@ function App() {
                 <Route path="/menu" element={<Menu />} />
                 <Route path="/product/:id" element={<ProductDetail />} />
 
-                {/* 新增预约、关于我们、联系方式、博客等公开访问页面 */}
+                {/* 公开访问页面 */}
                 <Route path="/reservation" element={<Reservation />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/blog" element={<Blog />} />
 
-                {/* 需要登录才能访问的页面 —— 用 RequireAuth 包裹 */}
+                {/* 需要登录才能访问（RequireAuth） */}
                 <Route
                   path="/checkout"
                   element={
@@ -116,7 +115,7 @@ function App() {
                   }
                 />
 
-                {/* 认证相关 —— 登录 / 注册 / 找回密码 */}
+                {/* 登录 / 注册 / 找回密码 */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -124,7 +123,6 @@ function App() {
                 {/* —— 管理后台路由 —— */}
                 <Route path="/admin/login" element={<AdminLogin />} />
 
-                {/* 后台主路由（需要管理员权限） */}
                 <Route
                   path="/admin/*"
                   element={
@@ -133,17 +131,16 @@ function App() {
                     </RequireAdmin>
                   }
                 >
-                  {/* 嵌套路由：会渲染到 <AdminLayout> 的 <Outlet /> */}
-                  <Route index element={<AdminHome />} /> {/* /admin */}
-                  <Route path="users" element={<UserList />} /> {/* /admin/users */}
-                  <Route path="users/:id" element={<UserDetail />} /> {/* /admin/users/:id */}
-                  <Route path="products" element={<ProductList />} /> {/* /admin/products */}
-                  <Route path="products/create" element={<ProductEdit />} /> {/* /admin/products/create */}
-                  <Route path="products/:id/edit" element={<ProductEdit />} /> {/* /admin/products/:id/edit */}
-                  <Route path="orders" element={<OrderList />} /> {/* /admin/orders */}
+                  <Route index element={<AdminHome />} />          {/* /admin */}
+                  <Route path="users" element={<UserList />} />    {/* /admin/users */}
+                  <Route path="users/:id" element={<UserDetail />} />     {/* /admin/users/:id */}
+                  <Route path="products" element={<ProductList />} />     {/* /admin/products */}
+                  <Route path="products/create" element={<ProductEdit />} />     {/* /admin/products/create */}
+                  <Route path="products/:id/edit" element={<ProductEdit />} />   {/* /admin/products/:id/edit */}
+                  <Route path="orders" element={<OrderList />} />     {/* /admin/orders */}
                 </Route>
 
-                {/* 兜底路由：所有未匹配的，都重定向到首页 */}
+                {/* 兜底：其余未匹配的，重定向到首页 */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </Suspense>
@@ -153,5 +150,3 @@ function App() {
     </>
   );
 }
-
-export default App;
