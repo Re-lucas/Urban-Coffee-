@@ -26,7 +26,7 @@ const UserList = () => {
     const fetchUsers = async () => {
       try {
         setLoading(true);
-        const { data } = await api.get('/api/users');
+        const { data } = await api.get('/users');
         setUsers(data);
         setLoading(false);
       } catch (err) {

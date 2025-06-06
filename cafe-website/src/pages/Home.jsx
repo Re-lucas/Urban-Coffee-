@@ -16,7 +16,7 @@ const Home = () => {
     const fetchFeaturedProducts = async () => {
       try {
         setLoading(true);
-        const { data } = await api.get('/api/products/featured');
+        const { data } = await api.get('/products/featured');
         
         // 关键逻辑：兼容两种后端返回格式
         const products = 

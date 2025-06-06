@@ -31,7 +31,7 @@ const UserDetail = () => {
     const fetchUser = async () => {
       try {
         setLoading(true);
-        const { data } = await api.get(`/api/users/${id}`);
+        const { data } = await api.get(`/users/${id}`);
         setUser(data);
         setFormData({
           name: data.name,

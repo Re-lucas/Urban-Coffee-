@@ -35,7 +35,7 @@ const ProductList = () => {
       try {
         setLoading(true);
         const { data } = await api.get(
-          `/api/products?keyword=${keyword}&pageNumber=${pageNumber}`
+          `/products?keyword=${keyword}&pageNumber=${pageNumber}`
         );
         setProducts(data.products);
         setPage(data.page);
@@ -66,7 +66,7 @@ const ProductList = () => {
         await api.delete(`/api/products/${productId}`);
         // 删除成功后刷新列表
         const { data } = await api.get(
-          `/api/products?keyword=${keyword}&pageNumber=${pageNumber}`
+          `/products?keyword=${keyword}&pageNumber=${pageNumber}`
         );
         setProducts(data.products);
         setPage(data.page);

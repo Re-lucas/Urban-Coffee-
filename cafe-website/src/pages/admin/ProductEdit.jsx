@@ -39,7 +39,7 @@ const ProductEdit = () => {
       const fetchProduct = async () => {
         try {
           setLoading(true);
-          const { data } = await api.get(`/api/products/${id}`);
+          const { data } = await api.get(`/products/${id}`);
           setName(data.name);
           setPrice(data.price);
           setBrand(data.brand);

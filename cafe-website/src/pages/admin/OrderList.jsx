@@ -26,7 +26,7 @@ const OrderList = () => {
     const fetchOrders = async () => {
       try {
         setLoading(true);
-        const { data } = await api.get('/api/orders');
+        const { data } = await api.get('/orders');
         setOrders(data);
         setLoading(false);
       } catch (err) {
