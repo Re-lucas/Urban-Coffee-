@@ -25,6 +25,11 @@ const userSchema = new mongoose.Schema(
       required: true,
       default: false,
     },
+    // 新增：用户通知设置
+    notifications: {
+      orderStatus: { type: Boolean, default: true },
+      marketing:   { type: Boolean, default: false },
+    },
     // 以后可扩展更多字段，如 avatar、address 等
   },
   {
@@ -34,7 +39,6 @@ const userSchema = new mongoose.Schema(
 
 // 在保存（save）之前，对密码进行加盐哈希
 userSchema.pre('save', async function (next) {
-  // 如果密码没有改动，就跳过
   if (!this.isModified('password')) {
     return next();
   }

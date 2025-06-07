@@ -47,28 +47,30 @@ router.put('/:id/preferences', protect, async (req, res) => {
       });
     }
     
-    // 更新用户偏好
+    // 更新 preferences 和 notifications（如果前端发了 notifications 就更新）
+    const updateFields = {};
+    if (preferences !== undefined) updateFields.preferences = preferences;
+    if (notifications !== undefined) updateFields.notifications = notifications;
+
     const user = await User.findByIdAndUpdate(
       userId,
-      { preferences }, // 直接设置 preferences 字段
-      { 
-        new: true,      // 返回更新后的文档
-        runValidators: true // 运行模型验证
-      }
+      updateFields,
+      { new: true, runValidators: true }
     );
-    
-    if (!user) {
-      return res.status(404).json({ 
-        success: false,
-        message: '用户未找到' 
-      });
-    }
+      
+      if (!user) {
+        return res.status(404).json({ 
+          success: false,
+          message: '用户未找到' 
+        });
+      }
     
     // 返回成功响应
     res.json({
       success: true,
       message: '偏好已更新',
-      preferences: user.preferences
+      preferences: user.preferences,
+      notifications: user.notifications
     });
     
   } catch (error) {

@@ -7,7 +7,7 @@ const {
   createProduct,
   updateProduct,
   deleteProduct,
-  getFeaturedProducts,  // 你刚刚新增的
+  getFeaturedProducts,   // ❗️ 引入新方法
 } = require('../controllers/productController');
 
 const { protect, admin } = require('../middlewares/authMiddleware');

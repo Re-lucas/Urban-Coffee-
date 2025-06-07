@@ -68,29 +68,30 @@ export function AuthProvider({ children }) {
     setUser(updatedUser);
   }, [points]);
 
-    /** —— 新增：更新“通知设置” —— */
-  const updateNotifications = async (newNotifSettings) => {
+  // —— 新增：更新通知设置 —— 
+  const updateNotifications = async (newNotifications) => {
     if (!user) {
       setError('请先登录');
       return { success: false, message: '请先登录' };
     }
+
     try {
       setLoading(true);
-
-      // 如果你想同步到后端，可在这里调用 API，比如：
-      // await api.put(`/users/${user.id}/notifications`, { notifications: newNotifSettings });
-      // （前提：后端要有对应接口，这里假设暂时只在前端 localStorage 保存即可）
-
-      // 只是在本地更新 user 对象：
+      // 调用后端 /api/users/:id/preferences 接口，把 notifications 也发过去
+      const { data } = await api.put(
+        `/users/${user.id}/preferences`,
+        { notifications: newNotifications }
+      );
+      // 更新本地 user 对象
       const updatedUser = {
         ...user,
-        notifications: newNotifSettings,
+        notifications: data.notifications
       };
       setUser(updatedUser);
       setError(null);
       return { success: true, message: '通知设置已更新' };
     } catch (err) {
-      const errorMsg = err.response?.data?.message || '更新通知设置失败';
+      const errorMsg = err.response?.data?.message || '更新通知失败';
       setError(errorMsg);
       return { success: false, message: errorMsg };
     } finally {

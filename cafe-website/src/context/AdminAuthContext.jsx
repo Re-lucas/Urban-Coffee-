@@ -1,32 +1,36 @@
 // src/context/AdminAuthContext.jsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import api from '../utils/axiosConfig';
 
 export const AdminAuthContext = createContext();
 export const useAdminAuth = () => useContext(AdminAuthContext);
 
-export function AdminAuthProvider({ children }) {
-  // 管理员列表，优先从 localStorage 里读取
-  const [admins, setAdmins] = useState(() => {
-    const saved = localStorage.getItem('adminUsers');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return defaultAdmins;
-      }
-    }
-    return defaultAdmins;
-  });
+// —— 别忘了在这里先定义 defaultAdmins —— 
+const defaultAdmins = [
+  {
+    id: uuidv4(),
+    email: 'admin@urban.com',
+    password: 'admin123',
+  },
+  // 如果想继续添加更多管理员，放到这里即可
+];
 
-  // 当前登录的管理员
-  const [adminUser, setAdminUser] = useState(() => {
-    const saved = localStorage.getItem('adminUser');
-    return saved ? JSON.parse(saved) : null;
+
+export function AdminAuthProvider({ children }) {
+    // 当前登录的管理员及状态
+    const [adminUser, setAdminUser] = useState(() => {
+      const saved = localStorage.getItem('adminUser');
+      const token = localStorage.getItem('adminToken');
+      if (saved && token) {
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        return JSON.parse(saved);
+      }
+      return null;
   });
 
   // 判断是否正在初始化
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // 当 admins 改变时，保持到 localStorage
   useEffect(() => {
