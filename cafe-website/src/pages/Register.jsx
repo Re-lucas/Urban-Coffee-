@@ -19,88 +19,77 @@ const Register = () => {
     confirmPwd: '',
   });
 
-  // 如果用户已登录，直接跳转到个人中心
+  // 注册成功后 user 会被设值，这里跳转到 /account
   useEffect(() => {
     if (user) {
-      navigate('/account');
+      navigate('/account', { replace: true });
     }
   }, [user, navigate]);
 
   const handleInputChange = (field, value) => {
-    // 清除该字段的错误
     setErrors(prev => ({ ...prev, [field]: '' }));
-    
-    switch(field) {
+    switch (field) {
       case 'name': setName(value); break;
       case 'email': setEmail(value); break;
       case 'password': setPassword(value); break;
       case 'confirmPwd': setConfirmPwd(value); break;
+      default: break;
     }
   };
 
   const validateForm = () => {
-    const newErrors = {
-      name: '',
-      email: '',
-      password: '',
-      confirmPwd: ''
-    };
-    let isValid = true;
+    const newErrors = { name: '', email: '', password: '', confirmPwd: '' };
+    let valid = true;
 
-    // 姓名校验
     if (!name.trim()) {
       newErrors.name = '请输入姓名';
-      isValid = false;
+      valid = false;
     }
-
-    // 邮箱校验
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email.trim()) {
       newErrors.email = '请输入邮箱';
-      isValid = false;
-    } else if (!emailPattern.test(email.trim())) {
+      valid = false;
+    } else if (!emailRe.test(email.trim())) {
       newErrors.email = '邮箱格式不正确';
-      isValid = false;
+      valid = false;
     }
-
-    // 密码校验
     if (!password) {
       newErrors.password = '请输入密码';
-      isValid = false;
+      valid = false;
     } else if (password.length < 6) {
       newErrors.password = '密码长度至少为6位';
-      isValid = false;
+      valid = false;
     }
-
-    // 确认密码校验
     if (!confirmPwd) {
       newErrors.confirmPwd = '请再次输入密码';
-      isValid = false;
+      valid = false;
     } else if (password !== confirmPwd) {
       newErrors.confirmPwd = '两次输入的密码不一致';
-      isValid = false;
+      valid = false;
     }
 
     setErrors(newErrors);
-    return isValid;
+    return valid;
   };
 
+  // ← 一定要加 async
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     if (!validateForm()) return;
 
-    try {
-      await registerUser({
-        name: name.trim(),
-        email: email.trim(),
-        password: password
-      });
-      // 注册成功后，useEffect会自动处理跳转
-    } catch (error) {
-      // 错误信息已在 AuthContext 中处理
-      console.error('注册失败:', error);
+    // ← 一定要加 await
+    const { success, message } = await registerUser({
+      name: name.trim(),
+      email: email.trim(),
+      password,
+    });
+
+    if (!success) {
+      // registerUser 已经在 AuthContext 里把错误存到 `error` 里，
+      // 这里不需要二次 alert，页面顶部会显示 authError
+      console.warn('注册失败：', message);
     }
+    // 成功时，useEffect 会检测到 user 被设置，自动跳转
   };
 
   return (
@@ -108,15 +97,14 @@ const Register = () => {
       <h2>注册账号</h2>
       <form className="register-form" onSubmit={handleSubmit}>
         {authError && <p className="error">{authError}</p>}
-        
+
         <label>
           姓名：
           <input
             type="text"
             value={name}
-            onChange={(e) => handleInputChange('name', e.target.value)}
+            onChange={e => handleInputChange('name', e.target.value)}
             placeholder="请输入您的姓名"
-            required
             className={errors.name ? 'error-input' : ''}
           />
           {errors.name && <span className="field-error">{errors.name}</span>}
@@ -127,9 +115,8 @@ const Register = () => {
           <input
             type="email"
             value={email}
-            onChange={(e) => handleInputChange('email', e.target.value)}
+            onChange={e => handleInputChange('email', e.target.value)}
             placeholder="请输入您的邮箱"
-            required
             className={errors.email ? 'error-input' : ''}
           />
           {errors.email && <span className="field-error">{errors.email}</span>}
@@ -140,9 +127,8 @@ const Register = () => {
           <input
             type="password"
             value={password}
-            onChange={(e) => handleInputChange('password', e.target.value)}
+            onChange={e => handleInputChange('password', e.target.value)}
             placeholder="请输入密码（至少6位）"
-            required
             className={errors.password ? 'error-input' : ''}
           />
           {errors.password && <span className="field-error">{errors.password}</span>}
@@ -153,20 +139,15 @@ const Register = () => {
           <input
             type="password"
             value={confirmPwd}
-            onChange={(e) => handleInputChange('confirmPwd', e.target.value)}
+            onChange={e => handleInputChange('confirmPwd', e.target.value)}
             placeholder="请再次输入密码"
-            required
             className={errors.confirmPwd ? 'error-input' : ''}
           />
           {errors.confirmPwd && <span className="field-error">{errors.confirmPwd}</span>}
         </label>
 
-        <button 
-          type="submit" 
-          className="btn register-btn"
-          disabled={loading}
-        >
-          {loading ? '注册中...' : '注册并登录'}
+        <button type="submit" className="btn register-btn" disabled={loading}>
+          {loading ? '注册中…' : '注册并登录'}
         </button>
       </form>
 
