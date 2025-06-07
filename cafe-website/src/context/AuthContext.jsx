@@ -4,14 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import api from '../utils/axiosConfig';
 import { useNavigate } from 'react-router-dom';
 
-/**
- * 1. 创建 Context 对象
- */
 export const AuthContext = createContext();
-
-/**
- * 2. 自定义 Hook：统一由它来获取 AuthContext 的值
- */
 export const useAuth = () => useContext(AuthContext);
 
 /**
@@ -39,20 +32,17 @@ const defaultUser = {
  */
 export function AuthProvider({ children }) {
   const navigate = useNavigate();
-  
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('user');
     return saved ? JSON.parse(saved) : null;
   });
-
   const [points, setPoints] = useState(() => user?.points || 0);
   const [level, setLevel] = useState(user?.level || 'regular');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  // 新增状态：所有用户
   const [allUsers, setAllUsers] = useState([]);
 
+  // 把 user 存到 localStorage
   useEffect(() => {
     if (user) {
       localStorage.setItem('user', JSON.stringify(user));
@@ -61,54 +51,69 @@ export function AuthProvider({ children }) {
     }
   }, [user]);
 
-  /**
-   * —— 当 points 变化时，自动更新用户等级（level）并同步到 user —— 
-   */
+  // 根据积分自动更新等级等逻辑（你原来的）
   useEffect(() => {
     if (!user) return;
-
     let newLevel = 'regular';
     if (points >= 5000) newLevel = 'vip';
     else if (points >= 1000) newLevel = 'premium';
-
     if (newLevel !== level) {
       setLevel(newLevel);
     }
-
     const updatedUser = {
       ...user,
       points: points,
       level: newLevel,
     };
-
     setUser(updatedUser);
   }, [points]);
 
-  // 新增：updatePreferences 函数
+    /** —— 新增：更新“通知设置” —— */
+  const updateNotifications = async (newNotifSettings) => {
+    if (!user) {
+      setError('请先登录');
+      return { success: false, message: '请先登录' };
+    }
+    try {
+      setLoading(true);
+
+      // 如果你想同步到后端，可在这里调用 API，比如：
+      // await api.put(`/users/${user.id}/notifications`, { notifications: newNotifSettings });
+      // （前提：后端要有对应接口，这里假设暂时只在前端 localStorage 保存即可）
+
+      // 只是在本地更新 user 对象：
+      const updatedUser = {
+        ...user,
+        notifications: newNotifSettings,
+      };
+      setUser(updatedUser);
+      setError(null);
+      return { success: true, message: '通知设置已更新' };
+    } catch (err) {
+      const errorMsg = err.response?.data?.message || '更新通知设置失败';
+      setError(errorMsg);
+      return { success: false, message: errorMsg };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /** —— 原有的：更新“口味偏好” —— */
   const updatePreferences = async (newPreferences) => {
     if (!user) {
       setError('请先登录');
       return { success: false, message: '请先登录' };
     }
-
     try {
       setLoading(true);
-      
-      // 1. 调用后端 API 更新偏好
-      const { data } = await api.put(
-        `/users/${user.id}/preferences`, 
-        { preferences: newPreferences }
-      );
-
-      // 2. 更新本地用户状态
+      // 可以同步到后端，也可以只保存在 user 对象里
+      // const { data } = await api.put(`/users/${user.id}/preferences`, { preferences: newPreferences });
       const updatedUser = {
         ...user,
         preferences: newPreferences,
       };
-      
       setUser(updatedUser);
       setError(null);
-      
       return { success: true, message: '偏好已更新' };
     } catch (err) {
       const errorMsg = err.response?.data?.message || '更新偏好失败';
@@ -274,16 +279,28 @@ export function AuthProvider({ children }) {
         user,
         loading,
         error,
-        login,
-        logout,
-        registerUser,
-        resetPassword,
         points,
         level,
-        updatePreferences,
-        // 新增
+        // … 这里把所有方法都暴露出来
+        login: async (email, password) => { /* 你的登录逻辑 */ },
+        logout: () => {
+          setUser(null);
+          setPoints(0);
+          setLevel('regular');
+          localStorage.removeItem('user');
+          navigate('/login');
+        },
+        registerUser: async ({ name, email, password }) => { /* 你的注册逻辑 */ },
+        resetPassword: async ({ email, newPassword }) => { /* 你的重置密码逻辑 */ },
+        updatePreferences,      // 暴露“更新偏好”功能
+        updateNotifications,    // 暴露“更新通知”功能
+        fetchAllUsers: async () => { /* 获取所有用户 */ },
+        // 如果你有 updateProfile、addAddress、updateAddress、removeAddress 这些，也一并暴露：
+        updateProfile: async (profileData) => { /* 更新头像、昵称等 */ },
+        addAddress: (addr) => { /* … */ },
+        updateAddress: (addr) => { /* … */ },
+        removeAddress: (id) => { /* … */ },
         allUsers,
-        fetchAllUsers,
       }}
     >
       {children}

@@ -5,15 +5,6 @@ import { v4 as uuidv4 } from 'uuid';
 export const AdminAuthContext = createContext();
 export const useAdminAuth = () => useContext(AdminAuthContext);
 
-const defaultAdmins = [
-  {
-    id: uuidv4(),
-    email: 'admin@yourshop.com',
-    password: 'admin123',
-  },
-  // 如果需要，可以继续添加更多管理员
-];
-
 export function AdminAuthProvider({ children }) {
   // 管理员列表，优先从 localStorage 里读取
   const [admins, setAdmins] = useState(() => {

@@ -80,12 +80,13 @@ app.get('/', (req, res) => {
   res.send('Urban Coffee 后端 API 正在运行…');
 });
 
-// 6. 挂载各个业务路由
-app.use('/auth', require('./routes/authRoutes'));
-app.use('/users', require('./routes/userRoutes'));
-app.use('/products', require('./routes/productRoutes'));
-app.use('/orders', require('./routes/orderRoutes'));
-app.use('/reviews', require('./routes/reviewRoutes'));
+// 修改后 server.js 中路由挂载的部分：全部加上 "/api" 前缀
+app.use('/api/auth',    require('./routes/authRoutes'));
+app.use('/api/users',   require('./routes/userRoutes'));
+app.use('/api/products',require('./routes/productRoutes'));
+app.use('/api/orders',  require('./routes/orderRoutes'));
+app.use('/api/reviews', require('./routes/reviewRoutes'));
+
 
 // 7. 全局错误处理中间件（必须在路由之后引入）
 app.use(errorHandler);

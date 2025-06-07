@@ -4,11 +4,12 @@ const router = express.Router();
 const {
   getProducts,
   getProductById,
-  getFeaturedProducts, // 新增：引入 getFeaturedProducts
   createProduct,
   updateProduct,
   deleteProduct,
+  getFeaturedProducts,  // 你刚刚新增的
 } = require('../controllers/productController');
+
 const { protect, admin } = require('../middlewares/authMiddleware');
 
 // @route   GET /api/products/featured
