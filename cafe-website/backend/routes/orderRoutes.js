@@ -8,29 +8,19 @@ const {
   updateOrderToPaid,
   getAllOrders,
   updateOrderToDelivered,
-  createPaymentIntent,   // 新增这一行
+  createPaymentIntent,
 } = require('../controllers/orderController');
-const { protect, admin } = require('../middlewares/authMiddleware');
+const { protect, admin, protectAdmin } = require('../middlewares/authMiddleware');
 
-// POST /api/orders/:id/payintent  （创建 PaymentIntent）
+// 用户下单、查询
 router.post('/:id/payintent', protect, createPaymentIntent);
-
-// POST /api/orders  创建订单
 router.post('/', protect, addOrderItems);
-
-// GET /api/orders/myorders  获取本人所有订单
 router.get('/myorders', protect, getMyOrders);
-
-// GET /api/orders/:id  获取单个订单
 router.get('/:id', protect, getOrderById);
-
-// PUT /api/orders/:id/pay  标记支付完成
 router.put('/:id/pay', protect, updateOrderToPaid);
 
-// GET /api/orders  管理员获取所有订单
-router.get('/', protect, admin, getAllOrders);
-
-// PUT /api/orders/:id/deliver  管理员标记发货
-router.put('/:id/deliver', protect, admin, updateOrderToDelivered);
+// 管理员专属：插入 protectAdmin
+router.get('/', protect, admin, protectAdmin, getAllOrders);
+router.put('/:id/deliver', protect, admin, protectAdmin, updateOrderToDelivered);
 
 module.exports = router;

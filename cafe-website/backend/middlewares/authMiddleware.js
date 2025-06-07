@@ -42,7 +42,34 @@ const admin = (req, res, next) => {
   }
 };
 
+/**
+ * 保护管理员接口，只允许带了 isAdmin=true 的 JWT 访问
+ */
+const protectAdmin = asyncHandler(async (req, res, next) => {
+  let token = null;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    token = req.headers.authorization.split(' ')[1];
+  }
+  if (!token) {
+    res.status(401);
+    throw new Error('未提供管理员 token');
+  }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!decoded.isAdmin) throw new Error('非管理员身份');
+    req.admin = { id: decoded.id };
+    next();
+  } catch (err) {
+    res.status(401);
+    throw new Error('管理员鉴权失败');
+  }
+});
+
 module.exports = {
   protect,
   admin,
+  protectAdmin
 };

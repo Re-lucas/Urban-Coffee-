@@ -7,28 +7,28 @@ const {
   updateUser,
   deleteUser,
 } = require('../controllers/userController');
-const { protect, admin } = require('../middlewares/authMiddleware');
+const { protect, admin, protectAdmin } = require('../middlewares/authMiddleware');
 const User = require('../models/User'); // 确保引入 User 模型
 
 // @route   GET /api/users
 // @desc    获取所有用户（仅限管理员）
 // @access  Private/Admin
-router.get('/', protect, admin, getUsers);
+router.get('/', protect, admin, protectAdmin, getUsers);
 
 // @route   GET /api/users/:id
 // @desc    获取指定 ID 的用户（仅限管理员）
 // @access  Private/Admin
-router.get('/:id', protect, admin, getUserById);
+router.get('/:id', protect, admin, protectAdmin, getUserById);
 
 // @route   PUT /api/users/:id
 // @desc    更新指定用户信息（仅限管理员）
 // @access  Private/Admin
-router.put('/:id', protect, admin, updateUser);
+router.put('/:id', protect, admin, protectAdmin, updateUser);
 
 // @route   DELETE /api/users/:id
 // @desc    删除指定用户（仅限管理员）
 // @access  Private/Admin
-router.delete('/:id', protect, admin, deleteUser);
+router.delete('/:id', protect, admin, protectAdmin, deleteUser);
 
 // 新增：更新用户偏好的路由
 // @route   PUT /api/users/:userId/preferences
