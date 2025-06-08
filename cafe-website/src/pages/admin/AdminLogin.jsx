@@ -8,7 +8,7 @@ const AdminLogin = () => {
   const { adminUser, loading, error: authError, loginAdmin } = useAdminAuth();
   const navigate = useNavigate();
 
-  // 已登录则跳转到后台首页
+  // 已登录则跳后台首页
   useEffect(() => {
     if (adminUser) {
       navigate('/admin', { replace: true });
@@ -19,15 +19,12 @@ const AdminLogin = () => {
   const [password, setPassword] = useState('');
   const [error, setError]       = useState('');
 
-  // 注意：handleSubmit 标记为 async
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     const { success, message } = await loginAdmin(email.trim(), password);
     if (!success) {
       setError(message);
-    } else {
-      navigate('/admin', { replace: true });
     }
   };
 
@@ -35,9 +32,7 @@ const AdminLogin = () => {
     <div className="admin-login-page">
       <h2>管理员登录</h2>
       <form className="admin-login-form" onSubmit={handleSubmit}>
-        {/* 本地 error */}
         {error && <p className="error">{error}</p>}
-        {/* 后端 authError（可选展示） */}
         {authError && <p className="error">{authError}</p>}
 
         <label>

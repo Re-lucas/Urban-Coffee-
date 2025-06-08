@@ -6,7 +6,7 @@ export const AdminAuthContext = createContext();
 export const useAdminAuth = () => useContext(AdminAuthContext);
 
 export function AdminAuthProvider({ children }) {
-  // 从 localStorage 初始化 adminUser 和 token
+  // 初始化：从 localStorage 读 adminUser + token
   const [adminUser, setAdminUser] = useState(() => {
     const saved = localStorage.getItem('adminUser');
     const token = localStorage.getItem('adminToken');
@@ -20,11 +20,10 @@ export function AdminAuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState(null);
 
-  // 当 adminUser 变动时，同步 localStorage & axios header
+  // adminUser 变化时，同步 localStorage & axios header
   useEffect(() => {
     if (adminUser) {
       localStorage.setItem('adminUser', JSON.stringify(adminUser));
-      // token 已经在 loginAdmin 中写入
     } else {
       localStorage.removeItem('adminUser');
       localStorage.removeItem('adminToken');
@@ -32,20 +31,19 @@ export function AdminAuthProvider({ children }) {
     }
   }, [adminUser]);
 
-  // 结束初始化 loading
+  // 结束初始 loading
   useEffect(() => setLoading(false), []);
 
   /**
-   * 调用后端 /api/admin/login，获取 JWT 并存储
+   * 登录：调用后端 /api/admin/login
    */
   const loginAdmin = async (email, password) => {
     setLoading(true);
     setError(null);
     try {
       const { data } = await api.post('/admin/login', { email, password });
-      // 存 token & admin info
+      // 存 token & admin 信息
       localStorage.setItem('adminToken', data.token);
-      localStorage.setItem('adminUser', JSON.stringify(data.admin));
       api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
       setAdminUser(data.admin);
       return { success: true };
@@ -59,7 +57,7 @@ export function AdminAuthProvider({ children }) {
   };
 
   /**
-   * 注销：清空状态 & localStorage & header
+   * 注销
    */
   const logoutAdmin = () => {
     setAdminUser(null);
