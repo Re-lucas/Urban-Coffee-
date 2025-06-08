@@ -32,7 +32,7 @@ const ProductCard = ({ product, searchQuery }) => {
   const { addToCart } = useCart();
   const { wishlist, addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { getReviewsByProduct } = useReview();
-  const [inWishlist, setInWishlist] = useState(isInWishlist(product.id));
+  const [inWishlist, setInWishlist] = useState(isInWishlist(product._id));
   
   const [stock, setStock] = useState(product.stock || 10);
   const [isAdding, setIsAdding] = useState(false);
@@ -41,11 +41,11 @@ const ProductCard = ({ product, searchQuery }) => {
   const [reviewCount, setReviewCount] = useState(0);
 
   useEffect(() => {
-    setInWishlist(isInWishlist(product.id));
-  }, [wishlist]);
+    setInWishlist(isInWishlist(product._id));
+  }, [wishlist, product._id, isInWishlist]);
 
   useEffect(() => {
-    const reviews = getReviewsByProduct(product.id);
+    const reviews = getReviewsByProduct(product._id);
     const count = reviews.length;
     
     if (count > 0) {
@@ -54,10 +54,10 @@ const ProductCard = ({ product, searchQuery }) => {
     } else {
       setAvgRating(0);
     }
-    
     setReviewCount(count);
-  }, [getReviewsByProduct, product.id]);
+  }, [getReviewsByProduct, product._id]);
 
+  // 虚拟库存变动（可选，不用可删）
   useEffect(() => {
     const interval = setInterval(() => {
       if (stock > 0 && Math.random() > 0.7) {
@@ -79,7 +79,7 @@ const ProductCard = ({ product, searchQuery }) => {
   const handleWishlistToggle = (e) => {
     e.stopPropagation();
     if (inWishlist) {
-      removeFromWishlist(product.id);
+      removeFromWishlist(product._id);
       toast('已从心愿单移除');
     } else {
       addToWishlist(product);
@@ -95,40 +95,35 @@ const ProductCard = ({ product, searchQuery }) => {
     for (let i = 0; i < fullStars; i++) {
       stars.push(<FaStar key={`full-${i}`} className="star full-star" />);
     }
-    
     if (hasHalfStar) {
       stars.push(<FaStarHalfAlt key="half" className="star half-star" />);
     }
-    
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
     for (let i = 0; i < emptyStars; i++) {
       stars.push(<FaRegStar key={`empty-${i}`} className="star empty-star" />);
     }
-    
     return stars;
   };
 
   return (
     <div className="product-card">
       <Link 
-        to={`/product/${product.id}`} 
+        to={`/product/${product._id}`} 
         className="product-info-link"
       >
-        {/* 添加商品图片 - 包含懒加载属性 */}
+        {/* 商品图片 */}
         <div className="product-image-container">
           <img 
             src={product.image} 
             alt={product.name} 
             className="product-image"
-            loading="lazy"  // 添加懒加载属性
+            loading="lazy"
           />
         </div>
-        
         <div className="product-info">
           <h3 className="product-name">
             {highlightText(product.name, searchQuery)}
           </h3>
-          
           <div className="product-rating">
             <div className="stars-container">
               {renderStars()}
@@ -138,14 +133,12 @@ const ProductCard = ({ product, searchQuery }) => {
               {reviewCount > 0 ? `(${reviewCount}条评价)` : '暂无评价'}
             </span>
           </div>
-          
           <p className="description">
             {highlightText(product.description, searchQuery)}
           </p>
           <p className="roast-level">烘焙：{product.roast}</p>
         </div>
       </Link>
-      
       <div className="product-footer">
         <span className="price">¥{product.price.toFixed(2)}</span>
         <div className="action-buttons">

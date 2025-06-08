@@ -27,19 +27,19 @@ const CartPanel = ({ isOpen, onClose }) => {
       ) : (
         <>
           <div className="cart-items">
-            {cartItems.map(item => (
-              <div key={item.id} className="cart-item">
+            {cartItems.map((item, idx) => (
+              <div key={item._id || item.id || idx} className="cart-item">
                 <div className="item-info">
                   <h4>{item.name}</h4>
                   <p>${item.price} x {item.quantity}</p>
                 </div>
                 <div className="item-actions">
                   <div className="quantity-controls">
-                    <button onClick={() => updateQuantity(item.id, item.quantity - 1)}>-</button>
+                    <button onClick={() => updateQuantity(item._id || item.id, item.quantity - 1)}>-</button>
                     <span>{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
+                    <button onClick={() => updateQuantity(item._id || item.id, item.quantity + 1)}>+</button>
                   </div>
-                  <button className="remove-btn" onClick={() => removeFromCart(item.id)}>移除</button>
+                  <button className="remove-btn" onClick={() => removeFromCart(item._id || item.id)}>移除</button>
                 </div>
               </div>
             ))}
