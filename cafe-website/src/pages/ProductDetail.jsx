@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useReview } from '../context/ReviewContext';
 import { useCart } from '../context/CartContext';
-import api from '../utils/axiosConfig'; // 导入 API 实例
+import api from '../utils/axiosConfig';
 import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
 import '../styles/product-detail.css';
 
@@ -21,6 +21,7 @@ const ProductDetail = () => {
 
   // 获取商品详情
   useEffect(() => {
+    if (!id) return; // id 不存在时不发请求
     const fetchProduct = async () => {
       try {
         setLoading(true);
@@ -32,7 +33,6 @@ const ProductDetail = () => {
         setLoading(false);
       }
     };
-
     fetchProduct();
   }, [id]);
 
