@@ -8,7 +8,7 @@ import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
 import '../styles/product-detail.css';
 
 const ProductDetail = () => {
-  const { productId } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
   const { getReviewsByProduct } = useReview();
   const { addToCart } = useCart();
@@ -24,7 +24,7 @@ const ProductDetail = () => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        const { data } = await api.get(`/products/${productId}`);
+        const { data } = await api.get(`/products/${id}`);
         setProduct(data);
         setLoading(false);
       } catch (err) {
@@ -32,9 +32,10 @@ const ProductDetail = () => {
         setLoading(false);
       }
     };
-    
+
     fetchProduct();
-  }, [productId]);
+  }, [id]);
+
 
   // 获取商品评价
   useEffect(() => {
