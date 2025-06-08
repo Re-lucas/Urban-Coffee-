@@ -1,5 +1,5 @@
 // src/pages/admin/AdminHome.jsx
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useOrder } from '../../context/OrderContext';
 import { Link } from 'react-router-dom';
@@ -10,10 +10,21 @@ const AdminHome = () => {
   // 从 OrderContext 获取所有订单列表 + 拉取方法
   const { allOrders, fetchAllOrders } = useOrder();
 
-  // 组件挂载时同时拉取“所有用户”和“所有订单”
+  // 页面级本地 loading 状态
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    fetchAllUsers();
-    fetchAllOrders();
+    // 并发请求两个接口，都结束再 setLoading(false)
+    const fetchData = async () => {
+      try {
+        await Promise.all([fetchAllUsers(), fetchAllOrders()]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+    // 只在挂载时执行
+    // eslint-disable-next-line
   }, []);
 
   // 防御性判断，确保 allUsers 和 allOrders 始终是数组
@@ -22,6 +33,14 @@ const AdminHome = () => {
   const pendingOrders = Array.isArray(allOrders)
     ? allOrders.filter((o) => o.status === '待发货').length
     : 0;
+
+  if (loading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '2rem' }}>
+        数据加载中...
+      </div>
+    );
+  }
 
   return (
     <div>
