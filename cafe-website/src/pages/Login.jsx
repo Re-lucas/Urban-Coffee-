@@ -19,29 +19,26 @@ const Login = () => {
     password: '',
   });
 
-  // 如果用户已登录，直接跳转到目标页面
+  // 🚩 核心变动：已登录且是管理员，直接跳后台；否则走原逻辑
   useEffect(() => {
     if (user) {
-      navigate(from, { replace: true });
+      if (user.isAdmin) {
+        navigate('/admin', { replace: true });
+      } else {
+        navigate(from, { replace: true });
+      }
     }
   }, [user, navigate, from]);
 
   const handleInputChange = (field, value) => {
-    // 清除该字段的错误
     setErrors(prev => ({ ...prev, [field]: '' }));
-    
     if (field === 'email') setEmail(value);
     if (field === 'password') setPassword(value);
   };
 
   const validateForm = () => {
-    const newErrors = {
-      email: '',
-      password: ''
-    };
+    const newErrors = { email: '', password: '' };
     let isValid = true;
-
-    // 邮箱校验
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email.trim()) {
       newErrors.email = '请输入邮箱';
@@ -50,27 +47,21 @@ const Login = () => {
       newErrors.email = '邮箱格式不正确';
       isValid = false;
     }
-
-    // 密码校验
     if (!password) {
       newErrors.password = '请输入密码';
       isValid = false;
     }
-
     setErrors(newErrors);
     return isValid;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     if (!validateForm()) return;
-
     try {
       await login(email.trim(), password);
       // 登录成功后，useEffect会自动处理跳转
     } catch (error) {
-      // 错误信息已在 AuthContext 中处理
       console.error('登录失败:', error);
     }
   };
@@ -80,7 +71,6 @@ const Login = () => {
       <h1>登录</h1>
       <form className="login-form" onSubmit={handleSubmit}>
         {authError && <p className="error">{authError}</p>}
-        
         <div className="form-group">
           <label htmlFor="email">邮箱：</label>
           <input
@@ -94,7 +84,6 @@ const Login = () => {
           />
           {errors.email && <span className="field-error">{errors.email}</span>}
         </div>
-        
         <div className="form-group">
           <label htmlFor="password">密码：</label>
           <input
@@ -108,7 +97,6 @@ const Login = () => {
           />
           {errors.password && <span className="field-error">{errors.password}</span>}
         </div>
-        
         <button 
           type="submit" 
           className="btn login-btn"
@@ -117,7 +105,6 @@ const Login = () => {
           {loading ? '登录中...' : '登录'}
         </button>
       </form>
-
       <div className="login-links">
         <p>
           没有账号？<Link to="/register">注册新账号</Link>
