@@ -67,7 +67,6 @@ app.post(
 );
 
 // 4. 注册常规中间件
-// 修改这里：增强 CORS 配置
 app.use(cors({
   origin: 'http://localhost:5173', // 你的前端地址
   credentials: true,
@@ -82,12 +81,11 @@ app.get('/', (req, res) => {
 
 // 6. 挂载各业务路由时都带上 /api 前缀
 app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/admin', require('./routes/adminRoutes'));
+// app.use('/api/admin', require('./routes/adminRoutes')); // 这一行删掉或注释！
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/products', require('./routes/productRoutes'));
 app.use('/api/orders', require('./routes/orderRoutes'));
 app.use('/api/reviews', require('./routes/reviewRoutes'));
-
 
 // 7. 全局错误处理中间件（必须在路由之后引入）
 app.use(errorHandler);
