@@ -12,11 +12,8 @@ const protect = asyncHandler(async (req, res, next) => {
     req.headers.authorization.startsWith('Bearer')
   ) {
     try {
-      // 格式： Authorization: "Bearer <token>"
       token = req.headers.authorization.split(' ')[1];
-      // 解码 token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      // 根据解码后拿到的 ID，查询用户信息（不返回密码字段）
       req.user = await User.findById(decoded.id).select('-password');
       next();
     } catch (error) {
@@ -44,6 +41,7 @@ const admin = (req, res, next) => {
 
 /**
  * 保护管理员接口，只允许带了 isAdmin=true 的 JWT 访问
+ * 本质上和 protect + admin 二合一
  */
 const protectAdmin = asyncHandler(async (req, res, next) => {
   let token = null;
@@ -59,8 +57,13 @@ const protectAdmin = asyncHandler(async (req, res, next) => {
   }
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if (!decoded.isAdmin) throw new Error('非管理员身份');
-    req.admin = { id: decoded.id };
+    // 查询并赋值 user，保持和 protect 一致
+    const user = await User.findById(decoded.id).select('-password');
+    if (!user || !user.isAdmin) {
+      res.status(403);
+      throw new Error('非管理员身份');
+    }
+    req.user = user; // 赋值给 req.user，保持前后一致
     next();
   } catch (err) {
     res.status(401);
@@ -71,5 +74,5 @@ const protectAdmin = asyncHandler(async (req, res, next) => {
 module.exports = {
   protect,
   admin,
-  protectAdmin
+  protectAdmin,
 };

@@ -1,16 +1,16 @@
 // src/pages/admin/AdminLayout.jsx
 import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { useAdminAuth } from '../../context/AdminAuthContext';
+import { useAuth } from '../../context/AuthContext';
 import '../../styles/admin-layout.css';
 
 const AdminLayout = () => {
-  const { logoutAdmin, adminUser } = useAdminAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    logoutAdmin();
-    navigate('/admin/login');
+    logout();
+    navigate('/login');
   };
 
   return (
@@ -33,7 +33,7 @@ const AdminLayout = () => {
           </NavLink>
         </nav>
         <div className="sidebar-footer">
-          <p>管理员：{adminUser?.email}</p>
+          <p>管理员：{user?.email}</p>
           <button className="btn logout-btn" onClick={handleLogout}>
             注销
           </button>

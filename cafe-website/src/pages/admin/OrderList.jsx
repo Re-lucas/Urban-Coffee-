@@ -1,27 +1,19 @@
 // src/pages/admin/OrderList.jsx
-import React, { useState, useEffect, useContext } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/axiosConfig';
 import '../../styles/admin-orderlist.css';
 
 const OrderList = () => {
   const { user } = useAuth();
-  const navigate = useNavigate();
   
   const [orders, setOrders] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // 管理员权限验证
-  useEffect(() => {
-    if (!user || !user.isAdmin) {
-      navigate('/login');
-    }
-  }, [user, navigate]);
-
-  // 获取订单列表
+  // 获取订单列表（只要能进来就是管理员了）
   useEffect(() => {
     const fetchOrders = async () => {
       try {
@@ -34,11 +26,8 @@ const OrderList = () => {
         setLoading(false);
       }
     };
-
-    if (user?.isAdmin) {
-      fetchOrders();
-    }
-  }, [user]);
+    fetchOrders();
+  }, []);
 
   // 处理订单发货
   const handleDeliver = async (orderId) => {
@@ -46,7 +35,6 @@ const OrderList = () => {
       try {
         setLoading(true);
         await api.put(`/orders/${orderId}/deliver`);
-        // 更新订单状态
         setOrders(orders.map(order => 
           order._id === orderId ? { ...order, isDelivered: true } : order
         ));
@@ -72,7 +60,6 @@ const OrderList = () => {
   return (
     <div className="admin-orderlist">
       <h2>订单管理</h2>
-
       <div className="search-bar">
         <input
           type="text"
@@ -81,7 +68,6 @@ const OrderList = () => {
           onChange={(e) => setSearchText(e.target.value)}
         />
       </div>
-
       {loading && <div className="loading">加载中...</div>}
       {error && <div className="error">{error}</div>}
 

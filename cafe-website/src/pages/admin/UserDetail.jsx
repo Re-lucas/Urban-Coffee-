@@ -1,12 +1,10 @@
 // src/pages/admin/UserDetail.jsx
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/axiosConfig';
 import '../../styles/admin-userdetail.css';
 
 const UserDetail = () => {
-  const { user: currentUser } = useAuth();
   const navigate = useNavigate();
   const { id } = useParams();
   
@@ -18,13 +16,6 @@ const UserDetail = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
-  // 管理员权限验证
-  useEffect(() => {
-    if (!currentUser || !currentUser.isAdmin) {
-      navigate('/login');
-    }
-  }, [currentUser, navigate]);
 
   // 获取用户数据
   useEffect(() => {
@@ -45,10 +36,8 @@ const UserDetail = () => {
       }
     };
 
-    if (currentUser?.isAdmin) {
-      fetchUser();
-    }
-  }, [id, currentUser]);
+    fetchUser();
+  }, [id]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;

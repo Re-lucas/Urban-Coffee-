@@ -1,21 +1,14 @@
 // src/pages/admin/ProductList.jsx
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/axiosConfig';
 import '../../styles/admin-productlist.css';
 
 const ProductList = () => {
-  const { user } = useAuth();
+  // const { user } = useAuth(); // 不再需要内部权限校验
   const navigate = useNavigate();
   const location = useLocation();
-  
-  // 管理员权限验证
-  useEffect(() => {
-    if (!user || !user.isAdmin) {
-      navigate('/login');
-    }
-  }, [user, navigate]);
 
   // 从 URL 参数中获取搜索关键字和页码
   const query = new URLSearchParams(location.search);
@@ -46,11 +39,8 @@ const ProductList = () => {
         setLoading(false);
       }
     };
-
-    if (user?.isAdmin) {
-      fetchProducts();
-    }
-  }, [user, keyword, pageNumber]);
+    fetchProducts();
+  }, [keyword, pageNumber]);
 
   // 处理搜索
   const handleSearch = (e) => {
@@ -84,10 +74,9 @@ const ProductList = () => {
       <h2>商品库存管理</h2>
 
       <div className="admin-actions">
-        <Link to="/admin/product/create" className="btn-add">
+        <Link to="/admin/products/create" className="btn-add">
           添加新商品
         </Link>
-        
         <form onSubmit={handleSearch} className="search-bar">
           <input
             type="text"

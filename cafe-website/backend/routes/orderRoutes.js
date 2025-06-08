@@ -10,17 +10,17 @@ const {
   updateOrderToDelivered,
   createPaymentIntent,
 } = require('../controllers/orderController');
-const { protect, admin, protectAdmin } = require('../middlewares/authMiddleware');
+const { protect, admin } = require('../middlewares/authMiddleware');
 
-// 用户下单、查询
+// 用户相关
 router.post('/:id/payintent', protect, createPaymentIntent);
 router.post('/', protect, addOrderItems);
 router.get('/myorders', protect, getMyOrders);
 router.get('/:id', protect, getOrderById);
 router.put('/:id/pay', protect, updateOrderToPaid);
 
-// 管理员专属：插入 protectAdmin
-router.get('/', protect, admin, protectAdmin, getAllOrders);
-router.put('/:id/deliver', protect, admin, protectAdmin, updateOrderToDelivered);
+// 管理员专属
+router.get('/', protect, admin, getAllOrders);
+router.put('/:id/deliver', protect, admin, updateOrderToDelivered);
 
 module.exports = router;

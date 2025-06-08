@@ -9,16 +9,16 @@ const {
   deleteProduct,
   getFeaturedProducts,
 } = require('../controllers/productController');
-const { protect, admin, protectAdmin } = require('../middlewares/authMiddleware');
+const { protect, admin } = require('../middlewares/authMiddleware');
 
 // 公开接口
 router.get('/featured', getFeaturedProducts);
 router.get('/', getProducts);
 router.get('/:id', getProductById);
 
-// 管理员专属接口：插入 protectAdmin
-router.post('/', protect, admin, protectAdmin, createProduct);
-router.put('/:id', protect, admin, protectAdmin, updateProduct);
-router.delete('/:id', protect, admin, protectAdmin, deleteProduct);
+// 管理员专属接口
+router.post('/', protect, admin, createProduct);
+router.put('/:id', protect, admin, updateProduct);
+router.delete('/:id', protect, admin, deleteProduct);
 
 module.exports = router;

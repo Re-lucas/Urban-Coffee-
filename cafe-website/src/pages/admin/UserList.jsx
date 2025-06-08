@@ -1,25 +1,18 @@
 // src/pages/admin/UserList.jsx
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/axiosConfig';
 import '../../styles/admin-userlist.css';
 
 const UserList = () => {
-  const { user } = useAuth();
+  const { user } = useAuth(); // 只用于当前登录者的 _id，权限已由路由守卫兜底
   const navigate = useNavigate();
   
   const [users, setUsers] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
-  // 管理员权限验证
-  useEffect(() => {
-    if (!user || !user.isAdmin) {
-      navigate('/login');
-    }
-  }, [user, navigate]);
 
   // 获取用户列表
   useEffect(() => {
@@ -34,11 +27,8 @@ const UserList = () => {
         setLoading(false);
       }
     };
-
-    if (user?.isAdmin) {
-      fetchUsers();
-    }
-  }, [user]);
+    fetchUsers();
+  }, []);
 
   // 处理删除用户
   const handleDelete = async (userId) => {

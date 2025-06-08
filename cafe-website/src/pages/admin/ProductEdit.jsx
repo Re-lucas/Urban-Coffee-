@@ -1,17 +1,16 @@
 // src/pages/admin/ProductEdit.jsx
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/axiosConfig';
 import '../../styles/admin-productedit.css';
 
 const ProductEdit = () => {
-  const { user } = useAuth();
+  // const { user } = useAuth(); // 不再需要权限校验
   const navigate = useNavigate();
   const { id } = useParams();
-  const isEditMode = Boolean(id); // 判断是编辑模式还是创建模式
+  const isEditMode = Boolean(id);
 
-  // 商品状态
   const [name, setName] = useState('');
   const [price, setPrice] = useState(0);
   const [brand, setBrand] = useState('');
@@ -21,19 +20,11 @@ const ProductEdit = () => {
   const [countInStock, setCountInStock] = useState(0);
   const [isAvailable, setIsAvailable] = useState(true);
 
-  // UI 状态
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 管理员权限验证
-  useEffect(() => {
-    if (!user || !user.isAdmin) {
-      navigate('/login');
-    }
-  }, [user, navigate]);
-
-  // 如果是编辑模式，获取商品数据
+  // 获取商品数据
   useEffect(() => {
     if (isEditMode) {
       const fetchProduct = async () => {
@@ -76,14 +67,11 @@ const ProductEdit = () => {
       };
 
       if (isEditMode) {
-        // 更新商品
         await api.put(`/products/${id}`, productData);
       } else {
-        // 创建商品
         await api.post('/products', productData);
       }
-      
-      navigate('/admin/productlist');
+      navigate('/admin/products');
     } catch (err) {
       setError(err.response?.data?.message || '保存失败，请重试');
       setIsSubmitting(false);
@@ -96,14 +84,11 @@ const ProductEdit = () => {
 
   return (
     <div className="admin-productedit">
-      <Link to="/admin/productlist" className="back-link">
+      <Link to="/admin/products" className="back-link">
         &larr; 返回商品列表
       </Link>
-      
       <h2>{isEditMode ? '编辑商品' : '添加新商品'}</h2>
-      
       {error && <div className="error">{error}</div>}
-      
       <form onSubmit={handleSubmit} className="product-form">
         <div className="form-group">
           <label htmlFor="name">商品名称 *</label>
@@ -115,7 +100,6 @@ const ProductEdit = () => {
             required
           />
         </div>
-        
         <div className="form-group">
           <label htmlFor="price">价格 (¥) *</label>
           <input
@@ -128,7 +112,6 @@ const ProductEdit = () => {
             required
           />
         </div>
-        
         <div className="form-group">
           <label htmlFor="brand">品牌 *</label>
           <input
@@ -139,7 +122,6 @@ const ProductEdit = () => {
             required
           />
         </div>
-        
         <div className="form-group">
           <label htmlFor="category">分类 *</label>
           <input
@@ -150,7 +132,6 @@ const ProductEdit = () => {
             required
           />
         </div>
-        
         <div className="form-group">
           <label htmlFor="image">图片 URL *</label>
           <input
@@ -161,7 +142,6 @@ const ProductEdit = () => {
             required
           />
         </div>
-        
         <div className="form-group">
           <label htmlFor="stock">库存数量 *</label>
           <input
@@ -173,7 +153,6 @@ const ProductEdit = () => {
             required
           />
         </div>
-        
         <div className="form-group">
           <label htmlFor="available">在售状态 *</label>
           <select
@@ -185,7 +164,6 @@ const ProductEdit = () => {
             <option value={false}>下架</option>
           </select>
         </div>
-        
         <div className="form-group full-width">
           <label htmlFor="description">商品描述 *</label>
           <textarea
@@ -196,7 +174,6 @@ const ProductEdit = () => {
             required
           ></textarea>
         </div>
-        
         <div className="form-actions">
           <button 
             type="submit" 
