@@ -13,13 +13,13 @@ const Menu = () => {
 
   // 从 URL 获取查询参数
   const initialSearch = queryParams.get('search') || '';
-  const initialRoast = queryParams.get('roast') || 'All';
+  const initialCategory = queryParams.get('category') || 'All';
   const initialMinPrice = queryParams.get('minPrice') || '';
   const initialMaxPrice = queryParams.get('maxPrice') || '';
   const initialPage = queryParams.get('page') || 1;
 
   const [searchQuery, setSearchQuery] = useState(initialSearch);
-  const [selectedRoast, setSelectedRoast] = useState(initialRoast);
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [minPrice, setMinPrice] = useState(initialMinPrice);
   const [maxPrice, setMaxPrice] = useState(initialMaxPrice);
   const [currentPage, setCurrentPage] = useState(Number(initialPage));
@@ -30,6 +30,7 @@ const Menu = () => {
   const [error, setError] = useState(null);
   const [totalPages, setTotalPages] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -39,7 +40,7 @@ const Menu = () => {
         // 构建查询参数
         const params = {
           search: searchQuery,
-          roast: selectedRoast !== 'All' ? selectedRoast : undefined,
+          category: selectedCategory !== 'All' ? selectedCategory : undefined,
           minPrice: minPrice || undefined,
           maxPrice: maxPrice || undefined,
           page: currentPage,
@@ -49,6 +50,12 @@ const Menu = () => {
       // 修复这里：移除了多余的 "/api" 前缀
       const { data } = await api.get('/products', { params });
       console.log('Menu 接口返回 data =', data);
+
+      // 第一次拿完 data 之后，也提取一下所有分类，保持下拉完整
+        if (Array.isArray(data.products)) {
+          const cats = Array.from(new Set(data.products.map(p => p.category)));
+          setCategories(cats);
+        }
 
         // —— 兼容三种后端返回格式 —— 
         // 1. data 本身就是一个数组：setProducts(data)
@@ -100,6 +107,7 @@ const Menu = () => {
     const newQueryParams = new URLSearchParams();
     if (searchQuery) newQueryParams.set('search', searchQuery);
     if (selectedRoast !== 'All') newQueryParams.set('roast', selectedRoast);
+    if (selectedCategory !== 'All') newQueryParams.set('category', selectedCategory);
     if (minPrice) newQueryParams.set('minPrice', minPrice);
     if (maxPrice) newQueryParams.set('maxPrice', maxPrice);
     if (currentPage > 1) newQueryParams.set('page', currentPage);
@@ -124,16 +132,16 @@ const Menu = () => {
         />
 
         <select
-          value={selectedRoast}
+          value={selectedCategory}
           onChange={e => {
-            setSelectedRoast(e.target.value);
+            setSelectedCategory(e.target.value);
             setCurrentPage(1);
           }}
         >
-          <option value="All">全部烘焙程度</option>
-          <option value="浅焙">浅焙</option>
-          <option value="中焙">中焙</option>
-          <option value="深焙">深焙</option>
+          <option value="All">全部分类</option>
+          {categories.map(cat => (
+            <option key={cat} value={cat}>{cat}</option>
+          ))}
         </select>
 
         <input

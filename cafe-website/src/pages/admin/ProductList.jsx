@@ -96,6 +96,7 @@ const ProductList = () => {
           <tr>
             <th>ID</th>
             <th>名称</th>
+            <th>分类</th>
             <th>价格（¥）</th>
             <th>库存</th>
             <th>在售</th>
@@ -114,6 +115,7 @@ const ProductList = () => {
               <tr key={p._id}>
                 <td>{p._id.slice(0, 8)}</td>
                 <td>{p.name}</td>
+                <td>{p.category}</td>
                 <td>{p.price.toFixed(2)}</td>
                 <td className={p.countInStock <= 0 ? 'out-of-stock' : ''}>
                   {p.countInStock}
