@@ -8,7 +8,8 @@ import { Elements, CardElement, useStripe, useElements } from '@stripe/react-str
 import '../styles/checkout.css';
 
 // 使用环境变量中的Stripe公钥
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
+console.log('Stripe key →', import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 // Stripe支付表单组件
 const StripePaymentForm = ({ orderId, grandTotal, onPaymentSuccess }) => {
@@ -197,8 +198,8 @@ const Checkout = () => {
           <div className="order-summary">
             <h2>订单摘要</h2>
             <div className="order-items">
-              {cartItems.map(item => (
-                <div key={item.id} className="order-item">
+              {cartItems.map((item, idx) => (
+                <div key={item.id ?? item._id ?? idx} className="order-item">
                   <div className="item-info">
                     <span>{item.name}</span>
                     <span>x {item.quantity}</span>
