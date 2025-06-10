@@ -46,7 +46,7 @@ export function WishlistProvider({ children }) {
    */
   const addToWishlist = (product) => {
     setWishlist((prev) => {
-      const exists = prev.find((item) => item.id === product.id);
+      const exists = prev.find((item) => item._id === product._id);
       if (exists) {
         // 如果已经在心愿单里，就直接返回原数组
         return prev;
@@ -60,7 +60,7 @@ export function WishlistProvider({ children }) {
    * removeFromWishlist：根据 productId 把商品移除
    */
   const removeFromWishlist = (productId) => {
-    setWishlist((prev) => prev.filter((item) => item.id !== productId));
+    setWishlist((prev) => prev.filter((item) => item._id !== productId));
   };
 
   /**
@@ -69,7 +69,7 @@ export function WishlistProvider({ children }) {
    * @returns {boolean} 是否在心愿单中
    */
   const isInWishlist = (productId) => {
-    return wishlist.some((item) => item.id === productId);
+    return wishlist.some((item) => item._id === productId);
   };
 
   return (

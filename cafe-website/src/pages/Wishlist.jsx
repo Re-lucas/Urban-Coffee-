@@ -14,7 +14,7 @@ const Wishlist = () => {
   // 点击“加入购物车”后，同时从心愿单里移除该商品
   const handleAddAndRemove = (product) => {
     addToCart(product, 1);
-    removeFromWishlist(product.id);
+    removeFromWishlist(product._id);
   };
 
   return (
@@ -30,7 +30,7 @@ const Wishlist = () => {
       ) : (
         <div className="wishlist-grid">
           {wishlist.map((product) => (
-            <div key={product.id} className="wishlist-item">
+            <div key={product._id} className="wishlist-item">
               <img
                 src={product.image}
                 alt={product.name}
@@ -48,7 +48,7 @@ const Wishlist = () => {
                   加入购物车
                 </button>
                 <button
-                  onClick={() => removeFromWishlist(product.id)}
+                  onClick={() => removeFromWishlist(product._id)}
                   className="btn remove-btn"
                 >
                   移除

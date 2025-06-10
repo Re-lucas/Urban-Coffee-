@@ -8,8 +8,8 @@ import { Elements, CardElement, useStripe, useElements } from '@stripe/react-str
 import '../styles/checkout.css';
 
 // 使用环境变量中的Stripe公钥
-console.log('Stripe key →', import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+console.log('Stripe key →', import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 // Stripe支付表单组件
 const StripePaymentForm = ({ orderId, grandTotal, onPaymentSuccess }) => {
