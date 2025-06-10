@@ -136,7 +136,7 @@ const ProductCard = ({ product, searchQuery }) => {
           <p className="description">
             {highlightText(product.description, searchQuery)}
           </p>
-          <p className="roast-level">烘焙：{product.roast}</p>
+          <p className="category">分类：{product.category}</p>
         </div>
       </Link>
       <div className="product-footer">

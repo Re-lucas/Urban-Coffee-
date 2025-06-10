@@ -106,7 +106,6 @@ const Menu = () => {
     // 更新 URL 查询参数
     const newQueryParams = new URLSearchParams();
     if (searchQuery) newQueryParams.set('search', searchQuery);
-    if (selectedRoast !== 'All') newQueryParams.set('roast', selectedRoast);
     if (selectedCategory !== 'All') newQueryParams.set('category', selectedCategory);
     if (minPrice) newQueryParams.set('minPrice', minPrice);
     if (maxPrice) newQueryParams.set('maxPrice', maxPrice);
@@ -165,7 +164,7 @@ const Menu = () => {
         <button
           onClick={() => {
             setSearchQuery('');
-            setSelectedRoast('All');
+            setSelectedCategory('All');
             setMinPrice('');
             setMaxPrice('');
             setCurrentPage(1);
