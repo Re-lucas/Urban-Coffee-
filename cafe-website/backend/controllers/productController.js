@@ -45,7 +45,7 @@ const getProductById = asyncHandler(async (req, res) => {
 // @route   POST /api/products
 // @access  Private/Admin
 const createProduct = asyncHandler(async (req, res) => {
-  const { name, price, description, image, brand, category, countInStock } = req.body;
+  const { name, price, description, image, brand, category, countInStock, isAvailable } = req.body;
 
   const product = new Product({
     user: req.user._id, // protect 会把当前用户 ID 放入 req.user
@@ -58,6 +58,7 @@ const createProduct = asyncHandler(async (req, res) => {
     countInStock,
     numReviews: 0,
     rating: 0,
+    isAvailable,   // 从前端拿到的布尔值
   });
 
   const createdProduct = await product.save();
@@ -68,7 +69,7 @@ const createProduct = asyncHandler(async (req, res) => {
 // @route   PUT /api/products/:id
 // @access  Private/Admin
 const updateProduct = asyncHandler(async (req, res) => {
-  const { name, price, description, image, brand, category, countInStock } = req.body;
+  const { name, price, description, image, brand, category, countInStock, isAvailable } = req.body;
   const product = await Product.findById(req.params.id);
 
   if (product) {
@@ -79,6 +80,7 @@ const updateProduct = asyncHandler(async (req, res) => {
     product.brand = brand || product.brand;
     product.category = category || product.category;
     product.countInStock = countInStock !== undefined ? countInStock : product.countInStock;
+    product.isAvailable  = isAvailable !== undefined ? isAvailable : product.isAvailable;
 
     const updatedProduct = await product.save();
     res.json(updatedProduct);
