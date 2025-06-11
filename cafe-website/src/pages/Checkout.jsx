@@ -1,6 +1,5 @@
 // pages/Checkout.jsx
 import React, { useState } from 'react';
-import api from '../utils/axiosConfig';  // 新增：导入 axiosConfig
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import api from '../utils/axiosConfig';  // 新增：调用后端 API
