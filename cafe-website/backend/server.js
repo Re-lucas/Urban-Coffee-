@@ -70,7 +70,7 @@ app.post(
 app.use(cors({
      origin: [
      'http://localhost:5173',                // 本地开发
-     'https://<your-frontend>.vercel.app'    // Vercel 上的前端域名
+     'https://urban-coffee.vercel.app'    // Vercel 上的前端域名
    ],
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization'] // 明确允许的请求头
