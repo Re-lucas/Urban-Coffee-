@@ -1,6 +1,7 @@
 // src/App.jsx
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 
 import Navbar from './components/Navbar';
 
@@ -95,7 +96,7 @@ export default function App() {
                     </RequireAuth>
                   }
                 />
-                
+
                 {/* 订单确认页（支付成功后跳转） */}
                <Route
                  path="/order-confirmation/:orderId"
@@ -152,6 +153,9 @@ export default function App() {
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </Suspense>
+
+      {/* 放在最底部，自动统计每次路由切换 */}
+      <Analytics />
     </>
   );
 }
