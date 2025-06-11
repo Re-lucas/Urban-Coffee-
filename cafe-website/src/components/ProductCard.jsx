@@ -34,7 +34,7 @@ const ProductCard = ({ product, searchQuery }) => {
   const { getReviewsByProduct } = useReview();
   const [inWishlist, setInWishlist] = useState(isInWishlist(product._id));
   
-  const [stock, setStock] = useState(product.stock || 10);
+  const [stock, setStock] = useState(product.countInStock ?? 0);
   const [isAdding, setIsAdding] = useState(false);
   
   const [avgRating, setAvgRating] = useState(0);

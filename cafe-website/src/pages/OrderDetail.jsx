@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import api from '../utils/api';
+import api from '../utils/axiosConfig';
 import '../styles/order-detail.css';
 
 const OrderDetail = () => {

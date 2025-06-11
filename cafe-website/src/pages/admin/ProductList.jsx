@@ -45,7 +45,7 @@ const ProductList = () => {
   // 处理搜索
   const handleSearch = (e) => {
     e.preventDefault();
-    navigate(`/admin/productlist?keyword=${searchText}&pageNumber=1`);
+    navigate(`/admin/products?keyword=${searchText}&pageNumber=1`);
   };
 
   // 处理删除商品
@@ -148,7 +148,7 @@ const ProductList = () => {
           {[...Array(pages).keys()].map((x) => (
             <Link
               key={x + 1}
-              to={`/admin/productlist?keyword=${keyword}&pageNumber=${x + 1}`}
+              to={`/admin/products?keyword=${keyword}&pageNumber=${x + 1}`}
               className={`page-item ${x + 1 === page ? 'active' : ''}`}
             >
               {x + 1}

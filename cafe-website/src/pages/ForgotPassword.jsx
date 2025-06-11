@@ -1,12 +1,17 @@
 // src/pages/ForgotPassword.jsx
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import api from '../utils/axiosConfig'; // 新增
 import '../styles/forgot-password.css';
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
-  const { users, resetPassword } = useAuth();
+  const { resetPassword } = useAuth();
+
+  // 挂载时拉取所有用户
+  useEffect(() => {
+    fetchAllUsers();
+  }, [fetchAllUsers]);
 
   // step = 1（输入邮箱） 或 step = 2（输入新密码）
   const [step, setStep] = useState(1);
@@ -17,19 +22,24 @@ const ForgotPassword = () => {
   const [confirmNewPwd, setConfirmNewPwd] = useState('');
 
   // 第一步：检查邮箱是否存在
-  const handleCheckEmail = (e) => {
+  const handleCheckEmail = async (e) => {   // 添加 async
     e.preventDefault();
     setError('');
     if (!email.trim()) {
       setError('请输入您的注册邮箱。');
       return;
     }
-    const exists = users.find(
-      (u) => u.email.toLowerCase() === email.trim().toLowerCase()
-    );
-    if (!exists) {
-      setError('该邮箱尚未注册，请检查输入或先去注册。');
-      return;
+    try {
+      const { data } = await api.get('/auth/check-email', {
+        params: { email: email.trim().toLowerCase() },
+      });
+      if (!data.exists) {
+        setError('该邮箱尚未注册，请检查输入或先去注册。');
+        return;
+      }
+      setStep(2);
+    } catch (err) {
+      setError(err.response?.data?.error || '校验邮箱失败，请重试');
     }
     // 邮箱存在，进入步骤 2
     setStep(2);

@@ -111,7 +111,7 @@ const Menu = () => {
     if (maxPrice) newQueryParams.set('maxPrice', maxPrice);
     if (currentPage > 1) newQueryParams.set('page', currentPage);
     navigate(`?${newQueryParams.toString()}`, { replace: true });
-  }, [searchQuery, selectedCategory,, minPrice, maxPrice, currentPage, navigate]);
+  }, [searchQuery, selectedCategory, minPrice, maxPrice, currentPage, navigate]);
 
   // 下面是渲染部分
   return (

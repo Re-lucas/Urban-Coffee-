@@ -26,3 +26,14 @@ dist-ssr
 # .gitignore
 .env
 .env.*
+
+# Monorepo 根目录
+node_modules/
+.env
+*.log
+
+# 后端依赖
+backend/node_modules/
+
+# 前端依赖
+cafe-website/node_modules/

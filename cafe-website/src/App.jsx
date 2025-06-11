@@ -3,9 +3,6 @@ import React, { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
 import Navbar from './components/Navbar';
-import { CartProvider } from './context/CartContext';
-import { OrderProvider } from './context/OrderContext';
-import { ReviewProvider } from './context/ReviewContext';
 
 import RequireAuth from './components/RequireAuth';
 import RequireAdmin from './components/RequireAdmin';
@@ -14,9 +11,11 @@ import RequireAdmin from './components/RequireAdmin';
 const Home = lazy(() => import('./pages/Home'));
 const Menu = lazy(() => import('./pages/Menu'));
 const ProductDetail = lazy(() => import('./pages/ProductDetail'));
+const CartPage      = lazy(() => import('./pages/CartPage'));     // 新增
 const Checkout = lazy(() => import('./pages/Checkout'));
 const OrderDetail = lazy(() => import('./pages/OrderDetail'));
 const OrderHistory = lazy(() => import('./pages/OrderHistory'));
+const OrderConfirmation = lazy(() => import('./pages/OrderConfirmation')); // 新增
 const Account = lazy(() => import('./pages/Account'));
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
@@ -42,9 +41,6 @@ export default function App() {
     <>
       <Navbar />
 
-      <CartProvider>
-        <OrderProvider>
-          <ReviewProvider>
             <Suspense
               fallback={
                 <div
@@ -66,6 +62,7 @@ export default function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/menu" element={<Menu />} />
                 <Route path="/product/:id" element={<ProductDetail />} />
+                <Route path="/cart" element={<CartPage />} />   {/* 新增 */}
 
                 {/* 公开访问页面 */}
                 <Route path="/reservation" element={<Reservation />} />
@@ -98,6 +95,17 @@ export default function App() {
                     </RequireAuth>
                   }
                 />
+                
+                {/* 订单确认页（支付成功后跳转） */}
+               <Route
+                 path="/order-confirmation/:orderId"
+                 element={
+                   <RequireAuth>
+                     <OrderConfirmation />
+                   </RequireAuth>
+                 }
+               />
+
                 <Route
                   path="/account"
                   element={
@@ -144,9 +152,6 @@ export default function App() {
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </Suspense>
-          </ReviewProvider>
-        </OrderProvider>
-      </CartProvider>
     </>
   );
 }

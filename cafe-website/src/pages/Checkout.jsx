@@ -1,8 +1,10 @@
 // pages/Checkout.jsx
 import React, { useState } from 'react';
+import api from '../utils/axiosConfig';  // 新增：导入 axiosConfig
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { useOrder } from '../context/OrderContext';
+import api from '../utils/axiosConfig';  // 新增：调用后端 API
+// import { useOrder } from '../context/OrderContext';  // 移除：不再使用本地 OrderContext
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import '../styles/checkout.css';
@@ -29,19 +31,9 @@ const StripePaymentForm = ({ orderId, grandTotal, onPaymentSuccess }) => {
     setPaymentError(null);
 
     try {
-      // 1. 获取支付凭证
-      const response = await fetch(`/orders/${orderId}/payintent`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error('无法获取支付凭证');
-      }
-      
-      const { clientSecret } = await response.json();
+      // 1. 获取支付凭证（使用 axiosConfig，自动带 baseURL 和 Authorization）
+      const { data } = await api.post(`/orders/${orderId}/payintent`);
+      const { clientSecret } = data;
 
       // 2. 确认支付
       const cardElement = elements.getElement(CardElement);
@@ -146,24 +138,33 @@ const Checkout = () => {
     setOrderError(null);
     
     try {
-      // 创建订单
-      const orderId = await addOrder({
-        customerInfo: formData,
-        items: [...cartItems],
-        totalPrice: totalPrice,
-        shippingFee: shippingFee,
-        tax: tax,
-        total: grandTotal,
-        paymentMethod: paymentMethod,
-        orderDate: new Date().toISOString(),
-        status: 'pending' // 初始状态为待支付
-      });
-      
-      // 保存订单信息，进入支付步骤
-      setCreatedOrder({
-        id: orderId,
-        grandTotal
-      });
+        // 调用后端创建订单
+        const { data: createdOrder } = await api.post('/orders', {
+          orderItems: cartItems.map(item => ({
+            name: item.name,
+            qty: item.quantity,
+            image: item.image,
+            price: item.price,
+            product: item.product,
+          })),
+          shippingAddress: {
+            address: formData.address,
+            city: formData.city,
+            postalCode: formData.postalCode,
+            country: 'Canada', // 如需可从表单扩展
+          },
+          paymentMethod,
+          itemsPrice: totalPrice,
+          taxPrice: tax,
+          shippingPrice: shippingFee,
+          totalPrice: totalPrice,
+        });
+
+        // 进入支付流程
+        setCreatedOrder({
+          id: createdOrder._id,
+          grandTotal
+        });
       
     } catch (error) {
       console.error('订单提交失败:', error);

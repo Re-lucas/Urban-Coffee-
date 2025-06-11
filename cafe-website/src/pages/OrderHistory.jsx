@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import api from '../utils/api';
+import api from '../utils/axiosConfig';
 import '../styles/order-history.css';
 
 const OrderHistory = () => {

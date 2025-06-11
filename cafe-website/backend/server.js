@@ -68,7 +68,10 @@ app.post(
 
 // 4. 注册常规中间件
 app.use(cors({
-  origin: 'http://localhost:5173', // 你的前端地址
+     origin: [
+     'http://localhost:5173',                // 本地开发
+     'https://<your-frontend>.vercel.app'    // Vercel 上的前端域名
+   ],
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization'] // 明确允许的请求头
 }));

@@ -62,8 +62,7 @@ export function AuthProvider({ children }) {
     }
     try {
       setLoading(true);
-      // 假设后端接口是 PUT /api/users/:id
-      await api.put(`/users/${user.id}`, profileData);
+      const { data } = await api.put(`/auth/profile`, profileData);
       setUser(prev => ({ ...prev, ...profileData }));
       setError(null);
       return { success: true, message: '个人信息已更新' };
@@ -135,9 +134,12 @@ export function AuthProvider({ children }) {
     }
     try {
       setLoading(true);
-      // 你可以也同步到后端：
-      // await api.put(`/users/${user.id}/preferences`, { preferences: newPreferences });
-      setUser(prev => ({ ...prev, preferences: newPreferences }));
+      // 同步到后端
+      const { data } = await api.put(
+        `/users/${user._id}/preferences`,
+        { preferences: newPreferences }      );
+      // 后端返回 { success, message, preferences, notifications }
+      setUser(prev => ({ ...prev, preferences: data.preferences }));
       setError(null);
       return { success: true, message: '偏好已更新' };
     } catch (err) {
