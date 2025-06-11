@@ -1,6 +1,5 @@
 // backend/controllers/authController.js
 const asyncHandler = require('express-async-handler');
-const User = require('../models/User');
 const generateToken = require('../utils/jwtUtils'); // 修改后：接收 userId, isAdmin
 const User = require('../models/User'); // 确保已引入 User
 
