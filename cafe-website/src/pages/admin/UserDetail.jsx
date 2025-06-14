@@ -1,12 +1,30 @@
-// src/pages/admin/UserDetail.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../../utils/axiosConfig';
-import '../../styles/admin-userdetail.css';
+import {
+  Box,
+  Heading,
+  Button,
+  FormControl,
+  FormLabel,
+  Input,
+  Checkbox,
+  Textarea,
+  useToast,
+  Alert,
+  AlertIcon,
+  Flex,
+  Spinner,
+  Stack,
+  Text,
+  IconButton
+} from '@chakra-ui/react';
+import { FiArrowLeft } from 'react-icons/fi';
 
 const UserDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const toast = useToast();
   
   const [user, setUser] = useState(null);
   const [formData, setFormData] = useState({
@@ -17,7 +35,6 @@ const UserDetail = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // 获取用户数据
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -29,15 +46,22 @@ const UserDetail = () => {
           email: data.email,
           isAdmin: data.isAdmin
         });
-        setLoading(false);
       } catch (err) {
         setError(err.response?.data?.message || '获取用户信息失败');
+        toast({
+          title: '加载失败',
+          description: err.response?.data?.message || '获取用户信息时出错',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+      } finally {
         setLoading(false);
       }
     };
 
     fetchUser();
-  }, [id]);
+  }, [id, toast]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -54,85 +78,139 @@ const UserDetail = () => {
 
     try {
       await api.put(`/users/${id}`, formData);
+      toast({
+        title: '更新成功',
+        description: '用户信息已更新',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
       navigate('/admin/users');
     } catch (err) {
       setError(err.response?.data?.message || '更新用户信息失败');
+      toast({
+        title: '更新失败',
+        description: err.response?.data?.message || '更新用户信息时出错',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
       setLoading(false);
     }
   };
 
   if (loading && !user) {
-    return <div className="admin-userdetail loading">加载用户信息中...</div>;
+    return (
+      <Flex justify="center" py={12}>
+        <Spinner size="xl" />
+      </Flex>
+    );
   }
 
   if (!user) {
-    return <div className="admin-userdetail error">无法加载用户信息</div>;
+    return (
+      <Alert status="error" borderRadius="md">
+        <AlertIcon />
+        无法加载用户信息
+      </Alert>
+    );
   }
 
   return (
-    <div className="admin-userdetail">
-      <Link to="/admin/users" className="back-btn">
-        ← 返回用户列表
-      </Link>
-      
-      <h2>编辑用户 - {user.name}</h2>
-      
-      {error && <div className="error">{error}</div>}
-      
-      <form onSubmit={handleSubmit} className="user-form">
-        <div className="form-group">
-          <label htmlFor="name">用户名 *</label>
-          <input
-            id="name"
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        
-        <div className="form-group">
-          <label htmlFor="email">邮箱 *</label>
-          <input
-            id="email"
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        
-        <div className="form-group checkbox-group">
-          <input
-            id="isAdmin"
-            type="checkbox"
-            name="isAdmin"
-            checked={formData.isAdmin}
-            onChange={handleChange}
-          />
-          <label htmlFor="isAdmin">管理员权限</label>
-        </div>
-        
-        <div className="form-actions">
-          <button 
-            type="submit" 
-            className="submit-btn"
-            disabled={loading}
-          >
-            {loading ? '更新中...' : '更新用户信息'}
-          </button>
-        </div>
-      </form>
-      
-      <section className="user-meta">
-        <h3>用户信息</h3>
-        <p><strong>注册时间：</strong> {new Date(user.createdAt).toLocaleString()}</p>
-        <p><strong>最后登录：</strong> {user.lastLogin ? new Date(user.lastLogin).toLocaleString() : '从未登录'}</p>
-        <p><strong>用户ID：</strong> {user._id}</p>
-      </section>
-    </div>
+    <Box>
+      <Flex align="center" mb={6}>
+        <IconButton
+          as={Link}
+          to="/admin/users"
+          icon={<FiArrowLeft />}
+          aria-label="返回"
+          mr={2}
+        />
+        <Heading as="h2" size="lg">
+          编辑用户 - {user.name}
+        </Heading>
+      </Flex>
+
+      {error && (
+        <Alert status="error" mb={6} borderRadius="md">
+          <AlertIcon />
+          {error}
+        </Alert>
+      )}
+
+      <Box
+        bg="white"
+        p={6}
+        borderRadius="lg"
+        boxShadow="sm"
+        mb={8}
+      >
+        <form onSubmit={handleSubmit}>
+          <Stack spacing={6}>
+            <FormControl isRequired>
+              <FormLabel>用户名</FormLabel>
+              <Input
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="请输入用户名"
+                focusBorderColor="brand.500"
+              />
+            </FormControl>
+
+            <FormControl isRequired>
+              <FormLabel>邮箱</FormLabel>
+              <Input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="请输入邮箱"
+                focusBorderColor="brand.500"
+              />
+            </FormControl>
+
+            <FormControl>
+              <Checkbox
+                name="isAdmin"
+                isChecked={formData.isAdmin}
+                onChange={handleChange}
+                colorScheme="brand"
+              >
+                管理员权限
+              </Checkbox>
+            </FormControl>
+
+            <Button
+              type="submit"
+              colorScheme="brand"
+              size="lg"
+              isLoading={loading}
+              loadingText="更新中..."
+            >
+              更新用户信息
+            </Button>
+          </Stack>
+        </form>
+      </Box>
+
+      <Box
+        bg="white"
+        p={6}
+        borderRadius="lg"
+        boxShadow="sm"
+      >
+        <Heading size="md" mb={4}>
+          用户信息
+        </Heading>
+        <Stack spacing={3}>
+          <Text><strong>注册时间：</strong> {new Date(user.createdAt).toLocaleString()}</Text>
+          <Text><strong>最后登录：</strong> {user.lastLogin ? new Date(user.lastLogin).toLocaleString() : '从未登录'}</Text>
+          <Text><strong>用户ID：</strong> {user._id}</Text>
+        </Stack>
+      </Box>
+    </Box>
   );
 };
 

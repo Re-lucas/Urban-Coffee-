@@ -1,44 +1,58 @@
 // pages/Home.jsx
 import React, { useEffect, useRef, useState } from 'react';
+import { 
+  Box, Flex, Text, Button, Grid, 
+  Stack, Heading, useBreakpointValue, 
+  useToast, Skeleton
+} from '@chakra-ui/react';
+import { motion, useAnimation } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import api from '../utils/axiosConfig'; // 导入 API 实例
-import ProductCard from '../components/ProductCard'; // 导入商品卡片组件
-import '../styles/home.css';
+import api from '../utils/axiosConfig';
+import ProductCard from '../components/ProductCard';
+
+const MotionBox = motion(Box);
+const MotionGrid = motion(Grid);
 
 const Home = () => {
+  const controls = useAnimation();
+  const toast = useToast();
   const sectionsRef = useRef([]);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const isMobile = useBreakpointValue({ base: true, md: false });
 
-  // 获取特色商品数据（自动适配后端返回格式）
+  // 获取特色商品数据
   useEffect(() => {
-    const fetchFeaturedProducts = async () => {
+    const fetchData = async () => {
       try {
-        setLoading(true);
         const { data } = await api.get('/products/featured');
-        const products =
-          Array.isArray(data) ? data :
-          Array.isArray(data?.products) ? data.products :
-          [];
-        setFeaturedProducts(products);
-        setLoading(false);
+        setFeaturedProducts(Array.isArray(data) ? data : []);
       } catch (err) {
-        setError(err.response?.data?.message || '获取特色商品失败');
+        setError(err.response?.data?.message || '加载失败');
+        toast({
+          title: '获取商品失败',
+          status: 'error',
+          position: 'top'
+        });
+      } finally {
         setLoading(false);
       }
     };
+    fetchData();
+  }, [toast]);
 
-    fetchFeaturedProducts();
-  }, []);
-
-  // 滚动动画逻辑（保持不变）
+  // 滚动动画逻辑（使用Framer Motion优化）
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('fade-in-visible');
+            controls.start({
+              opacity: 1,
+              y: 0,
+              transition: { duration: 0.6 }
+            });
           }
         });
       },
@@ -49,116 +63,142 @@ const Home = () => {
       if (section) observer.observe(section);
     });
 
-    return () => {
-      sectionsRef.current.forEach(section => {
-        if (section) observer.unobserve(section);
-      });
-    };
-  }, []);
+    return () => observer.disconnect();
+  }, [controls]);
+
+  // 英雄区域组件
+  const HeroSection = () => (
+    <Box
+      as="section"
+      minH={{ base: '70vh', md: '100vh' }}
+      bgGradient="linear(to-r, rgba(111, 78, 55, 0.9), rgba(111, 78, 55, 0.7))"
+      bgImage="url('https://images.unsplash.com/photo-1498804103079-a6351b050096?ixlib=rb-4.0.3&auto=format&fit=crop&w=1740&q=80')"
+      bgSize="cover"
+      bgPosition="center"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      color="white"
+      textAlign="center"
+      px={4}
+      py={20}
+    >
+      <MotionBox
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        maxW="800px"
+      >
+        <Heading 
+          as="h1" 
+          fontSize={{ base: '3xl', md: '5xl' }}
+          mb={6}
+          textShadow="0 2px 4px rgba(0,0,0,0.3)"
+        >
+          欢迎来到 Urban Coffee
+        </Heading>
+        <Text 
+          fontSize={{ base: 'xl', md: '2xl' }}
+          mb={8}
+          textShadow="0 2px 4px rgba(0,0,0,0.3)"
+        >
+          发现精品咖啡的独特风味
+        </Text>
+        <Button
+          as={Link}
+          to="/menu"
+          colorScheme="brand"
+          size="lg"
+          px={8}
+          _hover={{ transform: 'translateY(-3px)', shadow: 'lg' }}
+          transition="all 0.3s"
+        >
+          查看菜单
+        </Button>
+      </MotionBox>
+    </Box>
+  );
+
+  // 特色产品区域组件
+  const FeaturedSection = () => (
+    <MotionBox
+      ref={el => sectionsRef.current[0] = el}
+      initial={{ opacity: 0, y: 30 }}
+      animate={controls}
+      as="section"
+      py={16}
+      bg="coffee.50"
+    >
+      <Box maxW="1200px" mx="auto" px={4}>
+        <Heading 
+          as="h2" 
+          textAlign="center" 
+          color="coffee.800"
+          mb={12}
+          position="relative"
+          _after={{
+            content: '""',
+            display: 'block',
+            width: '80px',
+            height: '3px',
+            bg: 'coffee.600',
+            mx: 'auto',
+            mt: 4
+          }}
+        >
+          特色咖啡
+        </Heading>
+
+        {loading ? (
+          <Grid 
+            templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' }}
+            gap={8}
+          >
+            {[...Array(3)].map((_, i) => (
+              <Box key={i} bg="white" p={4} borderRadius="lg">
+                <Skeleton height="180px" mb={4} />
+                <Skeleton height="20px" mb={2} />
+                <Skeleton height="16px" width="80%" mb={4} />
+                <Skeleton height="40px" width="100%" />
+              </Box>
+            ))}
+          </Grid>
+        ) : error ? (
+          <Text textAlign="center" color="red.500">{error}</Text>
+        ) : (
+          <MotionGrid
+            templateColumns={{ 
+              base: 'repeat(1, 1fr)', 
+              md: 'repeat(2, 1fr)', 
+              lg: 'repeat(3, 1fr)' 
+            }}
+            gap={8}
+            initial="hidden"
+            animate="visible"
+          >
+            {featuredProducts.map((product, index) => (
+              <ProductCard 
+                key={product._id} 
+                product={product} 
+                customAnimation={{ delay: index * 0.1 }}
+              />
+            ))}
+          </MotionGrid>
+        )}
+      </Box>
+    </MotionBox>
+  );
 
   return (
-    <div className="home-page">
-      {/* 英雄区域 */}
-      <div className="hero-section">
-        <div className="hero-content">
-          <h1>欢迎来到 Urban Coffee</h1>
-          <p>发现精品咖啡的独特风味</p>
-          <Link to="/menu" className="cta-button">查看菜单</Link>
-        </div>
-      </div>
+    <Box as="main">
+      <HeroSection />
+      <FeaturedSection />
       
-      {/* 特色咖啡区域 */}
-      <div ref={el => sectionsRef.current[0] = el} className="featured-section fade-in">
-        <div className="container">
-          <h2 className="section-title">特色咖啡</h2>
-          
-          {loading ? (
-            <div className="loading">加载中...</div>
-          ) : error ? (
-            <div className="error">{error}</div>
-          ) : (
-            <div className="featured-grid">
-              {featuredProducts.map(product => (
-                <div key={product._id} className="featured-item">
-                  <div 
-                    className="featured-image" 
-                    style={{ backgroundImage: `url(${product.image})` }}
-                  ></div>
-                  <h3>{product.name}</h3>
-                  <p>{product.description}</p>
-                  <Link to={`/product/${product._id}`} className="featured-link">了解更多</Link>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-      
-      {/* 其他部分保持不变 */}
-      {/* 咖啡故事区域 */}
-      <div 
-        ref={el => sectionsRef.current[1] = el} 
-        className="story-section fade-in"
-      >
-        {/* ... */}
-      </div>
-      
-      {/* 咖啡制作过程 */}
-      <div 
-        ref={el => sectionsRef.current[2] = el} 
-        className="process-section fade-in"
-      >
-        {/* ... */}
-      </div>
-      
-      {/* 特色饮品推荐 */}
-      <div 
-        ref={el => sectionsRef.current[3] = el} 
-        className="featured-drinks fade-in"
-      >
-        {/* ... */}
-      </div>
-      
-      {/* 客户评价 */}
-      <div 
-        ref={el => sectionsRef.current[4] = el} 
-        className="testimonials-section fade-in"
-      >
-        {/* ... */}
-      </div>
-      
-      {/* 咖啡知识博客 */}
-      <div 
-        ref={el => sectionsRef.current[5] = el} 
-        className="blog-preview-section fade-in"
-      >
-        {/* ... */}
-      </div>
-      
-      {/* 咖啡订阅服务 */}
-      <div 
-        ref={el => sectionsRef.current[6] = el} 
-        className="subscription-section fade-in"
-      >
-        {/* ... */}
-      </div>
-      
-      {/* 店铺环境展示 */}
-      <div 
-        ref={el => sectionsRef.current[7] = el} 
-        className="gallery-section fade-in"
-      >
-        {/* ... */}
-      </div>
-      
-      {/* 联系区域 */}
-      <div 
-        ref={el => sectionsRef.current[8] = el} 
-        className="contact-section fade-in"
-      >
-        {/* ... */}
-      </div>
-    </div>
+      {/* 其他区块示例 - 保持类似结构改造 */}
+      <ProcessSection />
+      <TestimonialsSection />
+      {/* ... */}
+    </Box>
   );
 };
 

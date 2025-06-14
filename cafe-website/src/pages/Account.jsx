@@ -1,34 +1,59 @@
 // src/pages/Account.jsx
 import React, { useContext, useState, useEffect } from 'react';
+import { 
+  Box, 
+  Heading, 
+  Tabs, 
+  TabList, 
+  Tab, 
+  TabPanels, 
+  TabPanel,
+  Avatar,
+  FormControl,
+  FormLabel,
+  Input,
+  Textarea,
+  Button,
+  Checkbox,
+  useToast,
+  SimpleGrid,
+  Stack,
+  HStack,
+  VStack,
+  Text,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
+  useColorModeValue
+} from '@chakra-ui/react';
+import { motion } from 'framer-motion';
+import { FiUpload, FiEdit2, FiTrash2, FiPlus } from 'react-icons/fi';
 import { AuthContext } from '../context/AuthContext';
-import '../styles/account.css';       // 之前已经有的基础样式
-import '../styles/account-extra.css'; // 新增的“个人信息与偏好设置”专属样式
+
+const MotionBox = motion(Box);
+const MotionButton = motion(Button);
 
 const Account = () => {
-  // 1. 从 Context 里拿到用户和相关更新函数
-  const {
-    user,
-    points,
-    level,
-    logout,
-    addPoints,             // 如果还想测试积分，这里保留
-    updateProfile,
-    addAddress,
-    updateAddress,
+  const toast = useToast();
+  const { 
+    user, 
+    logout, 
+    updateProfile, 
+    addAddress, 
+    updateAddress, 
     removeAddress,
     updatePreferences,
-    updateNotifications,
+    updateNotifications
   } = useContext(AuthContext);
-
-  // 2. 本组件内部的状态
-  const [activeTab, setActiveTab] = useState('profile'); // 'profile' 或 'preferences'
-
-  // 2.1. 基本信息表单状态：用 local state 临时存储输入框的值
+  
+  // State management
   const [editName, setEditName] = useState(user?.name || '');
   const [previewAvatar, setPreviewAvatar] = useState(user?.avatar || '');
-
-  // 2.2. 地址新增/编辑相关状态
-  const [isAddressFormOpen, setIsAddressFormOpen] = useState(false);
   const [addressFormData, setAddressFormData] = useState({
     id: null,
     label: '',
@@ -36,17 +61,16 @@ const Account = () => {
     phone: '',
     fullAddress: '',
   });
-
-  // 2.3. 偏好标签选项（可根据实际业务扩展）
-  const allFlavorTags = ['果香', '花香', '浓郁', '坚果风味', '巧克力', '焦糖'];
   const [selectedPrefs, setSelectedPrefs] = useState(user?.preferences || []);
-
-  // 2.4. 通知设置状态
   const [notifSettings, setNotifSettings] = useState(
     user?.notifications || { orderStatus: true, marketing: false }
   );
+  
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const allFlavorTags = ['果香', '花香', '浓郁', '坚果风味', '巧克力', '焦糖'];
+  const cardBg = useColorModeValue('white', 'gray.700');
+  const borderColor = useColorModeValue('gray.200', 'gray.600');
 
-  // 3. 当 user 更新时，同步本地状态
   useEffect(() => {
     if (user) {
       setEditName(user.name || '');
@@ -56,74 +80,102 @@ const Account = () => {
     }
   }, [user]);
 
-  // 4. 头像上传处理：使用 FileReader 生成 Base64，再调用 updateProfile
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64Url = reader.result;
       setPreviewAvatar(base64Url);
       updateProfile({ avatar: base64Url });
+      toast({
+        title: '头像更新成功',
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+      });
     };
     reader.readAsDataURL(file);
   };
 
-  // 5. 保存“基本信息”——这里只修改昵称（头像已在上传时保存）
   const handleSaveBasicInfo = (e) => {
     e.preventDefault();
     if (!editName.trim()) {
-      alert('昵称不能为空');
+      toast({
+        title: '昵称不能为空',
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+      });
       return;
     }
     updateProfile({ name: editName });
-    alert('基本信息已更新');
+    toast({
+      title: '基本信息已更新',
+      status: 'success',
+      duration: 2000,
+      isClosable: true,
+    });
   };
 
-  // 6. 地址表单提交（区分“新增”或“编辑”）
   const handleAddressFormSubmit = (e) => {
     e.preventDefault();
     const { id, label, recipient, phone, fullAddress } = addressFormData;
+    
     if (!label || !recipient || !phone || !fullAddress) {
-      alert('请完整填写地址信息');
+      toast({
+        title: '请完整填写地址信息',
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+      });
       return;
     }
+    
     if (id) {
-      // 已有 id，则编辑
       updateAddress(addressFormData);
+      toast({
+        title: '地址更新成功',
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+      });
     } else {
-      // 新增
       addAddress(addressFormData);
+      toast({
+        title: '地址添加成功',
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+      });
     }
-    setIsAddressFormOpen(false);
+    onClose();
   };
 
-  // 7. 点击“编辑地址”时，把对应地址填入表单
   const handleEditAddress = (addr) => {
     setAddressFormData(addr);
-    setIsAddressFormOpen(true);
+    onOpen();
   };
 
-  // 8. 点击“删除地址”时调用 removeAddress
   const handleDeleteAddress = (addrId) => {
-    if (window.confirm('确认删除该地址？')) {
-      removeAddress(addrId);
-    }
+    removeAddress(addrId);
+    toast({
+      title: '地址已删除',
+      status: 'info',
+      duration: 2000,
+      isClosable: true,
+    });
   };
 
-  // 9. 偏好标签勾选/取消勾选
   const handleFlavorToggle = (tag) => {
-    let newPrefs;
-    if (selectedPrefs.includes(tag)) {
-      newPrefs = selectedPrefs.filter((t) => t !== tag);
-    } else {
-      newPrefs = [...selectedPrefs, tag];
-    }
+    const newPrefs = selectedPrefs.includes(tag)
+      ? selectedPrefs.filter((t) => t !== tag)
+      : [...selectedPrefs, tag];
     setSelectedPrefs(newPrefs);
     updatePreferences(newPrefs);
   };
 
-  // 10. 通知开关切换
   const handleNotifToggle = (type) => {
     const newSettings = { ...notifSettings, [type]: !notifSettings[type] };
     setNotifSettings(newSettings);
@@ -131,245 +183,341 @@ const Account = () => {
   };
 
   if (!user) {
-    // 如果还没登录，可重定向或提示
-    return <p>请先登录后查看账户信息。</p>;
+    return (
+      <Box textAlign="center" py={10}>
+        <Text fontSize="xl">请先登录后查看账户信息</Text>
+      </Box>
+    );
   }
 
   return (
-    <div className="account-page">
-      <h1 className="page-title">我的账户</h1>
+    <MotionBox
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      maxW="6xl"
+      mx="auto"
+      p={{ base: 4, md: 6 }}
+    >
+      <Heading as="h1" size="xl" mb={6} color="brand.600">
+        我的账户
+      </Heading>
 
-      {/* ===== 1. 选项卡导航 ===== */}
-      <div className="tabs">
-        <button
-          className={activeTab === 'profile' ? 'tab active' : 'tab'}
-          onClick={() => setActiveTab('profile')}
-        >
-          基本信息
-        </button>
-        <button
-          className={activeTab === 'preferences' ? 'tab active' : 'tab'}
-          onClick={() => setActiveTab('preferences')}
-        >
-          偏好设置
-        </button>
-        <button className="tab logout" onClick={logout}>
-          退出登录
-        </button>
-      </div>
+      <Tabs variant="enclosed" isFitted>
+        <TabList mb={6}>
+          <Tab _selected={{ color: 'white', bg: 'brand.500' }}>基本信息</Tab>
+          <Tab _selected={{ color: 'white', bg: 'brand.500' }}>偏好设置</Tab>
+          <Tab 
+            onClick={logout}
+            _hover={{ bg: 'red.100' }}
+            _selected={{ color: 'white', bg: 'red.500' }}
+          >
+            退出登录
+          </Tab>
+        </TabList>
 
-      {/* ===== 2. “基本信息” 面板 ===== */}
-      {activeTab === 'profile' && (
-        <div className="tab-content">
-          <form className="basic-info-form" onSubmit={handleSaveBasicInfo}>
-            {/* 2.1. 头像上传与预览 */}
-            <div className="avatar-section">
-              <div className="avatar-preview">
-                {previewAvatar ? (
-                  <img src={previewAvatar} alt="头像预览" />
-                ) : (
-                  <div className="avatar-placeholder">
-                    {user.name.charAt(0).toUpperCase()}
-                  </div>
-                )}
-              </div>
-              <label className="avatar-upload-btn">
-                上传头像
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleAvatarChange}
-                  style={{ display: 'none' }}
-                />
-              </label>
-            </div>
+        <TabPanels>
+          {/* 基本信息面板 */}
+          <TabPanel>
+            <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8}>
+              {/* 个人信息表单 */}
+              <MotionBox
+                as="form"
+                onSubmit={handleSaveBasicInfo}
+                bg={cardBg}
+                p={6}
+                borderRadius="lg"
+                boxShadow="md"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.1 }}
+              >
+                <VStack spacing={6}>
+                  <FormControl>
+                    <FormLabel>头像</FormLabel>
+                    <VStack spacing={4}>
+                      <Avatar 
+                        size="xl" 
+                        src={previewAvatar} 
+                        name={user.name}
+                        border="2px solid"
+                        borderColor="brand.400"
+                      />
+                      <Button 
+                        as="label"
+                        leftIcon={<FiUpload />}
+                        variant="outline"
+                        colorScheme="brand"
+                        cursor="pointer"
+                      >
+                        上传头像
+                        <Input 
+                          type="file" 
+                          accept="image/*" 
+                          onChange={handleAvatarChange}
+                          display="none"
+                        />
+                      </Button>
+                    </VStack>
+                  </FormControl>
 
-            {/* 2.2. 昵称 编辑 */}
-            <div className="form-group">
-              <label>昵称：</label>
-              <input
-                type="text"
-                value={editName}
-                onChange={(e) => setEditName(e.target.value)}
-                placeholder="请输入昵称"
-              />
-            </div>
-
-            {/* 2.3. 邮箱（只读） */}
-            <div className="form-group">
-              <label>邮箱：</label>
-              <input type="email" value={user.email} readOnly />
-            </div>
-
-            <button type="submit" className="btn save-btn">
-              保存基本信息
-            </button>
-          </form>
-
-          {/* 2.4. 地址管理 */}
-          <div className="address-section">
-            <h2>收货地址</h2>
-            {/* 地址列表 */}
-            {user.addresses && user.addresses.length > 0 ? (
-              <ul className="address-list">
-                {user.addresses.map((addr) => (
-                  <li key={addr.id} className="address-item">
-                    <div><strong>{addr.label}</strong> — {addr.recipient}</div>
-                    <div>{addr.phone}</div>
-                    <div>{addr.fullAddress}</div>
-                    <div className="address-actions">
-                      <button onClick={() => handleEditAddress(addr)}>编辑</button>
-                      <button onClick={() => handleDeleteAddress(addr.id)}>
-                        删除
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="no-address">暂无任何地址，快去新增一个吧！</p>
-            )}
-            {/* “新增地址” 按钮 */}
-            <button
-              className="btn add-address-btn"
-              onClick={() => {
-                setAddressFormData({
-                  id: null,
-                  label: '',
-                  recipient: '',
-                  phone: '',
-                  fullAddress: '',
-                });
-                setIsAddressFormOpen(true);
-              }}
-            >
-              新增地址
-            </button>
-
-            {/* 新增/编辑 地址表单（弹出或展开） */}
-            {isAddressFormOpen && (
-              <div className="address-form-container">
-                <h3>{addressFormData.id ? '编辑地址' : '新增地址'}</h3>
-                <form onSubmit={handleAddressFormSubmit} className="address-form">
-                  <div className="form-group">
-                    <label>地址标签：</label>
-                    <input
-                      type="text"
-                      value={addressFormData.label}
-                      onChange={(e) =>
-                        setAddressFormData((prev) => ({
-                          ...prev,
-                          label: e.target.value,
-                        }))
-                      }
-                      placeholder="如：家、公司"
-                      required
+                  <FormControl>
+                    <FormLabel>昵称</FormLabel>
+                    <Input
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      placeholder="请输入昵称"
                     />
-                  </div>
-                  <div className="form-group">
-                    <label>收件人：</label>
-                    <input
-                      type="text"
-                      value={addressFormData.recipient}
-                      onChange={(e) =>
-                        setAddressFormData((prev) => ({
-                          ...prev,
-                          recipient: e.target.value,
-                        }))
-                      }
-                      placeholder="姓名"
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>联系电话：</label>
-                    <input
-                      type="tel"
-                      value={addressFormData.phone}
-                      onChange={(e) =>
-                        setAddressFormData((prev) => ({
-                          ...prev,
-                          phone: e.target.value,
-                        }))
-                      }
-                      placeholder="手机号码"
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>详细地址：</label>
-                    <textarea
-                      value={addressFormData.fullAddress}
-                      onChange={(e) =>
-                        setAddressFormData((prev) => ({
-                          ...prev,
-                          fullAddress: e.target.value,
-                        }))
-                      }
-                      placeholder="省市区+街道门牌号"
-                      required
-                    />
-                  </div>
-                  <div className="form-actions">
-                    <button type="submit" className="btn save-btn">
-                      保存地址
-                    </button>
-                    <button
-                      type="button"
-                      className="btn cancel-btn"
-                      onClick={() => setIsAddressFormOpen(false)}
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel>邮箱</FormLabel>
+                    <Input value={user.email} isReadOnly />
+                  </FormControl>
+
+                  <MotionButton
+                    type="submit"
+                    colorScheme="brand"
+                    width="full"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    保存基本信息
+                  </MotionButton>
+                </VStack>
+              </MotionBox>
+
+              {/* 地址管理 */}
+              <MotionBox
+                bg={cardBg}
+                p={6}
+                borderRadius="lg"
+                boxShadow="md"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                <VStack spacing={6} align="stretch">
+                  <Heading size="md">收货地址</Heading>
+                  
+                  {user.addresses?.length > 0 ? (
+                    <Stack spacing={4}>
+                      {user.addresses.map((addr) => (
+                        <Box 
+                          key={addr.id}
+                          p={4}
+                          borderWidth="1px"
+                          borderRadius="md"
+                          borderColor={borderColor}
+                        >
+                          <VStack align="stretch" spacing={2}>
+                            <HStack justify="space-between">
+                              <Text fontWeight="bold">{addr.label}</Text>
+                              <HStack spacing={2}>
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost"
+                                  leftIcon={<FiEdit2 />}
+                                  onClick={() => handleEditAddress(addr)}
+                                >
+                                  编辑
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost"
+                                  colorScheme="red"
+                                  leftIcon={<FiTrash2 />}
+                                  onClick={() => handleDeleteAddress(addr.id)}
+                                >
+                                  删除
+                                </Button>
+                              </HStack>
+                            </HStack>
+                            <Text>{addr.recipient}</Text>
+                            <Text>{addr.phone}</Text>
+                            <Text>{addr.fullAddress}</Text>
+                          </VStack>
+                        </Box>
+                      ))}
+                    </Stack>
+                  ) : (
+                    <Text color="gray.500">暂无任何地址，快去新增一个吧！</Text>
+                  )}
+
+                  <MotionButton
+                    leftIcon={<FiPlus />}
+                    colorScheme="brand"
+                    variant="outline"
+                    onClick={() => {
+                      setAddressFormData({
+                        id: null,
+                        label: '',
+                        recipient: '',
+                        phone: '',
+                        fullAddress: '',
+                      });
+                      onOpen();
+                    }}
+                    whileHover={{ scale: 1.02 }}
+                  >
+                    新增地址
+                  </MotionButton>
+                </VStack>
+              </MotionBox>
+            </SimpleGrid>
+          </TabPanel>
+
+          {/* 偏好设置面板 */}
+          <TabPanel>
+            <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8}>
+              {/* 口味偏好 */}
+              <MotionBox
+                bg={cardBg}
+                p={6}
+                borderRadius="lg"
+                boxShadow="md"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.1 }}
+              >
+                <VStack align="start" spacing={6}>
+                  <Heading size="md">口味偏好</Heading>
+                  <SimpleGrid columns={2} spacing={4}>
+                    {allFlavorTags.map((tag) => (
+                      <Checkbox
+                        key={tag}
+                        isChecked={selectedPrefs.includes(tag)}
+                        onChange={() => handleFlavorToggle(tag)}
+                        colorScheme="brand"
+                      >
+                        {tag}
+                      </Checkbox>
+                    ))}
+                  </SimpleGrid>
+                </VStack>
+              </MotionBox>
+
+              {/* 通知设置 */}
+              <MotionBox
+                bg={cardBg}
+                p={6}
+                borderRadius="lg"
+                boxShadow="md"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                <VStack align="start" spacing={6}>
+                  <Heading size="md">通知设置</Heading>
+                  <VStack align="start" spacing={4}>
+                    <Checkbox
+                      isChecked={notifSettings.orderStatus}
+                      onChange={() => handleNotifToggle('orderStatus')}
+                      colorScheme="brand"
                     >
-                      取消
-                    </button>
-                  </div>
-                </form>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+                      订单状态通知
+                    </Checkbox>
+                    <Checkbox
+                      isChecked={notifSettings.marketing}
+                      onChange={() => handleNotifToggle('marketing')}
+                      colorScheme="brand"
+                    >
+                      营销消息通知
+                    </Checkbox>
+                  </VStack>
+                </VStack>
+              </MotionBox>
+            </SimpleGrid>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
 
-      {/* ===== 3. “偏好设置” 面板 ===== */}
-      {activeTab === 'preferences' && (
-        <div className="tab-content">
-          <div className="preferences-section">
-            <h2>口味偏好</h2>
-            <div className="flavor-tags">
-              {allFlavorTags.map((tag) => (
-                <label key={tag} className="flavor-tag">
-                  <input
-                    type="checkbox"
-                    checked={selectedPrefs.includes(tag)}
-                    onChange={() => handleFlavorToggle(tag)}
+      {/* 地址表单模态框 */}
+      <Modal isOpen={isOpen} onClose={onClose} size="lg">
+        <ModalOverlay />
+        <ModalContent as={motion.div} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+          <ModalHeader>{addressFormData.id ? '编辑地址' : '新增地址'}</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <form onSubmit={handleAddressFormSubmit}>
+              <VStack spacing={4}>
+                <FormControl isRequired>
+                  <FormLabel>地址标签</FormLabel>
+                  <Input
+                    value={addressFormData.label}
+                    onChange={(e) =>
+                      setAddressFormData((prev) => ({
+                        ...prev,
+                        label: e.target.value,
+                      }))
+                    }
+                    placeholder="如：家、公司"
                   />
-                  {tag}
-                </label>
-              ))}
-            </div>
-          </div>
+                </FormControl>
 
-          <div className="notifications-section">
-            <h2>通知设置</h2>
-            <div className="notification-item">
-              <label>订单状态通知</label>
-              <input
-                type="checkbox"
-                checked={notifSettings.orderStatus}
-                onChange={() => handleNotifToggle('orderStatus')}
-              />
-            </div>
-            <div className="notification-item">
-              <label>营销消息通知</label>
-              <input
-                type="checkbox"
-                checked={notifSettings.marketing}
-                onChange={() => handleNotifToggle('marketing')}
-              />
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+                <FormControl isRequired>
+                  <FormLabel>收件人</FormLabel>
+                  <Input
+                    value={addressFormData.recipient}
+                    onChange={(e) =>
+                      setAddressFormData((prev) => ({
+                        ...prev,
+                        recipient: e.target.value,
+                      }))
+                    }
+                    placeholder="姓名"
+                  />
+                </FormControl>
+
+                <FormControl isRequired>
+                  <FormLabel>联系电话</FormLabel>
+                  <Input
+                    type="tel"
+                    value={addressFormData.phone}
+                    onChange={(e) =>
+                      setAddressFormData((prev) => ({
+                        ...prev,
+                        phone: e.target.value,
+                      }))
+                    }
+                    placeholder="手机号码"
+                  />
+                </FormControl>
+
+                <FormControl isRequired>
+                  <FormLabel>详细地址</FormLabel>
+                  <Textarea
+                    value={addressFormData.fullAddress}
+                    onChange={(e) =>
+                      setAddressFormData((prev) => ({
+                        ...prev,
+                        fullAddress: e.target.value,
+                      }))
+                    }
+                    placeholder="省市区+街道门牌号"
+                    rows={3}
+                  />
+                </FormControl>
+              </VStack>
+            </form>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button variant="ghost" mr={3} onClick={onClose}>
+              取消
+            </Button>
+            <Button 
+              colorScheme="brand" 
+              onClick={handleAddressFormSubmit}
+              as={motion.button}
+              whileHover={{ scale: 1.05 }}
+            >
+              保存地址
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </MotionBox>
   );
 };
 

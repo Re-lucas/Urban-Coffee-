@@ -1,53 +1,84 @@
-// src/pages/admin/ProductEdit.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/axiosConfig';
-import '../../styles/admin-productedit.css';
+import {
+  Box,
+  Heading,
+  Button,
+  FormControl,
+  FormLabel,
+  Input,
+  Select,
+  Textarea,
+  useToast,
+  Alert,
+  AlertIcon,
+  Flex,
+  Spinner,
+  IconButton
+} from '@chakra-ui/react';
+import { FiArrowLeft } from 'react-icons/fi';
 
 const ProductEdit = () => {
-  // const { user } = useAuth(); // 不再需要权限校验
   const navigate = useNavigate();
   const { id } = useParams();
   const isEditMode = Boolean(id);
+  const toast = useToast();
 
-  const [name, setName] = useState('');
-  const [price, setPrice] = useState(0);
-  const [brand, setBrand] = useState('');
-  const [category, setCategory] = useState('');
-  const [description, setDescription] = useState('');
-  const [image, setImage] = useState('');
-  const [countInStock, setCountInStock] = useState(0);
-  const [isAvailable, setIsAvailable] = useState(true);
-
+  const [formData, setFormData] = useState({
+    name: '',
+    price: 0,
+    brand: '',
+    category: '',
+    description: '',
+    image: '',
+    countInStock: 0,
+    isAvailable: true
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 获取商品数据
   useEffect(() => {
     if (isEditMode) {
       const fetchProduct = async () => {
         try {
           setLoading(true);
           const { data } = await api.get(`/products/${id}`);
-          setName(data.name);
-          setPrice(data.price);
-          setBrand(data.brand);
-          setCategory(data.category);
-          setDescription(data.description);
-          setImage(data.image);
-          setCountInStock(data.countInStock);
-          setIsAvailable(data.isAvailable);
-          setLoading(false);
+          setFormData({
+            name: data.name,
+            price: data.price,
+            brand: data.brand,
+            category: data.category,
+            description: data.description,
+            image: data.image,
+            countInStock: data.countInStock,
+            isAvailable: data.isAvailable
+          });
         } catch (err) {
           setError(err.response?.data?.message || '获取商品信息失败');
+          toast({
+            title: '加载失败',
+            description: err.response?.data?.message || '获取商品信息时出错',
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          });
+        } finally {
           setLoading(false);
         }
       };
       fetchProduct();
     }
-  }, [id, isEditMode]);
+  }, [id, isEditMode, toast]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: name === 'isAvailable' ? value === 'true' : value
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -56,135 +87,193 @@ const ProductEdit = () => {
 
     try {
       const productData = {
-        name,
-        price: Number(price),
-        brand,
-        category,
-        description,
-        image,
-        countInStock: Number(countInStock),
-        isAvailable
+        ...formData,
+        price: Number(formData.price),
+        countInStock: Number(formData.countInStock)
       };
 
       if (isEditMode) {
         await api.put(`/products/${id}`, productData);
+        toast({
+          title: '更新成功',
+          description: '商品信息已更新',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
       } else {
         await api.post('/products', productData);
+        toast({
+          title: '创建成功',
+          description: '新商品已添加',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
       }
       navigate('/admin/products');
     } catch (err) {
       setError(err.response?.data?.message || '保存失败，请重试');
+      toast({
+        title: '操作失败',
+        description: err.response?.data?.message || '保存商品信息时出错',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
       setIsSubmitting(false);
     }
   };
 
   if (loading) {
-    return <div className="admin-productedit loading">加载商品信息中...</div>;
+    return (
+      <Flex justify="center" py={12}>
+        <Spinner size="xl" />
+      </Flex>
+    );
   }
 
   return (
-    <div className="admin-productedit">
-      <Link to="/admin/products" className="back-link">
-        &larr; 返回商品列表
-      </Link>
-      <h2>{isEditMode ? '编辑商品' : '添加新商品'}</h2>
-      {error && <div className="error">{error}</div>}
-      <form onSubmit={handleSubmit} className="product-form">
-        <div className="form-group">
-          <label htmlFor="name">商品名称 *</label>
-          <input
-            id="name"
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="price">价格 (¥) *</label>
-          <input
-            id="price"
-            type="number"
-            min="0"
-            step="0.01"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="brand">品牌 *</label>
-          <input
-            id="brand"
-            type="text"
-            value={brand}
-            onChange={(e) => setBrand(e.target.value)}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="category">分类 *</label>
-          <input
-            id="category"
-            type="text"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="image">图片 URL *</label>
-          <input
-            id="image"
-            type="text"
-            value={image}
-            onChange={(e) => setImage(e.target.value)}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="stock">库存数量 *</label>
-          <input
-            id="stock"
-            type="number"
-            min="0"
-            value={countInStock}
-            onChange={(e) => setCountInStock(e.target.value)}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="available">在售状态 *</label>
-          <select
-            id="available"
-            value={isAvailable}
-            onChange={(e) => setIsAvailable(e.target.value === 'true')}
+    <Box maxW="container.md" mx="auto" p={4}>
+      <Flex align="center" mb={6}>
+        <IconButton
+          as={Link}
+          to="/admin/products"
+          icon={<FiArrowLeft />}
+          aria-label="返回"
+          mr={2}
+        />
+        <Heading as="h2" size="lg">
+          {isEditMode ? '编辑商品' : '添加新商品'}
+        </Heading>
+      </Flex>
+
+      {error && (
+        <Alert status="error" mb={6} borderRadius="md">
+          <AlertIcon />
+          {error}
+        </Alert>
+      )}
+
+      <Box
+        as="form"
+        onSubmit={handleSubmit}
+        bg="white"
+        p={6}
+        borderRadius="lg"
+        boxShadow="sm"
+      >
+        <Stack spacing={6}>
+          <FormControl isRequired>
+            <FormLabel>商品名称</FormLabel>
+            <Input
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="请输入商品名称"
+              focusBorderColor="brand.500"
+            />
+          </FormControl>
+
+          <FormControl isRequired>
+            <FormLabel>价格 (¥)</FormLabel>
+            <Input
+              type="number"
+              name="price"
+              min="0"
+              step="0.01"
+              value={formData.price}
+              onChange={handleChange}
+              placeholder="0.00"
+              focusBorderColor="brand.500"
+            />
+          </FormControl>
+
+          <FormControl isRequired>
+            <FormLabel>品牌</FormLabel>
+            <Input
+              name="brand"
+              value={formData.brand}
+              onChange={handleChange}
+              placeholder="请输入品牌"
+              focusBorderColor="brand.500"
+            />
+          </FormControl>
+
+          <FormControl isRequired>
+            <FormLabel>分类</FormLabel>
+            <Input
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              placeholder="请输入分类"
+              focusBorderColor="brand.500"
+            />
+          </FormControl>
+
+          <FormControl isRequired>
+            <FormLabel>图片 URL</FormLabel>
+            <Input
+              name="image"
+              value={formData.image}
+              onChange={handleChange}
+              placeholder="请输入图片URL"
+              focusBorderColor="brand.500"
+            />
+          </FormControl>
+
+          <FormControl isRequired>
+            <FormLabel>库存数量</FormLabel>
+            <Input
+              type="number"
+              name="countInStock"
+              min="0"
+              value={formData.countInStock}
+              onChange={handleChange}
+              placeholder="0"
+              focusBorderColor="brand.500"
+            />
+          </FormControl>
+
+          <FormControl isRequired>
+            <FormLabel>在售状态</FormLabel>
+            <Select
+              name="isAvailable"
+              value={formData.isAvailable}
+              onChange={handleChange}
+              focusBorderColor="brand.500"
+            >
+              <option value={true}>在售</option>
+              <option value={false}>下架</option>
+            </Select>
+          </FormControl>
+
+          <FormControl isRequired>
+            <FormLabel>商品描述</FormLabel>
+            <Textarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              rows={5}
+              placeholder="请输入商品描述"
+              focusBorderColor="brand.500"
+            />
+          </FormControl>
+
+          <Button
+            type="submit"
+            colorScheme="brand"
+            size="lg"
+            isLoading={isSubmitting}
+            loadingText={isEditMode ? '更新中...' : '创建中...'}
+            mt={4}
           >
-            <option value={true}>在售</option>
-            <option value={false}>下架</option>
-          </select>
-        </div>
-        <div className="form-group full-width">
-          <label htmlFor="description">商品描述 *</label>
-          <textarea
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows="5"
-            required
-          ></textarea>
-        </div>
-        <div className="form-actions">
-          <button 
-            type="submit" 
-            className="submit-btn"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? '处理中...' : (isEditMode ? '更新商品' : '创建商品')}
-          </button>
-        </div>
-      </form>
-    </div>
+            {isEditMode ? '更新商品' : '创建商品'}
+          </Button>
+        </Stack>
+      </Box>
+    </Box>
   );
 };
 

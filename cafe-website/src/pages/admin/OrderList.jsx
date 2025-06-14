@@ -1,11 +1,33 @@
-// src/pages/admin/OrderList.jsx
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/axiosConfig';
-import '../../styles/admin-orderlist.css';
+import {
+  Box,
+  Heading,
+  Input,
+  Button,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Flex,
+  Spinner,
+  Alert,
+  AlertIcon,
+  IconButton,
+  useToast,
+  Badge,
+  Stack,
+  Text
+} from '@chakra-ui/react';
+import { FiSearch, FiTruck, FiEye } from 'react-icons/fi';
 
 const OrderList = () => {
+  const navigate = useNavigate();
+  const toast = useToast();
   const { user } = useAuth();
   
   const [orders, setOrders] = useState([]);
@@ -13,23 +35,28 @@ const OrderList = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // 获取订单列表（只要能进来就是管理员了）
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         setLoading(true);
         const { data } = await api.get('/orders');
         setOrders(data);
-        setLoading(false);
       } catch (err) {
         setError(err.response?.data?.message || '获取订单列表失败');
+        toast({
+          title: '加载失败',
+          description: err.response?.data?.message || '获取订单列表时出错',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+      } finally {
         setLoading(false);
       }
     };
     fetchOrders();
-  }, []);
+  }, [toast]);
 
-  // 处理订单发货
   const handleDeliver = async (orderId) => {
     if (window.confirm('确认将此订单标记为已发货？')) {
       try {
@@ -38,15 +65,28 @@ const OrderList = () => {
         setOrders(orders.map(order => 
           order._id === orderId ? { ...order, isDelivered: true } : order
         ));
-        setLoading(false);
+        toast({
+          title: '操作成功',
+          description: '订单已标记为已发货',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
       } catch (err) {
         setError(err.response?.data?.message || '标记发货失败');
+        toast({
+          title: '操作失败',
+          description: err.response?.data?.message || '标记发货时出错',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+      } finally {
         setLoading(false);
       }
     }
   };
 
-  // 过滤订单
   const filteredOrders = orders.filter(order => {
     if (!searchText.trim()) return true;
     const searchLower = searchText.toLowerCase();
@@ -58,77 +98,115 @@ const OrderList = () => {
   });
 
   return (
-    <div className="admin-orderlist">
-      <h2>订单管理</h2>
-      <div className="search-bar">
-        <input
-          type="text"
+    <Box>
+      <Heading as="h2" size="lg" mb={6}>
+        订单管理
+      </Heading>
+
+      <Flex mb={6}>
+        <Input
           placeholder="搜索订单号、用户姓名或邮箱"
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
+          mr={2}
+          focusBorderColor="brand.500"
         />
-      </div>
-      {loading && <div className="loading">加载中...</div>}
-      {error && <div className="error">{error}</div>}
+        <IconButton
+          icon={<FiSearch />}
+          aria-label="搜索"
+          colorScheme="brand"
+        />
+      </Flex>
 
-      <table>
-        <thead>
-          <tr>
-            <th>订单号</th>
-            <th>用户</th>
-            <th>下单时间</th>
-            <th>总金额</th>
-            <th>支付状态</th>
-            <th>发货状态</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredOrders.length === 0 ? (
-            <tr>
-              <td colSpan="7" style={{ textAlign: 'center' }}>
-                {loading ? '加载中...' : '无匹配订单'}
-              </td>
-            </tr>
-          ) : (
-            filteredOrders.map((order) => (
-              <tr key={order._id}>
-                <td>{order._id.slice(0, 8)}...</td>
-                <td>
-                  {order.user?.name || '未知用户'}
-                  {order.user?.email && <div className="user-email">{order.user.email}</div>}
-                </td>
-                <td>{new Date(order.createdAt).toLocaleString()}</td>
-                <td>¥{order.totalPrice.toFixed(2)}</td>
-                <td>
-                  <span className={order.isPaid ? 'status-paid' : 'status-unpaid'}>
-                    {order.isPaid ? '已支付' : '未支付'}
-                  </span>
-                </td>
-                <td>
-                  <span className={order.isDelivered ? 'status-delivered' : 'status-undelivered'}>
-                    {order.isDelivered ? '已发货' : '待发货'}
-                  </span>
-                </td>
-                <td className="actions">
-                  <Link to={`/admin/orders/${order._id}`} className="btn-detail">
-                    详情
-                  </Link>
-                  {!order.isDelivered && (
-                    <button 
-                      onClick={() => handleDeliver(order._id)} 
-                      className="btn-deliver"
+      {loading && (
+        <Flex justify="center" py={12}>
+          <Spinner size="xl" />
+        </Flex>
+      )}
+
+      {error && (
+        <Alert status="error" mb={6} borderRadius="md">
+          <AlertIcon />
+          {error}
+        </Alert>
+      )}
+
+      <Box overflowX="auto">
+        <Table variant="striped">
+          <Thead>
+            <Tr>
+              <Th>订单号</Th>
+              <Th>用户</Th>
+              <Th>下单时间</Th>
+              <Th isNumeric>总金额</Th>
+              <Th>支付状态</Th>
+              <Th>发货状态</Th>
+              <Th>操作</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {filteredOrders.length === 0 ? (
+              <Tr>
+                <Td colSpan={7} textAlign="center" py={8}>
+                  {loading ? '加载中...' : '无匹配订单'}
+                </Td>
+              </Tr>
+            ) : (
+              filteredOrders.map((order) => (
+                <Tr key={order._id}>
+                  <Td fontSize="sm">{order._id.slice(0, 8)}...</Td>
+                  <Td>
+                    <Text fontWeight="medium">{order.user?.name || '未知用户'}</Text>
+                    {order.user?.email && (
+                      <Text fontSize="sm" color="gray.500">{order.user.email}</Text>
+                    )}
+                  </Td>
+                  <Td>{new Date(order.createdAt).toLocaleString()}</Td>
+                  <Td isNumeric>¥{order.totalPrice.toFixed(2)}</Td>
+                  <Td>
+                    <Badge
+                      colorScheme={order.isPaid ? 'green' : 'red'}
+                      variant="subtle"
                     >
-                      标记发货
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
+                      {order.isPaid ? '已支付' : '未支付'}
+                    </Badge>
+                  </Td>
+                  <Td>
+                    <Badge
+                      colorScheme={order.isDelivered ? 'green' : 'orange'}
+                      variant="subtle"
+                    >
+                      {order.isDelivered ? '已发货' : '待发货'}
+                    </Badge>
+                  </Td>
+                  <Td>
+                    <Stack direction="row" spacing={2}>
+                      <IconButton
+                        as={Link}
+                        to={`/admin/orders/${order._id}`}
+                        icon={<FiEye />}
+                        aria-label="查看详情"
+                        colorScheme="blue"
+                        size="sm"
+                      />
+                      {!order.isDelivered && (
+                        <IconButton
+                          icon={<FiTruck />}
+                          aria-label="标记发货"
+                          colorScheme="orange"
+                          size="sm"
+                          onClick={() => handleDeliver(order._id)}
+                        />
+                      )}
+                    </Stack>
+                  </Td>
+                </Tr>
+              ))
+            )}
+          </Tbody>
+        </Table>
+      </Box>
+    </Box>
   );
 };
 

@@ -1,20 +1,29 @@
-// src/components/RequireAdmin.jsx
-import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { Alert, AlertIcon, Button } from '@chakra-ui/react';
 
 const RequireAdmin = ({ children }) => {
   const { user } = useAuth();
   const location = useLocation();
 
-  // 只判断 user 和权限，不管 loading
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
+
   if (!user.isAdmin) {
-    return <div style={{ textAlign: 'center', padding: '2rem', color: 'red' }}>无管理员权限！</div>;
+    return (
+      <Alert status="error" variant="subtle" flexDirection="column" alignItems="center" textAlign="center" p={10}>
+        <AlertIcon boxSize="40px" mr={0} />
+        <AlertTitle mt={4} mb={1} fontSize="lg">
+          权限不足
+        </AlertTitle>
+        <AlertDescription maxWidth="sm">
+          您需要管理员权限才能访问此页面
+        </AlertDescription>
+        <Button as="a" href="/" mt={4} colorScheme="red">
+          返回首页
+        </Button>
+      </Alert>
+    );
   }
+
   return children;
 };
-
-export default RequireAdmin;

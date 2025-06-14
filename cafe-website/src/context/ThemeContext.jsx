@@ -1,25 +1,18 @@
-// context/ThemeContext.jsx
-import React, { createContext, useState, useEffect } from 'react';
+/* src/context/ThemeContext.jsx */
+import React, { createContext, useEffect } from 'react';
+import { useColorMode } from '@chakra-ui/react';
 
 export const ThemeContext = createContext();
 
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState(() => {
-    const savedTheme = localStorage.getItem('theme');
-    return savedTheme || 'light';
-  });
+  const { colorMode, toggleColorMode } = useColorMode();
 
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
-  };
+    localStorage.setItem('theme', colorMode);
+  }, [colorMode]);
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme: colorMode, toggleTheme: toggleColorMode }}>
       {children}
     </ThemeContext.Provider>
   );

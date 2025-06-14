@@ -1,13 +1,14 @@
-// context/CartContext.jsx
+/* src/context/CartContext.jsx */
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import api from '../utils/axiosConfig'; // 导入 API 实例
+import api from '../utils/axiosConfig';
+import { useToast } from '@chakra-ui/react';
 
 const CartContext = createContext();
 
 export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
-  // 从 localStorage 初始化购物车
+  const toast = useToast();
   const [cartItems, setCartItems] = useState(() => {
     try {
       const stored = localStorage.getItem('cartItems');
@@ -17,8 +18,6 @@ export const CartProvider = ({ children }) => {
       return [];
     }
   });
-  
-  // 收货地址
   const [shippingAddress, setShippingAddress] = useState(() => {
     try {
       const stored = localStorage.getItem('shippingAddress');
@@ -28,8 +27,6 @@ export const CartProvider = ({ children }) => {
       return {};
     }
   });
-  
-  // 支付方式
   const [paymentMethod, setPaymentMethod] = useState(() => {
     try {
       return localStorage.getItem('paymentMethod') || '';
@@ -38,8 +35,7 @@ export const CartProvider = ({ children }) => {
       return '';
     }
   });
-  
-  // 当 cartItems 变化时，同步更新到 localStorage
+
   useEffect(() => {
     try {
       localStorage.setItem('cartItems', JSON.stringify(cartItems));
@@ -47,8 +43,7 @@ export const CartProvider = ({ children }) => {
       console.error('写入 cartItems 到 localStorage 出错：', e);
     }
   }, [cartItems]);
-  
-  // 保存收货地址到 localStorage
+
   useEffect(() => {
     try {
       localStorage.setItem('shippingAddress', JSON.stringify(shippingAddress));
@@ -56,8 +51,7 @@ export const CartProvider = ({ children }) => {
       console.error('写入收货地址到 localStorage 出错：', e);
     }
   }, [shippingAddress]);
-  
-  // 保存支付方式到 localStorage
+
   useEffect(() => {
     try {
       localStorage.setItem('paymentMethod', paymentMethod);
@@ -66,97 +60,66 @@ export const CartProvider = ({ children }) => {
     }
   }, [paymentMethod]);
 
-  // 添加商品到购物车
   const addToCart = (product, quantity = 1) => {
     setCartItems(prevItems => {
-      // 检查是否已存在该商品
       const existingItem = prevItems.find(item => item.product === product._id);
-      
       if (existingItem) {
-        // 更新现有商品的数量
-        return prevItems.map(item => 
-          item.product === product._id 
-            ? { 
-                ...item, 
-                quantity: Math.min(item.quantity + quantity, product.countInStock)
-              } 
+        return prevItems.map(item =>
+          item.product === product._id
+            ? { ...item, quantity: Math.min(item.quantity + quantity, product.countInStock) }
             : item
         );
       } else {
-        // 添加新商品
         return [
-          ...prevItems, 
-          { 
+          ...prevItems,
+          {
             product: product._id,
             name: product.name,
             image: product.image,
             price: product.price,
             countInStock: product.countInStock,
-            quantity
-          }
+            quantity,
+          },
         ];
       }
     });
+    toast({
+      title: '已添加到购物车',
+      description: `${product.name} × ${quantity}`,
+      status: 'success',
+      duration: 2000,
+      isClosable: true,
+    });
   };
 
-  // 从购物车移除商品
   const removeFromCart = (productId) => {
     setCartItems(prevItems => prevItems.filter(item => item.product !== productId));
   };
 
-  // 更新商品数量
   const updateQuantity = (productId, quantity) => {
     if (quantity <= 0) {
       removeFromCart(productId);
       return;
     }
-    
-    setCartItems(prevItems => 
-      prevItems.map(item => 
-        item.product === productId 
-          ? { 
-              ...item, 
-              quantity: Math.min(quantity, item.countInStock)
-            } 
+    setCartItems(prevItems =>
+      prevItems.map(item =>
+        item.product === productId
+          ? { ...item, quantity: Math.min(quantity, item.countInStock) }
           : item
       )
     );
   };
 
-  // 保存收货地址
-  const saveShippingAddress = (address) => {
-    setShippingAddress(address);
-  };
+  const saveShippingAddress = (address) => setShippingAddress(address);
+  const savePaymentMethod = (method) => setPaymentMethod(method);
+  const clearCart = () => setCartItems([]);
 
-  // 保存支付方式
-  const savePaymentMethod = (method) => {
-    setPaymentMethod(method);
-  };
-
-  // 清空购物车
-  const clearCart = () => {
-    setCartItems([]);
-  };
-
-  // 计算总商品数
   const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
-  
-  // 计算商品小计
-  const itemsPrice = cartItems.reduce(
-    (total, item) => total + (item.price * item.quantity), 
-    0
-  );
-  
-  // 计算运费（满100免运费，否则10元）
+  const itemsPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
   const shippingPrice = itemsPrice > 100 ? 0 : 10;
-  
-  // 计算税费（假设10%）
   const taxPrice = Number((itemsPrice * 0.1).toFixed(2));
-  
-  // 计算总价
   const totalPrice = Number((itemsPrice + shippingPrice + taxPrice).toFixed(2));
 
-  // 下单函数
   const placeOrder = async () => {
     try {
       const orderData = {
@@ -165,27 +128,26 @@ export const CartProvider = ({ children }) => {
           name: item.name,
           image: item.image,
           price: item.price,
-          quantity: item.quantity
+          quantity: item.quantity,
         })),
         shippingAddress,
         paymentMethod,
         itemsPrice,
         shippingPrice,
         taxPrice,
-        totalPrice
+        totalPrice,
       };
-      
       const { data } = await api.post('/orders', orderData);
-      return data; // 返回创建的订单数据
+      return data;
     } catch (error) {
       console.error('下单失败:', error);
-      throw error; // 抛出错误供调用者处理
+      throw error;
     }
   };
 
   return (
-    <CartContext.Provider 
-      value={{ 
+    <CartContext.Provider
+      value={{
         cartItems,
         addToCart,
         removeFromCart,
@@ -200,7 +162,7 @@ export const CartProvider = ({ children }) => {
         saveShippingAddress,
         paymentMethod,
         savePaymentMethod,
-        placeOrder
+        placeOrder,
       }}
     >
       {children}

@@ -1,168 +1,201 @@
-// src/components/ProductCard.jsx
+// components/ProductCard.jsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { toast } from 'react-hot-toast';
+import { 
+  Box, Flex, Text, Button, IconButton, 
+  Image, Badge, useToast, Tooltip,
+  Skeleton, SkeletonCircle
+} from '@chakra-ui/react';
+import { motion } from 'framer-motion';
+import { 
+  FaHeart, FaRegHeart, 
+  FaStar, FaStarHalfAlt, FaRegStar 
+} from 'react-icons/fa';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useReview } from '../context/ReviewContext';
-import { FaHeart, FaRegHeart, FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
-import '../styles/product-card.css';
 
-const highlightText = (text, query) => {
-  if (!query) return text;
-  const lowerText = text.toLowerCase();
-  const lowerQuery = query.toLowerCase();
-  const parts = [];
-  let lastIndex = 0;
-  let index;
-  while ((index = lowerText.indexOf(lowerQuery, lastIndex)) !== -1) {
-    parts.push(text.substring(lastIndex, index));
-    parts.push(
-      <span key={index} className="highlight">
-        {text.substring(index, index + query.length)}
-      </span>
-    );
-    lastIndex = index + query.length;
-  }
-  parts.push(text.substring(lastIndex));
-  return parts;
-};
+const MotionBox = motion(Box);
+const MotionButton = motion(Button);
 
 const ProductCard = ({ product, searchQuery }) => {
+  const toast = useToast();
   const { addToCart } = useCart();
-  const { wishlist, addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const { getReviewsByProduct } = useReview();
-  const [inWishlist, setInWishlist] = useState(isInWishlist(product._id));
   
-  const [stock, setStock] = useState(product.countInStock ?? 0);
+  const [inWishlist, setInWishlist] = useState(false);
+  const [stock, setStock] = useState(product.countInStock ?? 10);
   const [isAdding, setIsAdding] = useState(false);
-  
   const [avgRating, setAvgRating] = useState(0);
   const [reviewCount, setReviewCount] = useState(0);
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
 
+  // 初始化数据
   useEffect(() => {
-    setInWishlist(isInWishlist(product._id));
-  }, [wishlist, product._id, isInWishlist]);
-
-  useEffect(() => {
+    setInWishlist(wishlist.some(item => item._id === product._id));
+    
     const reviews = getReviewsByProduct(product._id);
     const count = reviews.length;
-    
-    if (count > 0) {
-      const sum = reviews.reduce((total, review) => total + review.rating, 0);
-      setAvgRating(sum / count);
-    } else {
-      setAvgRating(0);
-    }
     setReviewCount(count);
-  }, [getReviewsByProduct, product._id]);
-
-  // 虚拟库存变动（可选，不用可删）
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (stock > 0 && Math.random() > 0.7) {
-        setStock((prev) => prev - 1);
-      }
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [stock]);
+    setAvgRating(count > 0 ? 
+      reviews.reduce((total, review) => total + review.rating, 0) / count : 0
+    );
+  }, [wishlist, product._id, getReviewsByProduct]);
 
   const handleAddToCart = () => {
     setIsAdding(true);
     addToCart(product, 1);
-    setTimeout(() => {
-      setIsAdding(false);
-      toast.success('已加入购物车');
-    }, 800);
+    toast({
+      title: '已加入购物车',
+      status: 'success',
+      duration: 1500,
+      position: 'top-right',
+    });
+    setTimeout(() => setIsAdding(false), 800);
   };
 
   const handleWishlistToggle = (e) => {
-    e.stopPropagation();
+    e.preventDefault();
     if (inWishlist) {
       removeFromWishlist(product._id);
-      toast('已从心愿单移除');
+      toast({
+        title: '已从心愿单移除',
+        status: 'info',
+        duration: 1000,
+      });
     } else {
       addToWishlist(product);
-      toast('已加入心愿单');
+      toast({
+        title: '已加入心愿单',
+        status: 'success',
+        duration: 1000,
+      });
     }
   };
 
   const renderStars = () => {
-    const stars = [];
-    const fullStars = Math.floor(avgRating);
-    const hasHalfStar = avgRating % 1 >= 0.5;
-    
-    for (let i = 0; i < fullStars; i++) {
-      stars.push(<FaStar key={`full-${i}`} className="star full-star" />);
-    }
-    if (hasHalfStar) {
-      stars.push(<FaStarHalfAlt key="half" className="star half-star" />);
-    }
-    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-    for (let i = 0; i < emptyStars; i++) {
-      stars.push(<FaRegStar key={`empty-${i}`} className="star empty-star" />);
-    }
-    return stars;
+    return Array(5).fill(0).map((_, i) => {
+      const starValue = i + 1;
+      if (avgRating >= starValue) {
+        return <FaStar key={i} color="gold" />;
+      } else if (avgRating >= starValue - 0.5) {
+        return <FaStarHalfAlt key={i} color="gold" />;
+      }
+      return <FaRegStar key={i} color="gold" />;
+    });
   };
 
   return (
-    <div className="product-card">
-      <Link 
-        to={`/product/${product._id}`} 
-        className="product-info-link"
-      >
-        {/* 商品图片 */}
-        <div className="product-image-container">
-          <img 
-            src={product.image} 
-            alt={product.name} 
-            className="product-image"
-            loading="lazy"
-          />
-        </div>
-        <div className="product-info">
-          <h3 className="product-name">
-            {highlightText(product.name, searchQuery)}
-          </h3>
-          <div className="product-rating">
-            <div className="stars-container">
-              {renderStars()}
-              <span className="rating-value">{avgRating.toFixed(1)}</span>
-            </div>
-            <span className="review-count">
-              {reviewCount > 0 ? `(${reviewCount}条评价)` : '暂无评价'}
-            </span>
-          </div>
-          <p className="description">
-            {highlightText(product.description, searchQuery)}
-          </p>
-          <p className="category">分类：{product.category}</p>
-        </div>
-      </Link>
-      <div className="product-footer">
-        <span className="price">¥{product.price.toFixed(2)}</span>
-        <div className="action-buttons">
-          <button
-            className="wishlist-btn"
+    <MotionBox
+      as="article"
+      borderWidth="1px"
+      borderRadius="lg"
+      overflow="hidden"
+      bg="white"
+      boxShadow="md"
+      whileHover={{ y: -5 }}
+      transition={{ type: "spring", damping: 10 }}
+      position="relative"
+      opacity={stock === 0 ? 0.7 : 1}
+    >
+      {/* 库存标签 */}
+      {stock < 5 && stock > 0 && (
+        <Badge 
+          position="absolute" 
+          top={2} 
+          right={2} 
+          colorScheme="red" 
+          borderRadius="full"
+          px={2}
+          zIndex="1"
+        >
+          仅剩{stock}件
+        </Badge>
+      )}
+
+      {/* 商品图片 */}
+      <Box position="relative" h="180px" bg="gray.100">
+        {!isImageLoaded && (
+          <Skeleton h="full" w="full" />
+        )}
+        <Image
+          src={product.image}
+          alt={product.name}
+          objectFit="cover"
+          w="full"
+          h="full"
+          onLoad={() => setIsImageLoaded(true)}
+          opacity={isImageLoaded ? 1 : 0}
+          transition="opacity 0.3s"
+        />
+        
+        {/* 心愿按钮 */}
+        <Tooltip label={inWishlist ? "从心愿单移除" : "加入心愿单"} placement="top">
+          <IconButton
+            aria-label={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
+            icon={inWishlist ? <FaHeart color="crimson" /> : <FaRegHeart color="crimson" />}
             onClick={handleWishlistToggle}
-            aria-label={inWishlist ? '移除心愿单' : '加入心愿单'}
+            position="absolute"
+            top={2}
+            left={2}
+            size="sm"
+            bg="whiteAlpha.700"
+            _hover={{ bg: "whiteAlpha.900" }}
+          />
+        </Tooltip>
+      </Box>
+
+      {/* 商品信息 */}
+      <Box p={4}>
+        <Link to={`/product/${product._id}`}>
+          <Text 
+            fontWeight="semibold" 
+            fontSize="lg" 
+            color="coffee.800"
+            noOfLines={2}
+            mb={2}
           >
-            {inWishlist ? (
-              <FaHeart color="crimson" size={18} />
-            ) : (
-              <FaRegHeart color="crimson" size={18} />
-            )}
-          </button>
-          <button
+            {product.name}
+          </Text>
+          
+          <Flex align="center" mb={2}>
+            <Flex mr={2}>
+              {renderStars()}
+            </Flex>
+            <Text fontSize="sm" color="gray.600">
+              {reviewCount > 0 ? `(${reviewCount})` : '暂无评价'}
+            </Text>
+          </Flex>
+          
+          <Text 
+            fontSize="sm" 
+            color="gray.600" 
+            noOfLines={3}
+            mb={3}
+          >
+            {product.description}
+          </Text>
+        </Link>
+
+        <Flex justify="space-between" align="center">
+          <Text fontWeight="bold" color="coffee.700">
+            ¥{product.price.toFixed(2)}
+          </Text>
+          
+          <MotionButton
+            colorScheme="brand"
+            size="sm"
             onClick={handleAddToCart}
             disabled={stock === 0 || isAdding}
-            className={`add-to-cart-btn ${isAdding ? 'adding' : ''}`}
+            loadingText={isAdding ? "加入中..." : null}
+            whileTap={{ scale: 0.95 }}
           >
-            {stock === 0 ? '已售罄' : isAdding ? '加入中...' : '加入购物车'}
-          </button>
-        </div>
-      </div>
-    </div>
+            {stock === 0 ? '已售罄' : '加入购物车'}
+          </MotionButton>
+        </Flex>
+      </Box>
+    </MotionBox>
   );
 };
 

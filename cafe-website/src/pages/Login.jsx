@@ -1,25 +1,35 @@
-// src/pages/Login.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import '../styles/login.css';
+import {
+  Flex,
+  Box,
+  Heading,
+  FormControl,
+  FormLabel,
+  Input,
+  Button,
+  Text,
+  Link as ChakraLink,
+  useToast,
+  Alert,
+  AlertIcon
+} from '@chakra-ui/react';
+import { motion } from 'framer-motion';
+
+const MotionBox = motion(Box);
 
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const toast = useToast();
   const { user, login, loading, error: authError } = useAuth();
-
-  // 如果用户被重定向过来，可拿到原本想去的页面
   const from = location.state?.from || '/account';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState({
-    email: '',
-    password: '',
-  });
+  const [errors, setErrors] = useState({ email: '', password: '' });
 
-  // 🚩 核心变动：已登录且是管理员，直接跳后台；否则走原逻辑
   useEffect(() => {
     if (user) {
       if (user.isAdmin) {
@@ -40,6 +50,7 @@ const Login = () => {
     const newErrors = { email: '', password: '' };
     let isValid = true;
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
     if (!email.trim()) {
       newErrors.email = '请输入邮箱';
       isValid = false;
@@ -47,10 +58,12 @@ const Login = () => {
       newErrors.email = '邮箱格式不正确';
       isValid = false;
     }
+    
     if (!password) {
       newErrors.password = '请输入密码';
       isValid = false;
     }
+    
     setErrors(newErrors);
     return isValid;
   };
@@ -58,62 +71,106 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
+    
     try {
       await login(email.trim(), password);
-      // 登录成功后，useEffect会自动处理跳转
     } catch (error) {
-      console.error('登录失败:', error);
+      toast({
+        title: '登录失败',
+        description: error.message || '请检查您的邮箱和密码',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
     }
   };
 
   return (
-    <div className="login-page">
-      <h1>登录</h1>
-      <form className="login-form" onSubmit={handleSubmit}>
-        {authError && <p className="error">{authError}</p>}
-        <div className="form-group">
-          <label htmlFor="email">邮箱：</label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => handleInputChange('email', e.target.value)}
-            placeholder="请输入邮箱"
-            required
-            className={errors.email ? 'error-input' : ''}
-          />
-          {errors.email && <span className="field-error">{errors.email}</span>}
-        </div>
-        <div className="form-group">
-          <label htmlFor="password">密码：</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => handleInputChange('password', e.target.value)}
-            placeholder="请输入密码"
-            required
-            className={errors.password ? 'error-input' : ''}
-          />
-          {errors.password && <span className="field-error">{errors.password}</span>}
-        </div>
-        <button 
-          type="submit" 
-          className="btn login-btn"
-          disabled={loading}
-        >
-          {loading ? '登录中...' : '登录'}
-        </button>
-      </form>
-      <div className="login-links">
-        <p>
-          没有账号？<Link to="/register">注册新账号</Link>
-        </p>
-        <p>
-          <Link to="/forgot-password">忘记密码？</Link>
-        </p>
-      </div>
-    </div>
+    <Flex minH="100vh" align="center" justify="center" bg="gray.50">
+      <MotionBox
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        w="full"
+        maxW="md"
+        p={8}
+        borderWidth={1}
+        borderRadius="lg"
+        boxShadow="lg"
+        bg="white"
+      >
+        <Heading as="h1" size="xl" mb={6} textAlign="center" color="brand.600">
+          登录
+        </Heading>
+
+        {authError && (
+          <Alert status="error" mb={4} borderRadius="md">
+            <AlertIcon />
+            {authError}
+          </Alert>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <FormControl isInvalid={!!errors.email} mb={4}>
+            <FormLabel>邮箱</FormLabel>
+            <Input
+              type="email"
+              value={email}
+              onChange={(e) => handleInputChange('email', e.target.value)}
+              placeholder="请输入邮箱"
+              focusBorderColor="brand.500"
+            />
+            {errors.email && (
+              <Text color="red.500" fontSize="sm" mt={1}>
+                {errors.email}
+              </Text>
+            )}
+          </FormControl>
+
+          <FormControl isInvalid={!!errors.password} mb={6}>
+            <FormLabel>密码</FormLabel>
+            <Input
+              type="password"
+              value={password}
+              onChange={(e) => handleInputChange('password', e.target.value)}
+              placeholder="请输入密码"
+              focusBorderColor="brand.500"
+            />
+            {errors.password && (
+              <Text color="red.500" fontSize="sm" mt={1}>
+                {errors.password}
+              </Text>
+            )}
+          </FormControl>
+
+          <Button
+            type="submit"
+            colorScheme="brand"
+            size="lg"
+            w="full"
+            isLoading={loading}
+            loadingText="登录中..."
+            mb={4}
+          >
+            登录
+          </Button>
+        </form>
+
+        <Flex direction="column" align="center" gap={2}>
+          <Text>
+            没有账号？{' '}
+            <ChakraLink as={Link} to="/register" color="brand.500" fontWeight="medium">
+              注册新账号
+            </ChakraLink>
+          </Text>
+          <Text>
+            <ChakraLink as={Link} to="/forgot-password" color="brand.500" fontWeight="medium">
+              忘记密码？
+            </ChakraLink>
+          </Text>
+        </Flex>
+      </MotionBox>
+    </Flex>
   );
 };
 

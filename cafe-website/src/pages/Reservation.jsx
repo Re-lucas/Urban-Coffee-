@@ -1,8 +1,29 @@
-// pages/Reservation.jsx (新建)
 import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import '../styles/reservation.css';
+import {
+  Flex,
+  Box,
+  Heading,
+  Button,
+  Text,
+  FormControl,
+  FormLabel,
+  Select,
+  Textarea,
+  useToast,
+  Alert,
+  AlertIcon,
+  SimpleGrid,
+  RadioGroup,
+  Radio,
+  Stack,
+  Spinner
+} from '@chakra-ui/react';
+import { motion } from 'framer-motion';
+import { FiCalendar, FiClock, FiUsers } from 'react-icons/fi';
+
+const MotionBox = motion(Box);
 
 const Reservation = () => {
   const [date, setDate] = useState(new Date());
@@ -11,21 +32,20 @@ const Reservation = () => {
   const [reservationType, setReservationType] = useState('seat');
   const [availableSlots, setAvailableSlots] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const toast = useToast();
 
   useEffect(() => {
     const fetchAvailableSlots = async () => {
       setIsLoading(true);
       try {
-        // 模拟API调用 - 实际项目中替换为Google Calendar API
         await new Promise(resolve => setTimeout(resolve, 800));
         
-        // 生成可用时间段
         const slots = [];
         const startHour = reservationType === 'seat' ? 10 : 14;
         const endHour = reservationType === 'seat' ? 20 : 18;
         
         for (let hour = startHour; hour < endHour; hour++) {
-          if (hour !== 13) { // 跳过午休时间
+          if (hour !== 13) {
             slots.push(`${hour}:00`);
             if (reservationType === 'seat') {
               slots.push(`${hour}:30`);
@@ -46,99 +66,149 @@ const Reservation = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // 预约提交逻辑
-    alert(`预约成功！${date.toDateString()} ${timeSlot}, ${partySize}人`);
+    if (!timeSlot) {
+      toast({
+        title: '请选择时间',
+        status: 'warning',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+    
+    toast({
+      title: '预约成功',
+      description: `${date.toDateString()} ${timeSlot}, ${partySize}人`,
+      status: 'success',
+      duration: 5000,
+      isClosable: true,
+    });
   };
 
   return (
-    <div className="reservation-page">
-      <h1 className="page-title">
-        {reservationType === 'seat' ? '座位预约' : '咖啡课程预约'}
-      </h1>
-      
-      <div className="container">
-        <div className="reservation-options">
-          <button 
-            className={`option-btn ${reservationType === 'seat' ? 'active' : ''}`}
-            onClick={() => setReservationType('seat')}
-          >
-            座位预约
-          </button>
-          <button 
-            className={`option-btn ${reservationType === 'class' ? 'active' : ''}`}
-            onClick={() => setReservationType('class')}
-          >
-            咖啡课程
-          </button>
-        </div>
+    <Box maxW="container.md" mx="auto" px={4} py={8}>
+      <MotionBox
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Heading as="h1" size="xl" mb={8} textAlign="center" color="brand.600">
+          {reservationType === 'seat' ? '座位预约' : '咖啡课程预约'}
+        </Heading>
 
-        <form className="reservation-form" onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>选择日期</label>
-            <DatePicker 
-              selected={date} 
-              onChange={setDate} 
-              minDate={new Date()}
-              dateFormat="yyyy/MM/dd"
-              className="date-picker"
-            />
-          </div>
-          
-          <div className="form-group">
-            <label>选择时间</label>
-            {isLoading ? (
-              <div className="loading-slots">加载可用时段中...</div>
-            ) : (
-              <div className="time-slots">
-                {availableSlots.map(slot => (
-                  <button
-                    key={slot}
-                    type="button"
-                    className={`time-slot ${timeSlot === slot ? 'selected' : ''}`}
-                    onClick={() => setTimeSlot(slot)}
-                  >
-                    {slot}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-          
-          <div className="form-group">
-            <label>
-              {reservationType === 'seat' ? '人数' : '参加人数'}
-            </label>
-            <select
-              value={partySize}
-              onChange={(e) => setPartySize(Number(e.target.value))}
+        <Flex mb={8} justify="center">
+          <ButtonGroup isAttached variant="outline">
+            <Button
+              onClick={() => setReservationType('seat')}
+              colorScheme={reservationType === 'seat' ? 'brand' : 'gray'}
+              leftIcon={<FiCalendar />}
             >
-              {[1, 2, 3, 4, 5, 6].map(num => (
-                <option key={num} value={num}>{num}人</option>
-              ))}
-            </select>
-          </div>
-          
-          {reservationType === 'class' && (
-            <div className="form-group">
-              <label>课程类型</label>
-              <select>
-                <option value="handbrew">手冲咖啡课程</option>
-                <option value="latteart">拉花艺术课程</option>
-                <option value="cupping">咖啡品鉴课程</option>
-              </select>
-            </div>
-          )}
-          
-          <button 
-            type="submit" 
-            className="submit-btn"
-            disabled={!timeSlot}
-          >
-            确认预约
-          </button>
-        </form>
-      </div>
-    </div>
+              座位预约
+            </Button>
+            <Button
+              onClick={() => setReservationType('class')}
+              colorScheme={reservationType === 'class' ? 'brand' : 'gray'}
+              leftIcon={<FiClock />}
+            >
+              咖啡课程
+            </Button>
+          </ButtonGroup>
+        </Flex>
+
+        <Box
+          as="form"
+          onSubmit={handleSubmit}
+          bg="white"
+          p={6}
+          borderRadius="lg"
+          boxShadow="sm"
+        >
+          <Stack spacing={6}>
+            <FormControl>
+              <FormLabel display="flex" alignItems="center">
+                <FiCalendar style={{ marginRight: '8px' }} />
+                选择日期
+              </FormLabel>
+              <Box borderWidth="1px" borderRadius="md" p={2}>
+                <DatePicker 
+                  selected={date} 
+                  onChange={setDate} 
+                  minDate={new Date()}
+                  dateFormat="yyyy/MM/dd"
+                  className="custom-datepicker"
+                  wrapperClassName="datepicker-wrapper"
+                />
+              </Box>
+            </FormControl>
+
+            <FormControl>
+              <FormLabel display="flex" alignItems="center">
+                <FiClock style={{ marginRight: '8px' }} />
+                选择时间
+              </FormLabel>
+              {isLoading ? (
+                <Flex justify="center" py={4}>
+                  <Spinner />
+                </Flex>
+              ) : (
+                <SimpleGrid columns={{ base: 2, sm: 3 }} spacing={3}>
+                  {availableSlots.map(slot => (
+                    <Button
+                      key={slot}
+                      type="button"
+                      onClick={() => setTimeSlot(slot)}
+                      colorScheme={timeSlot === slot ? 'brand' : 'gray'}
+                      variant={timeSlot === slot ? 'solid' : 'outline'}
+                    >
+                      {slot}
+                    </Button>
+                  ))}
+                </SimpleGrid>
+              )}
+            </FormControl>
+
+            <FormControl>
+              <FormLabel display="flex" alignItems="center">
+                <FiUsers style={{ marginRight: '8px' }} />
+                {reservationType === 'seat' ? '人数' : '参加人数'}
+              </FormLabel>
+              <Select
+                value={partySize}
+                onChange={(e) => setPartySize(Number(e.target.value))}
+                focusBorderColor="brand.500"
+              >
+                {[1, 2, 3, 4, 5, 6].map(num => (
+                  <option key={num} value={num}>{num}人</option>
+                ))}
+              </Select>
+            </FormControl>
+
+            {reservationType === 'class' && (
+              <FormControl>
+                <FormLabel>课程类型</FormLabel>
+                <Select focusBorderColor="brand.500">
+                  <option value="handbrew">手冲咖啡课程</option>
+                  <option value="latteart">拉花艺术课程</option>
+                  <option value="cupping">咖啡品鉴课程</option>
+                </Select>
+              </FormControl>
+            )}
+
+            <Button
+              type="submit"
+              colorScheme="brand"
+              size="lg"
+              isLoading={isLoading}
+              loadingText="提交中..."
+              disabled={!timeSlot}
+              mt={4}
+            >
+              确认预约
+            </Button>
+          </Stack>
+        </Box>
+      </MotionBox>
+    </Box>
   );
 };
 

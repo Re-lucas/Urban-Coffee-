@@ -1,21 +1,44 @@
 // components/CartIcon.jsx
-import React, { useState } from 'react';
+import React from 'react';
+import { 
+  IconButton, Badge, 
+  useDisclosure, Tooltip
+} from '@chakra-ui/react';
 import { FiShoppingCart } from 'react-icons/fi';
 import { useCart } from '../context/CartContext';
-import CartPanel from './CartPanel'; // 接下来创建
-import '../styles/cart-icon.css';
+import CartPanel from './CartPanel';
 
 const CartIcon = () => {
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
-  const { totalItems } = useCart();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { itemCount } = useCart();
 
   return (
     <>
-      <div className="cart-icon" onClick={() => setIsPanelOpen(!isPanelOpen)}>
-        <FiShoppingCart size={24} />
-        {totalItems > 0 && <span className="cart-count">{totalItems}</span>}
-      </div>
-      <CartPanel isOpen={isPanelOpen} onClose={() => setIsPanelOpen(false)} />
+      <Tooltip label="查看购物车" placement="bottom">
+        <Box position="relative">
+          <IconButton
+            icon={<FiShoppingCart />}
+            variant="ghost"
+            fontSize="xl"
+            aria-label="购物车"
+            onClick={onOpen}
+          />
+          {itemCount > 0 && (
+            <Badge
+              colorScheme="red"
+              borderRadius="full"
+              position="absolute"
+              top="-1"
+              right="-1"
+              fontSize="xs"
+            >
+              {itemCount}
+            </Badge>
+          )}
+        </Box>
+      </Tooltip>
+      
+      <CartPanel isOpen={isOpen} onClose={onClose} />
     </>
   );
 };

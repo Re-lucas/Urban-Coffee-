@@ -1,25 +1,42 @@
-// src/pages/Register.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import '../styles/register.css';
+import {
+  Flex,
+  Box,
+  Heading,
+  FormControl,
+  FormLabel,
+  Input,
+  Button,
+  Text,
+  Link as ChakraLink,
+  Alert,
+  AlertIcon,
+  useToast
+} from '@chakra-ui/react';
+import { motion } from 'framer-motion';
+
+const MotionBox = motion(Box);
 
 const Register = () => {
   const navigate = useNavigate();
+  const toast = useToast();
   const { user, registerUser, loading, error: authError } = useAuth();
 
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPwd, setConfirmPwd] = useState('');
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPwd: ''
+  });
   const [errors, setErrors] = useState({
     name: '',
     email: '',
     password: '',
-    confirmPwd: '',
+    confirmPwd: ''
   });
 
-  // 注册成功后 user 会被设值，这里跳转到 /account
   useEffect(() => {
     if (user) {
       navigate('/account', { replace: true });
@@ -28,42 +45,39 @@ const Register = () => {
 
   const handleInputChange = (field, value) => {
     setErrors(prev => ({ ...prev, [field]: '' }));
-    switch (field) {
-      case 'name': setName(value); break;
-      case 'email': setEmail(value); break;
-      case 'password': setPassword(value); break;
-      case 'confirmPwd': setConfirmPwd(value); break;
-      default: break;
-    }
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const validateForm = () => {
     const newErrors = { name: '', email: '', password: '', confirmPwd: '' };
     let valid = true;
 
-    if (!name.trim()) {
+    if (!formData.name.trim()) {
       newErrors.name = '请输入姓名';
       valid = false;
     }
+
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email.trim()) {
+    if (!formData.email.trim()) {
       newErrors.email = '请输入邮箱';
       valid = false;
-    } else if (!emailRe.test(email.trim())) {
+    } else if (!emailRe.test(formData.email.trim())) {
       newErrors.email = '邮箱格式不正确';
       valid = false;
     }
-    if (!password) {
+
+    if (!formData.password) {
       newErrors.password = '请输入密码';
       valid = false;
-    } else if (password.length < 6) {
+    } else if (formData.password.length < 6) {
       newErrors.password = '密码长度至少为6位';
       valid = false;
     }
-    if (!confirmPwd) {
+
+    if (!formData.confirmPwd) {
       newErrors.confirmPwd = '请再次输入密码';
       valid = false;
-    } else if (password !== confirmPwd) {
+    } else if (formData.password !== formData.confirmPwd) {
       newErrors.confirmPwd = '两次输入的密码不一致';
       valid = false;
     }
@@ -72,89 +86,148 @@ const Register = () => {
     return valid;
   };
 
-  // ← 一定要加 async
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    // ← 一定要加 await
-    const { success, message } = await registerUser({
-      name: name.trim(),
-      email: email.trim(),
-      password,
-    });
+    try {
+      const { success, message } = await registerUser({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        password: formData.password
+      });
 
-    if (!success) {
-      // registerUser 已经在 AuthContext 里把错误存到 `error` 里，
-      // 这里不需要二次 alert，页面顶部会显示 authError
-      console.warn('注册失败：', message);
+      if (!success) {
+        toast({
+          title: '注册失败',
+          description: message,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: '注册失败',
+        description: error.message || '注册过程中出现错误',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
     }
-    // 成功时，useEffect 会检测到 user 被设置，自动跳转
   };
 
   return (
-    <div className="register-page">
-      <h2>注册账号</h2>
-      <form className="register-form" onSubmit={handleSubmit}>
-        {authError && <p className="error">{authError}</p>}
+    <Flex minH="100vh" align="center" justify="center" bg="gray.50">
+      <MotionBox
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        w="full"
+        maxW="md"
+        p={8}
+        borderWidth={1}
+        borderRadius="lg"
+        boxShadow="lg"
+        bg="white"
+      >
+        <Heading as="h2" size="xl" mb={6} textAlign="center" color="brand.600">
+          注册账号
+        </Heading>
 
-        <label>
-          姓名：
-          <input
-            type="text"
-            value={name}
-            onChange={e => handleInputChange('name', e.target.value)}
-            placeholder="请输入您的姓名"
-            className={errors.name ? 'error-input' : ''}
-          />
-          {errors.name && <span className="field-error">{errors.name}</span>}
-        </label>
+        {authError && (
+          <Alert status="error" mb={4} borderRadius="md">
+            <AlertIcon />
+            {authError}
+          </Alert>
+        )}
 
-        <label>
-          邮箱：
-          <input
-            type="email"
-            value={email}
-            onChange={e => handleInputChange('email', e.target.value)}
-            placeholder="请输入您的邮箱"
-            className={errors.email ? 'error-input' : ''}
-          />
-          {errors.email && <span className="field-error">{errors.email}</span>}
-        </label>
+        <form onSubmit={handleSubmit}>
+          <FormControl isInvalid={!!errors.name} mb={4}>
+            <FormLabel>姓名</FormLabel>
+            <Input
+              type="text"
+              value={formData.name}
+              onChange={(e) => handleInputChange('name', e.target.value)}
+              placeholder="请输入您的姓名"
+              focusBorderColor="brand.500"
+            />
+            {errors.name && (
+              <Text color="red.500" fontSize="sm" mt={1}>
+                {errors.name}
+              </Text>
+            )}
+          </FormControl>
 
-        <label>
-          密码：
-          <input
-            type="password"
-            value={password}
-            onChange={e => handleInputChange('password', e.target.value)}
-            placeholder="请输入密码（至少6位）"
-            className={errors.password ? 'error-input' : ''}
-          />
-          {errors.password && <span className="field-error">{errors.password}</span>}
-        </label>
+          <FormControl isInvalid={!!errors.email} mb={4}>
+            <FormLabel>邮箱</FormLabel>
+            <Input
+              type="email"
+              value={formData.email}
+              onChange={(e) => handleInputChange('email', e.target.value)}
+              placeholder="请输入您的邮箱"
+              focusBorderColor="brand.500"
+            />
+            {errors.email && (
+              <Text color="red.500" fontSize="sm" mt={1}>
+                {errors.email}
+              </Text>
+            )}
+          </FormControl>
 
-        <label>
-          确认密码：
-          <input
-            type="password"
-            value={confirmPwd}
-            onChange={e => handleInputChange('confirmPwd', e.target.value)}
-            placeholder="请再次输入密码"
-            className={errors.confirmPwd ? 'error-input' : ''}
-          />
-          {errors.confirmPwd && <span className="field-error">{errors.confirmPwd}</span>}
-        </label>
+          <FormControl isInvalid={!!errors.password} mb={4}>
+            <FormLabel>密码</FormLabel>
+            <Input
+              type="password"
+              value={formData.password}
+              onChange={(e) => handleInputChange('password', e.target.value)}
+              placeholder="请输入密码（至少6位）"
+              focusBorderColor="brand.500"
+            />
+            {errors.password && (
+              <Text color="red.500" fontSize="sm" mt={1}>
+                {errors.password}
+              </Text>
+            )}
+          </FormControl>
 
-        <button type="submit" className="btn register-btn" disabled={loading}>
-          {loading ? '注册中…' : '注册并登录'}
-        </button>
-      </form>
+          <FormControl isInvalid={!!errors.confirmPwd} mb={6}>
+            <FormLabel>确认密码</FormLabel>
+            <Input
+              type="password"
+              value={formData.confirmPwd}
+              onChange={(e) => handleInputChange('confirmPwd', e.target.value)}
+              placeholder="请再次输入密码"
+              focusBorderColor="brand.500"
+            />
+            {errors.confirmPwd && (
+              <Text color="red.500" fontSize="sm" mt={1}>
+                {errors.confirmPwd}
+              </Text>
+            )}
+          </FormControl>
 
-      <p className="redirect">
-        已有账号？<Link to="/login">去登录</Link>
-      </p>
-    </div>
+          <Button
+            type="submit"
+            colorScheme="brand"
+            size="lg"
+            w="full"
+            isLoading={loading}
+            loadingText="注册中..."
+            mb={4}
+          >
+            注册并登录
+          </Button>
+        </form>
+
+        <Text textAlign="center">
+          已有账号？{' '}
+          <ChakraLink as={Link} to="/login" color="brand.500" fontWeight="medium">
+            去登录
+          </ChakraLink>
+        </Text>
+      </MotionBox>
+    </Flex>
   );
 };
 

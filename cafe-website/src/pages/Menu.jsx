@@ -1,17 +1,34 @@
-// src/pages/Menu.jsx
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import api from '../utils/axiosConfig';
-import '../styles/menu.css';
-import '../styles/main.css';
+import {
+  Flex,
+  Box,
+  Heading,
+  Input,
+  Select,
+  Button,
+  Text,
+  SimpleGrid,
+  Spinner,
+  Alert,
+  AlertIcon,
+  ButtonGroup,
+  IconButton,
+  useToast
+} from '@chakra-ui/react';
+import { FiSearch, FiRefreshCw } from 'react-icons/fi';
+import { motion } from 'framer-motion';
+
+const MotionBox = motion(Box);
 
 const Menu = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
+  const toast = useToast();
 
-  // 从 URL 获取查询参数
   const initialSearch = queryParams.get('search') || '';
   const initialCategory = queryParams.get('category') || 'All';
   const initialMinPrice = queryParams.get('minPrice') || '';
@@ -24,8 +41,7 @@ const Menu = () => {
   const [maxPrice, setMaxPrice] = useState(initialMaxPrice);
   const [currentPage, setCurrentPage] = useState(Number(initialPage));
 
-  // 关乎商品列表、加载状态、分页信息
-  const [products, setProducts] = useState([]);     // 一定默认是数组
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [totalPages, setTotalPages] = useState(1);
@@ -36,8 +52,8 @@ const Menu = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
+        setError(null);
 
-        // 构建查询参数
         const params = {
           search: searchQuery,
           category: selectedCategory !== 'All' ? selectedCategory : undefined,
@@ -47,41 +63,29 @@ const Menu = () => {
           pageSize: 12
         };
 
-      // 修复这里：移除了多余的 "/api" 前缀
-      const { data } = await api.get('/products', { params });
-      console.log('Menu 接口返回 data =', data);
+        const { data } = await api.get('/products', { params });
 
-      // 第一次拿完 data 之后，也提取一下所有分类，保持下拉完整
         if (Array.isArray(data.products)) {
           const cats = Array.from(new Set(data.products.map(p => p.category)));
           setCategories(cats);
         }
-
-        // —— 兼容三种后端返回格式 —— 
-        // 1. data 本身就是一个数组：setProducts(data)
-        // 2. data = { products: […] }
-        // 3. data = { docs: […] }（分页插件常用形式）
 
         let fetchedProducts = [];
         let fetchedTotalPages = 1;
         let fetchedTotalProducts = 0;
 
         if (Array.isArray(data)) {
-          // 后端直接返回数组
           fetchedProducts = data;
           fetchedTotalProducts = data.length;
         } else if (Array.isArray(data.products)) {
-          // 后端返回 { products: […], totalPages, totalProducts }
           fetchedProducts = data.products;
           fetchedTotalPages = data.totalPages ?? 1;
           fetchedTotalProducts = data.totalProducts ?? data.products.length;
         } else if (Array.isArray(data.docs)) {
-          // 后端返回 { docs: […], totalPages, totalDocs } 这种 paginate 结构
           fetchedProducts = data.docs;
           fetchedTotalPages = data.totalPages ?? 1;
           fetchedTotalProducts = data.totalDocs ?? data.docs.length;
         } else {
-          // 兼容：如果你不知道后端返回什么，先尝试从根字段里取数组
           fetchedProducts = Array.isArray(data.products)
             ? data.products
             : Array.isArray(data.docs)
@@ -92,18 +96,23 @@ const Menu = () => {
         setProducts(fetchedProducts);
         setTotalPages(fetchedTotalPages);
         setTotalProducts(fetchedTotalProducts);
-
-        setLoading(false);
       } catch (err) {
         console.error('获取商品失败：', err);
         setError(err.response?.data?.message || '获取商品失败');
+        toast({
+          title: '加载失败',
+          description: err.response?.data?.message || '获取商品列表时出错',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+      } finally {
         setLoading(false);
       }
     };
 
     fetchProducts();
 
-    // 更新 URL 查询参数
     const newQueryParams = new URLSearchParams();
     if (searchQuery) newQueryParams.set('search', searchQuery);
     if (selectedCategory !== 'All') newQueryParams.set('category', selectedCategory);
@@ -111,79 +120,129 @@ const Menu = () => {
     if (maxPrice) newQueryParams.set('maxPrice', maxPrice);
     if (currentPage > 1) newQueryParams.set('page', currentPage);
     navigate(`?${newQueryParams.toString()}`, { replace: true });
-  }, [searchQuery, selectedCategory, minPrice, maxPrice, currentPage, navigate]);
+  }, [searchQuery, selectedCategory, minPrice, maxPrice, currentPage, navigate, toast]);
 
-  // 下面是渲染部分
+  const resetFilters = () => {
+    setSearchQuery('');
+    setSelectedCategory('All');
+    setMinPrice('');
+    setMaxPrice('');
+    setCurrentPage(1);
+  };
+
   return (
-    <div className="menu-page">
-      <h1 className="page-title">咖啡菜单</h1>
+    <Box maxW="container.xl" mx="auto" px={4} py={8}>
+      <MotionBox
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Heading as="h1" size="xl" mb={8} textAlign="center" color="brand.600">
+          咖啡菜单
+        </Heading>
 
-      <div className="filter-summary">
-        {totalProducts > 0 && <p>找到 {totalProducts} 个商品</p>}
-      </div>
+        {totalProducts > 0 && (
+          <Text fontSize="lg" mb={4} color="gray.600">
+            找到 {totalProducts} 个商品
+          </Text>
+        )}
 
-      <div className="filter-controls">
-        <input
-          type="text"
-          placeholder="🔍  搜索咖啡名称或描述..."
-          value={searchQuery}
-          onChange={e => setSearchQuery(e.target.value)}
-        />
-
-        <select
-          value={selectedCategory}
-          onChange={e => {
-            setSelectedCategory(e.target.value);
-            setCurrentPage(1);
-          }}
+        <Flex
+          direction={{ base: 'column', md: 'row' }}
+          gap={4}
+          mb={8}
+          p={4}
+          bg="white"
+          borderRadius="lg"
+          boxShadow="sm"
         >
-          <option value="All">全部分类</option>
-          {categories.map(cat => (
-            <option key={cat} value={cat}>{cat}</option>
-          ))}
-        </select>
+          <Flex flex={1} alignItems="center">
+            <Input
+              placeholder="搜索咖啡名称或描述..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              size="lg"
+              focusBorderColor="brand.500"
+            />
+            <IconButton
+              icon={<FiSearch />}
+              aria-label="搜索"
+              ml={2}
+              colorScheme="brand"
+              size="lg"
+              onClick={() => setCurrentPage(1)}
+            />
+          </Flex>
 
-        <input
-          type="number"
-          placeholder="最低价 (¥)"
-          value={minPrice}
-          onChange={e => setMinPrice(e.target.value)}
-          min="0"
-          step="0.01"
-        />
+          <Select
+            value={selectedCategory}
+            onChange={(e) => {
+              setSelectedCategory(e.target.value);
+              setCurrentPage(1);
+            }}
+            maxW={{ base: 'full', md: '200px' }}
+            size="lg"
+            focusBorderColor="brand.500"
+          >
+            <option value="All">全部分类</option>
+            {categories.map(cat => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </Select>
 
-        <input
-          type="number"
-          placeholder="最高价 (¥)"
-          value={maxPrice}
-          onChange={e => setMaxPrice(e.target.value)}
-          min="0"
-          step="0.01"
-        />
+          <Flex gap={2} alignItems="center">
+            <Input
+              type="number"
+              placeholder="最低价"
+              value={minPrice}
+              onChange={(e) => setMinPrice(e.target.value)}
+              min="0"
+              step="0.01"
+              size="lg"
+              w="120px"
+              focusBorderColor="brand.500"
+            />
+            <Text>至</Text>
+            <Input
+              type="number"
+              placeholder="最高价"
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(e.target.value)}
+              min="0"
+              step="0.01"
+              size="lg"
+              w="120px"
+              focusBorderColor="brand.500"
+            />
+          </Flex>
 
-        <button
-          onClick={() => {
-            setSearchQuery('');
-            setSelectedCategory('All');
-            setMinPrice('');
-            setMaxPrice('');
-            setCurrentPage(1);
-          }}
-        >
-          重置筛选
-        </button>
-      </div>
+          <Button
+            leftIcon={<FiRefreshCw />}
+            onClick={resetFilters}
+            size="lg"
+            variant="outline"
+            colorScheme="gray"
+          >
+            重置
+          </Button>
+        </Flex>
 
-      <div className="container">
         {loading ? (
-          <div className="loading">加载中...</div>
+          <Flex justify="center" py={12}>
+            <Spinner size="xl" color="brand.500" />
+          </Flex>
         ) : error ? (
-          <div className="error">{error}</div>
+          <Alert status="error" borderRadius="md" mb={6}>
+            <AlertIcon />
+            {error}
+          </Alert>
         ) : products.length === 0 ? (
-          <p className="no-results">没有符合条件的商品。</p>
+          <Text textAlign="center" py={12} fontSize="lg" color="gray.500">
+            没有符合条件的商品。
+          </Text>
         ) : (
           <>
-            <div className="products-grid">
+            <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing={6} mb={8}>
               {products.map(product => (
                 <ProductCard
                   key={product._id}
@@ -191,39 +250,39 @@ const Menu = () => {
                   searchQuery={searchQuery}
                 />
               ))}
-            </div>
+            </SimpleGrid>
 
             {totalPages > 1 && (
-              <div className="pagination">
-                <button
-                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
-                >
-                  上一页
-                </button>
-
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
-                  <button
-                    key={pageNum}
-                    onClick={() => setCurrentPage(pageNum)}
-                    className={currentPage === pageNum ? 'active' : ''}
+              <Flex justify="center" mt={8}>
+                <ButtonGroup isAttached variant="outline">
+                  <Button
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
                   >
-                    {pageNum}
-                  </button>
-                ))}
-
-                <button
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                  disabled={currentPage === totalPages}
-                >
-                  下一页
-                </button>
-              </div>
+                    上一页
+                  </Button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+                    <Button
+                      key={pageNum}
+                      onClick={() => setCurrentPage(pageNum)}
+                      colorScheme={currentPage === pageNum ? 'brand' : 'gray'}
+                    >
+                      {pageNum}
+                    </Button>
+                  ))}
+                  <Button
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                  >
+                    下一页
+                  </Button>
+                </ButtonGroup>
+              </Flex>
             )}
           </>
         )}
-      </div>
-    </div>
+      </MotionBox>
+    </Box>
   );
 };
 

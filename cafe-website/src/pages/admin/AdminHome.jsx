@@ -1,20 +1,30 @@
-// src/pages/admin/AdminHome.jsx
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useOrder } from '../../context/OrderContext';
-import { Link } from 'react-router-dom';
+import {
+  Box,
+  Heading,
+  Text,
+  SimpleGrid,
+  Link as ChakraLink,
+  Spinner,
+  Stack,
+  Stat,
+  StatLabel,
+  StatNumber,
+  StatHelpText,
+  useColorModeValue
+} from '@chakra-ui/react';
+import { FiUsers, FiShoppingBag, FiTruck } from 'react-icons/fi';
 
 const AdminHome = () => {
-  // 从 AuthContext 获取所有用户列表 + 拉取方法
   const { allUsers, fetchAllUsers } = useAuth();
-  // 从 OrderContext 获取所有订单列表 + 拉取方法
   const { allOrders, fetchAllOrders } = useOrder();
-
-  // 页面级本地 loading 状态
   const [loading, setLoading] = useState(true);
+  const cardBg = useColorModeValue('white', 'gray.700');
 
   useEffect(() => {
-    // 并发请求两个接口，都结束再 setLoading(false)
     const fetchData = async () => {
       try {
         await Promise.all([fetchAllUsers(), fetchAllOrders()]);
@@ -23,11 +33,8 @@ const AdminHome = () => {
       }
     };
     fetchData();
-    // 只在挂载时执行
-    // eslint-disable-next-line
-  }, []);
+  }, [fetchAllUsers, fetchAllOrders]);
 
-  // 防御性判断，确保 allUsers 和 allOrders 始终是数组
   const totalUsers = Array.isArray(allUsers) ? allUsers.length : 0;
   const totalOrders = Array.isArray(allOrders) ? allOrders.length : 0;
   const pendingOrders = Array.isArray(allOrders)
@@ -36,29 +43,64 @@ const AdminHome = () => {
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: '2rem' }}>
-        数据加载中...
-      </div>
+      <Box display="flex" justifyContent="center" py={12}>
+        <Spinner size="xl" />
+      </Box>
     );
   }
 
   return (
-    <div>
-      <h2>仪表板 / 数据概览</h2>
-      <div style={{ marginTop: '1rem' }}>
-        <p>注册用户总数：<strong>{totalUsers}</strong></p>
-        <p>订单总数：<strong>{totalOrders}</strong></p>
-        <p>待发货订单数：<strong>{pendingOrders}</strong></p>
-      </div>
-      <div style={{ marginTop: '2rem' }}>
-        <p>快速链接：</p>
-        <ul>
-          <li><Link to="/admin/users">查看所有用户</Link></li>
-          <li><Link to="/admin/products">查看所有商品</Link></li>
-          <li><Link to="/admin/orders">查看所有订单</Link></li>
-        </ul>
-      </div>
-    </div>
+    <Box>
+      <Heading as="h2" size="xl" mb={8}>
+        仪表板 / 数据概览
+      </Heading>
+
+      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6} mb={10}>
+        <Stat bg={cardBg} p={6} borderRadius="lg" boxShadow="md">
+          <StatLabel display="flex" alignItems="center">
+            <FiUsers style={{ marginRight: '8px' }} />
+            注册用户总数
+          </StatLabel>
+          <StatNumber>{totalUsers}</StatNumber>
+          <StatHelpText>所有注册用户数量</StatHelpText>
+        </Stat>
+
+        <Stat bg={cardBg} p={6} borderRadius="lg" boxShadow="md">
+          <StatLabel display="flex" alignItems="center">
+            <FiShoppingBag style={{ marginRight: '8px' }} />
+            订单总数
+          </StatLabel>
+          <StatNumber>{totalOrders}</StatNumber>
+          <StatHelpText>历史订单总数</StatHelpText>
+        </Stat>
+
+        <Stat bg={cardBg} p={6} borderRadius="lg" boxShadow="md">
+          <StatLabel display="flex" alignItems="center">
+            <FiTruck style={{ marginRight: '8px' }} />
+            待发货订单
+          </StatLabel>
+          <StatNumber color="orange.500">{pendingOrders}</StatNumber>
+          <StatHelpText>需要处理的订单</StatHelpText>
+        </Stat>
+      </SimpleGrid>
+
+      <Box bg={cardBg} p={6} borderRadius="lg" boxShadow="md">
+        <Heading size="md" mb={4}>
+          快速链接
+        </Heading>
+        <Stack spacing={3}>
+          <ChakraLink as={Link} to="/admin/users" color="blue.500">
+            查看所有用户
+          </ChakraLink>
+          <ChakraLink as={Link} to="/admin/products" color="blue.500">
+            查看所有商品
+          </ChakraLink>
+          <ChakraLink as={Link} to="/admin/orders" color="blue.500">
+            查看所有订单
+          </ChakraLink>
+        </Stack>
+      </Box>
+    </Box>
   );
 };
 
